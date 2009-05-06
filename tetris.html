@@ -1,0 +1,39 @@
+<html>
+
+<head>
+	<title>JS TETRIS</title>
+	<link rel="stylesheet" type="text/css" media="screen" href="tetris.css" />
+	<script type="text/javascript" src="tetris.js"></script>
+</head>
+
+<body onkeypress="game.processInput(event)">
+
+	<script type="text/javascript">
+	/* JAVASCRIPT */
+	var game = new Tetris();
+	</script>
+
+	<canvas id="game" height="600" width="400"></canvas>
+
+	<div id="moveButtons">
+		
+		<button onclick="game.move(1)">&lt;</button>
+		<button onclick="game.move(2)">&gt;</button>
+
+	</div>
+
+	<div id="downButton">
+
+		<button onclick="game.move(3)">Descend</button>
+		<button onclick="game.rotate()">Rotate</button>
+
+	</div>
+
+	<button onclick="game.init()">New Game</button>
+	<button onclick="game.drawBoard()">Draw</button>
+	<button onclick="game.gameStart(game)">Start</button>
+	<button onclick="game.togglePause()">Pause/Unpause</button>
+
+</body>
+
+</html>
