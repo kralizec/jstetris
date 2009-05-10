@@ -305,7 +305,7 @@ function GameMatrix(){
 	
 			point = this.active_piece[x];
 
-			point[1]--;
+			point[1]++;
 
 		}
 
