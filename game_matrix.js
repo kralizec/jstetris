@@ -301,18 +301,77 @@ function GameMatrix(){
 	this.move_down = move_down;
 	function move_down(){
 
+		temp_piece = [];
+
 		for(x = 0; x < this.active_piece.length; x++){
-	
 			point = this.active_piece[x];
+			temp_piece[x] = [ point[0], point[1] + 1];
+		}
 
-			point[1]++;
-
+		if(this.can_move(temp_piece)){
+			this.active_piece = temp_piece;
+		} else {
+			Log.log('Cannot Move down!');
 		}
 
 
 	};
 
+	/* Move left or right. (-) for left.
+	 */
+	this.move_horiz = move_horiz;
+	function move_horiz(amount){
+		
+		temp_piece = [];
 
+		for(x = 0; x < this.active_piece.length; x++){
+			point = this.active_piece[x];
+			temp_piece[x] = [ point[0] + amount, point[1]];
+		}
+		
+		if(this.can_move(temp_piece)){
+			this.active_piece = temp_piece;
+		} else {
+			Log.log('Cannot Move!');
+		}	
+
+	}
+
+	/* Detect anchoring conditions. Returns false if piece must be anchored.
+	 */
+	this.can_move = can_move;
+	function can_move(piece){
+
+		valid = true;
+
+		for(x = 0; x < piece.length; x++){
+			point = piece[x];
+			
+			// Set valid equal to false if the space is occupied.
+			if(this.matrix[point[1]][point[0]] > 0){
+				valid = false;
+				break;
+			}
+
+		}
+		
+		return valid;
+	};
+
+	/* Detect rotation conditions. Returns false if piece cannot rotate.
+	 */
+	this.can_rotate = can_rotate;
+	function can_rotate(){
+
+	};
+
+	/* Anchors the current piece to the board.
+	 */
+	this.anchor = anchor;
+	function anchor(){
+
+
+	};
 
 	this.random_matrix = random_matrix;
 	function random_matrix(){

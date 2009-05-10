@@ -1,0 +1,12 @@
+#debug_container
+{
+	/*float: right;*/
+	margin: 5px;
+	/*background-color: black;*/
+}
+
+#test_canvas
+{
+	float: left;
+	margin: 5px;
+}
