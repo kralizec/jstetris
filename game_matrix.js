@@ -312,6 +312,7 @@ function GameMatrix(){
 			this.active_piece = temp_piece;
 		} else {
 			Log.log('Cannot Move down!');
+			this.anchor();
 		}
 
 
@@ -332,7 +333,7 @@ function GameMatrix(){
 		if(this.can_move(temp_piece)){
 			this.active_piece = temp_piece;
 		} else {
-			Log.log('Cannot Move!');
+			Log.log('Cannot Move!');	
 		}	
 
 	}
@@ -347,6 +348,16 @@ function GameMatrix(){
 		for(x = 0; x < piece.length; x++){
 			point = piece[x];
 			
+			// Ensure that the points are on the board.
+			if((point[0] > this.width) || (point[0] < 0)){
+				valid = false;
+				break;
+			}
+			if((point[1] > this.height) || (point[1] < 0)){
+				valid = false;
+				break;
+			}
+
 			// Set valid equal to false if the space is occupied.
 			if(this.matrix[point[1]][point[0]] > 0){
 				valid = false;
@@ -370,6 +381,11 @@ function GameMatrix(){
 	this.anchor = anchor;
 	function anchor(){
 
+		// Anchor the currenct piece to the board.
+		for(x = 0; x < this.active_piece.length; x++){
+			point = this.active_piece[x];
+			this.matrix[point[1],point[0]] = this.active_type;
+		}
 
 	};
 
