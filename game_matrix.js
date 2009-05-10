@@ -404,9 +404,17 @@ function GameMatrix(){
 
 
 	this.kb_input = kb_input;
-	function kb_input(){
+	function kb_input(e){
 
-		Log.log('key pressed!');
+		Log.log('key pressed!' + e.keyCode);
+
+		switch(e.keyCode){
+
+			case 37: this.move_horiz(-1); break;
+			case 39: this.move_horiz(1); break;
+			case 40: this.move_down(); break;
+
+		};
 
 	};
 	
