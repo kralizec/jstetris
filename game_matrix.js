@@ -369,6 +369,37 @@ function GameMatrix(){
 		return valid;
 	};
 
+
+	/* Start the game!
+	 */
+	this.start = start;
+	function start(){
+
+
+	};
+
+	/* Iterate.
+	 */
+	this.iterate = iterate;
+	function iterate(){
+
+		// Create a new piece if this is the beginning, or if anchoring ocurred.
+		// Also, scan for lines.
+		if(this.anchored){
+			this.scan_lines();
+			this.set_piece();
+			this.anchored = false;
+		}
+
+		// Process user input. Rotation and Horizontal movement.
+		// ...or move down.
+		
+		
+
+	};
+
+	
+
 	/* Detect rotation conditions. Returns false if piece cannot rotate.
 	 */
 	this.can_rotate = can_rotate;
