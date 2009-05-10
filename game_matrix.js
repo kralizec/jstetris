@@ -194,7 +194,8 @@ function GameMatrix(){
 
 		// TODO: Create a piece buffer!
 		// Create a random piece.
-		piece = this.create_piece(5);
+		//piece = this.create_piece(5);
+		piece = this.create_piece(Math.floor(Math.random()*7)+1);
 
 		//this.active_type = 5;
 		//this.active_rindex = 2;
@@ -349,11 +350,11 @@ function GameMatrix(){
 			point = piece[x];
 			
 			// Ensure that the points are on the board.
-			if((point[0] > this.width) || (point[0] < 0)){
+			if((point[0] >= this.width) || (point[0] < 0)){
 				valid = false;
 				break;
 			}
-			if((point[1] > this.height) || (point[1] < 0)){
+			else if((point[1] >= this.height) || (point[1] < 0)){
 				valid = false;
 				break;
 			}
@@ -391,13 +392,23 @@ function GameMatrix(){
 			this.anchored = false;
 		}
 
+		// Redraw
+		this.draw_matrix();
+		this.draw_piece();
+
 		// Process user input. Rotation and Horizontal movement.
 		// ...or move down.
-		
-		
+		this.move_down();
 
 	};
 
+
+	this.kb_input = kb_input;
+	function kb_input(){
+
+		Log.log('key pressed!');
+
+	};
 	
 
 	/* Detect rotation conditions. Returns false if piece cannot rotate.
@@ -417,6 +428,8 @@ function GameMatrix(){
 			point = this.active_piece[x];
 			this.matrix[point[1],point[0]] = this.active_type;
 		}
+
+		this.anchored = true;
 
 	};
 

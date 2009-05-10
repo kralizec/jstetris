@@ -43,6 +43,13 @@
 				matrix.draw_piece();
 				//matrix.scan_lines();
 
+				document.onkeydown = matrix.kb_input;
+
+				// Set the iteration in motion
+				interval = setInterval(function(){
+					matrix.iterate();
+				}, 2000);
+
 			});
 
 		</script>
