@@ -219,7 +219,7 @@ function GameMatrix(){
 				block = line[x];
 				//Log.log('bleh');
 				if(block != 0){
-					Log.log('bleh: ' + (startx + col) + " " + row);
+					//Log.log('bleh: ' + (startx + col) + " " + row);
 					this.active_piece.push([startx + col, row]);
 				}
 
@@ -285,7 +285,8 @@ function GameMatrix(){
 				pixel = this.matrix[y][x];
 
 				//if((pixel != null) && (pixel <= 0)){
-				if(pixel <= 0){
+				//Log.log('Pixel: ' + pixel);
+				if(pixel == null || pixel <= 0){
 					line_status = false;
 				}
 			}
@@ -313,7 +314,16 @@ function GameMatrix(){
 			this.active_piece = temp_piece;
 		} else {
 			Log.log('Cannot Move down!');
-			this.anchor();
+			//this.anchor();
+			// Anchor the currenct piece to the board.
+			for(x = 0; x < this.active_piece.length; x++){
+				point = this.active_piece[x];
+				this.matrix[point[1]][point[0]] = this.active_type;
+				//Log.log('Point (' + point[0] + ',' + point[1] + ') Type: ' + this.active_type);
+			} 
+
+			this.anchored = true;
+
 		}
 
 
@@ -434,8 +444,9 @@ function GameMatrix(){
 		// Anchor the currenct piece to the board.
 		for(x = 0; x < this.active_piece.length; x++){
 			point = this.active_piece[x];
-			this.matrix[point[1],point[0]] = this.active_type;
-		}
+			this.matrix[point[1]][point[0]] = this.active_type;
+			Log.log('Point (' + point[0] + ',' + point[1] + ') Type: ' + this.active_type);
+		} 
 
 		this.anchored = true;
 
