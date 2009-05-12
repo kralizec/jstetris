@@ -43,7 +43,23 @@
 				matrix.draw_piece();
 				//matrix.scan_lines();
 
-				document.onkeydown = matrix.kb_input;
+				//document.onkeydown = matrix.kb_input;
+				document.onkeydown = function(e){
+
+					Log.log('key pressed!' + e.keyCode);
+
+					switch(e.keyCode){
+						case 37: matrix.move_horiz(-1); break;
+						case 38: matrix.rotate(); break;
+						case 39: matrix.move_horiz(1); break;
+						case 40: matrix.move_down(); break;
+	
+					};
+
+				};
+
+				
+		
 
 				// Set the iteration in motion
 				interval = setInterval(function(){

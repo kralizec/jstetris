@@ -436,6 +436,14 @@ function GameMatrix(){
 
 	};
 
+	/* Rotates the current piece.
+	 */
+	this.rotate = rotate;
+	function rotate(){
+
+
+	};
+
 	/* Anchors the current piece to the board.
 	 */
 	this.anchor = anchor;
