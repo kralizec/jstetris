@@ -75,6 +75,41 @@ function GameMatrix(){
 	}
 
 
+
+	/*********************************************************************
+	 * Game Control Logic
+	 *********************************************************************/
+
+	this.initiate_controls = function(){
+
+		document.onkeydown = function(e){
+
+			Log.log('key pressed!' + e.keyCode);
+
+			switch(e.keyCode){
+				case 80: self.toggle_pause(); break;
+			};
+
+		};
+
+				
+		//document.keypress
+		document.onkeypress = function(e){
+
+			Log.log('key pressed!' + e.keyCode);
+
+			switch(e.keyCode){
+				case 37: self.move_horiz(-1); break;
+				case 38: self.rotate(); break;
+				case 39: self.move_horiz(1); break;
+				case 40: self.move_down(); break;
+			};
+
+		};
+
+	}
+
+
 	/*********************************************************************
 	 * Rendering Logic
 	 *********************************************************************/
