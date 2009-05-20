@@ -61,7 +61,7 @@ function GameMatrix(){
 		pattern = null;
 
 		switch(type){
-			case 1: pattern = [[0,0],[1,0],[1,0],[1,1]]; break;
+			case 1: pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
 			case 2: pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
 			case 3: pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
 			case 4: pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
