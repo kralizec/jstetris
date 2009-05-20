@@ -167,21 +167,23 @@ function GameMatrix(){
 		
 		// Create the piece pattern.
 		pattern = null;
-		
+	
+		axial = 2;
+	
 		switch(type){
-			case 1: pattern = [[1,1],[1,1]];  break;
-			case 2: pattern = [[2,0],[2,2],[2,0]]; break;
-			case 3: pattern = [[3],[3],[3],[3]]; break;
-			case 4: pattern = [[4,4],[4,0],[4,0]]; break;
-			case 5: pattern = [[5,0],[5,0],[5,5]]; break;
-			case 6: pattern = [[6,0],[6,6],[0,6]]; break;
-			case 7: pattern = [[0,7],[7,7],[7,0]]; break;
+			case 1: axial = 2; pattern = [[1,1],[1,1]];  break;
+			case 2: axial = 2; pattern = [[2,0],[2,2],[2,0]]; break;
+			case 3: axial = 2; pattern = [[3],[3],[3],[3]]; break;
+			case 4: axial = 2; pattern = [[4,4],[4,0],[4,0]]; break;
+			case 5: axial = 2; pattern = [[5,0],[5,0],[5,5]]; break;
+			case 6: axial = 2; pattern = [[6,0],[6,6],[0,6]]; break;
+			case 7: axial = 2; pattern = [[0,7],[7,7],[7,0]]; break;
 		};
 
 		// Set the active type and rotational index.
 		// TODO: Refactor!
 		this.active_type = type;
-		this.active_rinded = 2;
+		this.active_rindex = axial;
 
 		return pattern;
 
@@ -469,7 +471,7 @@ function GameMatrix(){
 		
 		// Determine axial point (does tetris have a rule for this?)
 		// TODO: Pick the real value, not 2!
-		axial = 2;
+		axial = this.active_rindex;
 
 		r_x = piece[axial][0];
 		r_y = piece[axial][1];
