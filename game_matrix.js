@@ -324,7 +324,6 @@ function GameMatrix(){
 			for(x = 0; x < this.active_piece.length; x++){
 				point = this.active_piece[x];
 				this.matrix[point[1]][point[0]] = this.active_type;
-				//Log.log('Point (' + point[0] + ',' + point[1] + ') Type: ' + this.active_type);
 			} 
 
 			this.anchored = true;
@@ -459,10 +458,53 @@ function GameMatrix(){
 
 	};
 
-	/* Rotates the current piece.
-	 */
 	this.rotate = rotate;
 	function rotate(){
+
+		piece = this.active_piece;
+		new_piece = [];
+
+		// Calculate block center
+		r_x = 0;
+		r_y = 0;
+		for( x = 0; x < 4; x++ ){
+			r_x += piece[x][0];
+			r_y += piece[x][1];
+		}
+		r_x = Math.floor(r_x / 4);
+		r_y = Math.floor(r_y / 4);
+
+		Log.log('RX: ' + r_x + ' RY: ' + r_y);
+
+		// ... TRANSFORM!!!
+		for( x = 0; x < 4; x++ ){
+
+			x1 = piece[x][0];
+			y1 = piece[x][1];
+			
+			t_x = y1 + r_x - r_y;
+			t_y = r_x + r_y - x1;
+
+			new_piece[x] = [t_x,t_y];
+
+		}
+
+		// Calculate transform validity
+		if( this.can_move(new_piece) ){
+			this.active_piece = new_piece;
+		} else {
+			Log.log("Cannot rotate!");
+		}
+
+
+
+	};
+
+
+	/* Rotates the current piece.
+	 */
+	this.rotate2 = rotate2;
+	function rotate2(){
 
 		piece = this.active_piece;
 		new_piece = [];
@@ -479,13 +521,9 @@ function GameMatrix(){
 		// ... TRANSFORM!!!
 		for( x = 0; x < 4; x++ ){
 
-			try{
-				t_x = piece[x][0];
-				t_y = piece[x][1];
-			} catch (err){
-				Log.log('ERROR: piece was nullzor!');
-				// Do Nothing
-			}
+			t_x = piece[x][0];
+			t_y = piece[x][1];
+			
 			d_x = t_x - r_x;
 			d_y = t_y - r_y;
 
