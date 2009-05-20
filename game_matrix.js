@@ -131,7 +131,7 @@ function GameMatrix(){
 
 		document.onkeydown = function(e){
 
-			Log.log('key pressed!' + e.keyCode);
+			//Log.log('key pressed!' + e.keyCode);
 
 			switch(e.keyCode){
 				case 80: self.toggle_pause(); break;
@@ -142,7 +142,7 @@ function GameMatrix(){
 				
 		document.onkeypress = function(e){
 
-			Log.log('key pressed!' + e.keyCode);
+			//Log.log('key pressed!' + e.keyCode);
 
 			switch(e.keyCode){
 				case 37: self.move_horiz(-1); break;
@@ -194,7 +194,7 @@ function GameMatrix(){
 	/** Update the game status display.
 	 */
 	this.update_status = function(){
-		Log.log('Updating status...');
+		//Log.log('Updating status...');
 
 		this.score_display.innerHTML = this.score;
 		this.lines_display.innerHTML = this.lines;
@@ -206,7 +206,7 @@ function GameMatrix(){
 	 * Clear the game canvas.
 	 */
 	this.clear_canvas = function(){
-		Log.log('Clearing the canvas');
+		//Log.log('Clearing the canvas');
 		this.ctx.fillStyle = 'rgb(0,0,0)';
 		this.ctx.fillRect(0,0,this.canvas_width,this.canvas_height);
 	}
@@ -217,7 +217,7 @@ function GameMatrix(){
 	 */
 	this.render_preview = function(){
 		
-		Log.log('Rendering preview FIXME');
+		//Log.log('Rendering preview FIXME');
 
 		// Create preview matrix:
 		preview_matrix = [6];
@@ -260,7 +260,7 @@ function GameMatrix(){
 	this.init = function(width, height) {
 	
 		// Debug
-		Log.log('Creating game matrix');
+		//Log.log('Creating game matrix');
 
 		// Set class vars
 		this.width = width;
@@ -318,10 +318,9 @@ function GameMatrix(){
 	};
 
 
-	this.draw_matrix = draw_matrix;
-	function draw_matrix(){
+	this.draw_matrix = function(){
 
-		Log.log('Drawing the matrix...');
+		//Log.log('Drawing the matrix...');
 
 		// Current row/col
 		row = 0;
@@ -389,7 +388,7 @@ function GameMatrix(){
 	function set_piece(){
 
 		// DEBUG
-		Log.log('Creating a game piece!');
+		//Log.log('Creating a game piece!');
 
 		// Create a random piece.
 		// FIXME: Using Math.round/floor/etc and others will result in
@@ -438,7 +437,7 @@ function GameMatrix(){
 			// Draw the pixel
 			px = point[0] * this.pixel_width;
 			py = point[1] * this.pixel_height;
-			//Log.log('Drawing: (' + px + ',' + py + ')');
+			////Log.log('Drawing: (' + px + ',' + py + ')');
 			this.ctx.fillRect(px, py, this.pixel_width, this.pixel_height);
 
 		}
@@ -465,7 +464,7 @@ function GameMatrix(){
 			// Draw the pixel
 			px = point[0] * this.pixel_width;
 			py = point[1] * this.pixel_height;
-			//Log.log('Drawing: (' + px + ',' + py + ')');
+			////Log.log('Drawing: (' + px + ',' + py + ')');
 			this.ctx.fillRect(px, py, this.pixel_width, this.pixel_height);
 
 		}
@@ -540,7 +539,7 @@ function GameMatrix(){
 			self.piece_stack[0][2] = temp_piece;
 			this.draw_piece();
 		} else {
-			Log.log('Cannot Move down!');
+			//Log.log('Cannot Move down!');
 			// Anchor the currenct piece to the board.
 			for(x = 0; x < piece.length; x++){
 				point = piece[x];
@@ -574,7 +573,7 @@ function GameMatrix(){
 			self.piece_stack[0][2] = temp_piece;
 			this.draw_piece();
 		} else {
-			Log.log('Cannot Move!');	
+			//Log.log('Cannot Move!');	
 		}	
 
 	}
@@ -620,6 +619,9 @@ function GameMatrix(){
 		// Also, scan for lines.
 		if(this.anchored){
 
+			// Redraw Matrix
+			self.draw_matrix();
+
 			// Remove the old piece.
 			self.piece_stack.shift();
 
@@ -631,7 +633,7 @@ function GameMatrix(){
 			this.set_piece();
 
 			if(!this.can_move(self.piece_stack[0][2])){
-				Log.log('GAME_OVER');
+				//Log.log('GAME_OVER');
 				clearInterval(this.interval_id);
 				this.init();
 				this.clear_canvas();
@@ -645,8 +647,8 @@ function GameMatrix(){
 		}
 
 		// Redraw
-		this.draw_matrix();
-		this.draw_piece();
+		//this.draw_matrix();
+		//this.draw_piece();
 
 		// Process user input. Rotation and Horizontal movement.
 		// ...or move down.
@@ -678,7 +680,7 @@ function GameMatrix(){
 		r_x = Math.floor(r_x / 4);
 		r_y = Math.floor(r_y / 4);
 
-		Log.log('RX: ' + r_x + ' RY: ' + r_y);
+		//Log.log('RX: ' + r_x + ' RY: ' + r_y);
 
 		// ... TRANSFORM!!!
 		for( x = 0; x < 4; x++ ){
@@ -699,7 +701,7 @@ function GameMatrix(){
 			self.piece_stack[0][2] = new_piece;
 			this.draw_piece();
 		} else {
-			Log.log("Cannot rotate!");
+			//Log.log("Cannot rotate!");
 		}
 
 
