@@ -15,25 +15,9 @@ function GameMatrix(){
 
 	/* self reference */
 	self = this;
-
-	/* Methods */
-	this.init = init;
-	this.set_canvas = set_canvas;
-	this.dump = dump;
-	this.iterate = iterate;
-
-	/* Private Methods */
-
-	/* Vars */
-
-	/* Matrix */
-	this.matrix = null;
-
-	/* Active tetromino */
+	
+	/* Active tetromino stack */
 	this.piece_stack = [];
-	this.active_piece = null;
-	this.active_type = -1;
-	this.active_rinded = -1;
 
 
 
@@ -60,13 +44,13 @@ function GameMatrix(){
 		color = null;
 
 		switch(type){
-			case 1: color = 'blue'; pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
-			case 2: color = 'brown'; pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
-			case 3: color = 'red'; pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
-			case 4: color = 'white'; pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
+			case 1: color = 'blue';    pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
+			case 2: color = 'brown';   pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
+			case 3: color = 'red';     pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
+			case 4: color = 'white';   pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
 			case 5: color = 'magenta'; pattern = [[0,0],[0,1],[0,2],[1,2]]; break;
-			case 6: color = 'green'; pattern = [[0,0],[0,1],[1,1],[1,2]]; break;
-			case 7: color = 'cyan'; pattern = [[1,0],[0,1],[1,1],[0,2]]; break;
+			case 6: color = 'green';   pattern = [[0,0],[0,1],[1,1],[1,2]]; break;
+			case 7: color = 'cyan';    pattern = [[1,0],[0,1],[1,1],[0,2]]; break;
 		};
 
 		// Return an array containing the piece type and the pattern.
@@ -192,7 +176,7 @@ function GameMatrix(){
 	//////////////////////////////////////////////////////////////////////
 
 	/* Initialize the matrix. */
-	function init(width, height) {
+	this.init = function(width, height) {
 	
 		// Debug
 		Log.log('Creating game matrix');
@@ -219,7 +203,7 @@ function GameMatrix(){
 
 	/* Associate a canvas element with this object.
 	 */
-	function set_canvas(canvas_id) {
+	this.set_canvas = function(canvas_id) {
 
 		this.canvas = document.getElementById(canvas_id);
 		this.ctx = this.canvas.getContext('2d');
@@ -233,12 +217,11 @@ function GameMatrix(){
 		// Clear the main canvas
 		self.clear_canvas();
 
-	};
+	}
 
 	/* Associate a preview canvas
 	 */
-	this.set_preview_canvas = set_preview_canvas;
-	function set_preview_canvas(canvas_id){
+	this.set_preview_canvas = function(canvas_id){
 
 		this.preview = document.getElementById(canvas_id);
 		this.pre_ctx = this.preview.getContext('2d');
