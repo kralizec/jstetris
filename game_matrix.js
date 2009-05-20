@@ -460,9 +460,13 @@ function GameMatrix(){
 		// ... TRANSFORM!!!
 		for( x = 0; x < 4; x++ ){
 
-			t_x = piece[x][0];
-			t_y = piece[x][1];
-
+			try{
+				t_x = piece[x][0];
+				t_y = piece[x][1];
+			} catch (err){
+				Log.log('ERROR: piece was nullzor!');
+				// Do Nothing
+			}
 			d_x = t_x - r_x;
 			d_y = t_y - r_y;
 
