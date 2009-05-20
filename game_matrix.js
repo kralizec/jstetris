@@ -108,6 +108,30 @@ function GameMatrix(){
 
 	}
 
+	/* Start the game!
+	 */
+	this.start = function(){
+
+		// Initialize the iteration timer.
+		self.interval_id = setInterval( function(){
+			self.iterate();
+		}, 500);
+
+	};
+
+	/* Toggle the pause state.
+	 */
+	this.toggle_pause = function(){
+
+		if(self.interval_id){
+			clearInterval(self.interval_id);
+			self.interval_id = null;
+		} else {
+			self.start();
+		}
+
+	}
+
 
 	/*********************************************************************
 	 * Rendering Logic
@@ -487,33 +511,7 @@ function GameMatrix(){
 		return valid;
 	};
 
-
-	/* Start the game!
-	 */
-	this.start = start;
-	function start(){
-
-		// Initialize the iteration timer.
-		self.interval_id = setInterval( function(){
-			self.iterate();
-		}, 500);
-
-	};
-
-	/* Toggle the pause state.
-	 */
-	this.toggle_pause = toggle_pause;
-	function toggle_pause(){
-
-		if(self.interval_id){
-			clearInterval(self.interval_id);
-			self.interval_id = null;
-		} else {
-			self.start();
-		}
-
-	};
-
+	
 	/* Iterate.
 	 */
 	this.iterate = iterate;
