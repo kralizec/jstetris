@@ -3,7 +3,7 @@
 function GameMatrix(){
 
 
-	/* Self reference */
+	/* self reference */
 	self = this;
 
 	/* Methods */
@@ -127,38 +127,6 @@ function GameMatrix(){
 			col = 1;
 			row++;
 		}
-		
-		// Draw the active piece.
-		/*
-		for(x = 0; x < this.active_piece.length; x++){
-
-			point = this.active_piece[x];
-
-			// TODO:  Refactor this out! We can set the color when the piece is created!
-			color = 'black'
-			switch(this.active_type){
-				case null: break;
-				case 0: break;
-				case 1: color = "blue"; break;
-				case 2: color = "brown"; break;
-				case 3: color = "red"; break;
-				case 4: color = "white"; break;
-				case 5: color = "magenta"; break;
-				case 6: color = "green"; break;
-				case 7: color = "cyan"; break;
-			};
-
-			this.ctx.fillStyle = color;
-
-			// Draw the pixel
-			px = point[0] * this.pixel_width;
-			py = point[1] * this.pixel_height;
-			//Log.log('Drawing: (' + px + ',' + py + ')');
-			this.ctx.fillRect(px, py, this.pixel_width, this.pixel_height);
-			
-
-		}
-		*/
 
 	};
 
