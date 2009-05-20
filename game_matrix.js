@@ -387,8 +387,25 @@ function GameMatrix(){
 	/* Start the game!
 	 */
 	this.start = start;
-	function start(){
+	function start(ref){
 
+		ref.interval_id = setInterval( function(){
+			ref.iterate();
+		}, 500);
+
+	};
+
+	/* Toggle the pause state.
+	 */
+	this.toggle_pause = toggle_pause;
+	function toggle_pause(ref){
+
+		if(ref.interval_id){
+			clearInterval(ref.interval_id);
+			ref.interval_id = null;
+		} else {
+			ref.start(ref);
+		}
 
 	};
 
