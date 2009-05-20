@@ -501,50 +501,6 @@ function GameMatrix(){
 	};
 
 
-	/* Rotates the current piece.
-	 */
-	this.rotate2 = rotate2;
-	function rotate2(){
-
-		piece = this.active_piece;
-		new_piece = [];
-
-		// matrix-transform
-		
-		// Determine axial point (does tetris have a rule for this?)
-		// TODO: Pick the real value, not 2!
-		axial = this.active_rindex;
-
-		r_x = piece[axial][0];
-		r_y = piece[axial][1];
-
-		// ... TRANSFORM!!!
-		for( x = 0; x < 4; x++ ){
-
-			t_x = piece[x][0];
-			t_y = piece[x][1];
-			
-			d_x = t_x - r_x;
-			d_y = t_y - r_y;
-
-			t_x = t_x - (d_x + d_y);
-			t_y = t_y - (d_x + d_y);
-
-			//new_piece[x][0] = t_x;
-			//new_piece[x][1] = t_y;
-			new_piece[x] = [t_x,t_y];
-
-		}
-		
-		
-
-		// Calculate transform validity
-		if( this.can_move(new_piece) ){
-			this.active_piece = new_piece;
-		} else {
-			Log.log("Cannot rotate!");
-		}
-	};
 
 	/* Anchors the current piece to the board.
 	 */
