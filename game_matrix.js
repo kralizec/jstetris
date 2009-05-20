@@ -3,7 +3,8 @@
  *   ... In Soviet Russia, Tetris plays YOU!
  *
  * Author: Jason Lawrence (2009)
- $ Email: jason.lawrence@kralizec.org
+ * Email: jason.lawrence@kralizec.org
+ *
  *****************************************************************************/
 function GameMatrix(){
 
@@ -109,9 +110,10 @@ function GameMatrix(){
 
 		// Render the piece
 		// Create the piece pattern.
-		piece = self.create_piece(self.piece_stack[0][0]);
+		piece = self.create_piece(self.piece_stack[1][0]);
 		pattern = piece[1];
 
+		// TODO: Calculate center and draw scaled piece image!
 
 		this.pre_ctx.fillStyle = 'white';
 
@@ -151,6 +153,10 @@ function GameMatrix(){
 		for(y = 0; y < height; y++){
 			this.matrix[y] = new Array(width);
 		}
+
+		// Generate some pieces for the queue.
+		self.set_piece();
+				
 
 	};
 
@@ -265,17 +271,14 @@ function GameMatrix(){
 		// DEBUG
 		Log.log('Creating a game piece!');
 
-		// TODO: Create a piece buffer!
 		// Create a random piece.
-		//piece = this.create_piece(5);
 		piece_obj = self.create_piece(Math.floor(Math.random()*7) + 1);
-		self.piece_stack.unshift(piece_obj);
+		//self.piece_stack.unshift(piece_obj);
+		self.piece_stack.push(piece_obj);
 
 		type = piece_obj[0];
 		piece = piece_obj[1];
 
-		// TODO: TEST
-		this.render_preview();
 
 		// Adjust the piece position. (using start coordinates)
 		// TODO: Start coordinates?
@@ -483,6 +486,10 @@ function GameMatrix(){
 		// Create a new piece if this is the beginning, or if anchoring ocurred.
 		// Also, scan for lines.
 		if(this.anchored){
+
+			// Remove the old piece.
+			self.piece_stack.shift();
+
 			this.scan_lines();
 			this.set_piece();
 
@@ -493,6 +500,9 @@ function GameMatrix(){
 				this.clear_canvas();
 				return;
 			}
+
+			// TODO: Render here?
+			this.render_preview();
 
 			this.anchored = false;
 		}
@@ -580,9 +590,10 @@ function GameMatrix(){
 
 	/* Anchors the current piece to the board.
 	 */
-	this.anchor = anchor;
+	/*this.anchor = anchor;
 	function anchor(){
 
+		Log.log('Anchor?');
 
 		type = self.piece_stack[0][0];
 		piece = self.piece_stack[0][1];
@@ -596,7 +607,7 @@ function GameMatrix(){
 
 		this.anchored = true;
 
-	};
+	};*/
 
 	this.random_matrix = random_matrix;
 	function random_matrix(){
