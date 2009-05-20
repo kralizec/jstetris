@@ -18,6 +18,9 @@
 				matrix.init(12,18);
 				matrix.set_canvas('test_canvas');
 				matrix.set_preview_canvas('preview_canvas');
+
+				// Initialize the status display
+				matrix.create_status_display('status_display');
 				
 				matrix.initiate_controls();
 
@@ -33,6 +36,7 @@
 		<canvas id="test_canvas" height="420px" width="288px"></canvas>
 		<div id="right_pane">
 			<canvas id="preview_canvas" height="100px" width="100px"></canvas>
+			<div id='status_display'></div>
 		</div>
 		<div id="debug_container"></div>
 	</body>

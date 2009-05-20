@@ -4,6 +4,7 @@
  *
  * Author: Jason Lawrence (2009)
  * Email: jason.lawrence@kralizec.org
+ * License: You should all know about GPLv3 by now.
  *
  *****************************************************************************/
 function GameMatrix(){
@@ -19,11 +20,62 @@ function GameMatrix(){
 	/* Active tetromino stack */
 	this.piece_stack = [];
 
+	/* Statistics Vars */
+	this.score_display = null;
+	this.level_display = null;
+	this.lines_display = null;
+	this.score = 0;
+	this.lines = 0;
+	this.level = 0;
+	
+	/* Game Constants */
+	this.min_speed = 80;   // 80ms
+	this.base_speed = 700; // 700ms
 
 
 	/*********************************************************************
 	 * Public Methods
 	 *********************************************************************/
+
+
+	/*********************************************************************
+	 * Initialization Logic
+	 *********************************************************************/
+
+	/**
+	 * Creates the status display.
+	 */
+	this.create_status_display = function(display_id){
+
+
+		// Create the display table and append to the display container.
+		display_table = document.createElement('table');
+		display = document.getElementById(display_id);
+		display.appendChild(display_table);
+
+		// Description cells
+		score_row = display_table.insertRow(-1);
+		lines_row = display_table.insertRow(-1);
+		level_row = display_table.insertRow(-1);
+
+		// Create the row cells
+		score_row.insertCell(-1).innerHTML = "Score:";
+		lines_row.insertCell(-1).innerHTML = "Lines:";
+		level_row.insertCell(-1).innerHTML = "Level:";
+
+		// Initialize the value cells.
+		self.score_display = score_row.insertCell(-1);
+		self.lines_display = lines_row.insertCell(-1);
+		self.level_display = level_row.insertCell(-1);
+
+		// Set values
+		self.score_display.innerHTML = this.score;
+		self.lines_display.innerHTML = this.lines;
+		self.level_display.innerHTML = this.level;
+
+		self.score_display
+
+	}
 
 
 
@@ -231,6 +283,9 @@ function GameMatrix(){
 
 		this.pre_pixel_height = this.preview_height / 6;
 		this.pre_pixel_width = this.preview_width / 6;
+
+		// TODO: Render initial preview here?
+		this.render_preview();
 	};
 
 
@@ -308,7 +363,13 @@ function GameMatrix(){
 		Log.log('Creating a game piece!');
 
 		// Create a random piece.
-		piece_obj = self.create_piece(Math.floor(Math.random()*7) + 1);
+		// FIXME: Using Math.round/floor/etc and others will result in
+		// a NON distribution. This is bad, as we want our tetrominos
+		// to be truly (or at least almost) generated at random!
+		rand_type = Math.floor(Math.random() * (7 - 1 + 1)) + 1;
+		piece_obj = self.create_piece(rand_type);
+		//piece_obj = self.create_piece(Math.floor(Math.random()*7) + 1);
+		
 		//self.piece_stack.unshift(piece_obj);
 		self.piece_stack.push(piece_obj);
 
