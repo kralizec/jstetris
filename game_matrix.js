@@ -20,10 +20,7 @@ function GameMatrix(){
 	this.init = init;
 	this.set_canvas = set_canvas;
 	this.dump = dump;
-	this.clear = clear;
-	this.set_rules = set_rules;
 	this.iterate = iterate;
-	this.transpose = transpose;
 
 	/* Private Methods */
 
@@ -192,13 +189,6 @@ function GameMatrix(){
 	};
 
 
-
-	function dump(){}
-	function clear(){}
-	function set_rules(){}
-	function iterate(){}
-	function transpose(){}
-
 	this.draw_matrix = draw_matrix;
 	function draw_matrix(){
 
@@ -209,9 +199,7 @@ function GameMatrix(){
 		col = 0;
 
 		// Render the matrix.
-		//for(line in this.matrix){
 		for(y = 0; y < this.height; y++){
-			//for(pixel in line){
 			for(x = 0; x < this.width; x++){
 
 				pixel = this.matrix[y][x];
@@ -323,6 +311,32 @@ function GameMatrix(){
 
 	}
 
+	/* Clear the current piece (draw over with background color).
+	 */
+	this.clear_piece = clear_piece;
+	function clear_piece(){
+
+		type = self.piece_stack[0][0];
+		color = 'black';
+		piece = self.piece_stack[0][2];
+
+		// Draw the active piece.
+		for(x = 0; x < piece.length; x++){
+
+			point = piece[x];
+
+			this.ctx.fillStyle = color;
+
+			// Draw the pixel
+			px = point[0] * this.pixel_width;
+			py = point[1] * this.pixel_height;
+			//Log.log('Drawing: (' + px + ',' + py + ')');
+			this.ctx.fillRect(px, py, this.pixel_width, this.pixel_height);
+
+		}
+		
+	}
+
 	/* Scan for and remove completed lines from the matrix.
 	 */
 	this.scan_lines = scan_lines;
@@ -334,14 +348,11 @@ function GameMatrix(){
 				
 				pixel = this.matrix[y][x];
 
-				//if((pixel != null) && (pixel <= 0)){
-				//Log.log('Pixel: ' + pixel);
 				if(pixel == null || pixel <= 0){
 					line_status = false;
 				}
 			}
 			if(line_status){
-				//Log.log('removing: ' + y);
 				this.remove_line(y);
 			}
 		}
@@ -364,13 +375,11 @@ function GameMatrix(){
 		}
 
 		if(this.can_move(temp_piece)){
+			this.clear_piece();			
 			self.piece_stack[0][2] = temp_piece;
-			this.clear_canvas();
-			this.draw_matrix();
 			this.draw_piece();
 		} else {
 			Log.log('Cannot Move down!');
-			//this.anchor();
 			// Anchor the currenct piece to the board.
 			for(x = 0; x < piece.length; x++){
 				point = piece[x];
@@ -400,9 +409,8 @@ function GameMatrix(){
 		}
 		
 		if(this.can_move(temp_piece)){
+			this.clear_piece();			
 			self.piece_stack[0][2] = temp_piece;
-			this.clear_canvas();
-			this.draw_matrix();
 			this.draw_piece();
 		} else {
 			Log.log('Cannot Move!');	
@@ -563,9 +571,8 @@ function GameMatrix(){
 
 		// Calculate transform validity
 		if( this.can_move(new_piece) ){
+			this.clear_piece();
 			self.piece_stack[0][2] = new_piece;
-			this.clear_canvas();
-			this.draw_matrix();
 			this.draw_piece();
 		} else {
 			Log.log("Cannot rotate!");
@@ -580,8 +587,7 @@ function GameMatrix(){
 		
 		for(y = 0; y < this.height; y++){
 			for(x = 0; x < this.width; x++){
-				this.matrix[y][x] = Math.floor(Math.random()*8)
-				//this.matrix[y][x] = y;
+				this.matrix[y][x] = Math.floor(Math.random()*8);
 			}
 		}
 
