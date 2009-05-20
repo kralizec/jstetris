@@ -13,22 +13,12 @@
 				
 				var matrix = new GameMatrix();
 
-            // Init matrix with width/height
 				matrix.init(8,12);
 				matrix.set_canvas('test_canvas');
 				matrix.clear_canvas();
 
-				//matrix.random_matrix();
-
 				matrix.draw_matrix();
 
-				//matrix.remove_line(0);
-				//matrix.remove_line(1);
-				//matrix.remove_line(2);
-				//matrix.remove_line(3);
-				//matrix.scan_lines();
-
-				//matrix.draw_matrix();
 
 				matrix.set_piece();
 				//matrix.draw_piece();
@@ -46,7 +36,7 @@
 				//document.onkeydown = matrix.kb_input;
 				document.onkeydown = function(e){
 
-					Log.log('key pressed!' + e.keyCode);
+					//Log.log('key pressed!' + e.keyCode);
 
 					switch(e.keyCode){
 						case 37: matrix.move_horiz(-1); break;
@@ -58,13 +48,11 @@
 
 				};
 
-				
-		
 
 				// Set the iteration in motion
 				interval = setInterval(function(){
 					matrix.iterate();
-				}, 1000);
+				}, 500);
 
 			});
 
