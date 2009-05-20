@@ -44,6 +44,7 @@ function GameMatrix(){
 
 	/**
 	 * Creates the status display.
+	 * TODO: Make this a little saner.
 	 */
 	this.create_status_display = function(display_id){
 
@@ -72,8 +73,6 @@ function GameMatrix(){
 		self.score_display.innerHTML = this.score;
 		self.lines_display.innerHTML = this.lines;
 		self.level_display.innerHTML = this.level;
-
-		self.score_display
 
 	}
 
@@ -172,6 +171,17 @@ function GameMatrix(){
 	/*********************************************************************
 	 * Rendering Logic
 	 *********************************************************************/
+
+	/** Update the game status display.
+	 */
+	this.update_status = function(){
+		Log.log('Updating status...');
+
+		this.score_display.innerHTML = this.score;
+		this.lines_display.innerHTML = this.lines;
+		this.level_display.innerHTML = this.level;
+
+	}
 
 	/**
 	 * Clear the game canvas.
@@ -448,6 +458,11 @@ function GameMatrix(){
 	this.scan_lines = scan_lines;
 	function scan_lines(){
 
+		// Counter for total number of lines removed this pass. This is
+		// related to Tetris scoring.
+		line_count = 0;
+
+		// Actually remove the lines.
 		for(y = 0; y < this.height; y++){
 			line_status = true;
 			for(x = 0; x < this.width; x++){
@@ -460,9 +475,21 @@ function GameMatrix(){
 			}
 			if(line_status){
 				this.remove_line(y);
+				line_count++;
 			}
 		}
 
+		// Process score and line updates
+		// TODO: Advanced scoring for multiple lines.
+		if(line_count > 0){
+			this.score += (line_count * 10);
+			this.lines += line_count;
+
+			// Return true, indicating updates occurred.
+			return true;
+		} else {
+			return false;
+		}
 	};
 
 	/* Sinks the piece. Returns true if successful, false if collision.
@@ -568,7 +595,11 @@ function GameMatrix(){
 			// Remove the old piece.
 			self.piece_stack.shift();
 
-			this.scan_lines();
+			// Scan for lines, and update status if there were any.
+			if(self.scan_lines()){
+				self.update_status();
+			}
+
 			this.set_piece();
 
 			if(!this.can_move(self.piece_stack[0][2])){
