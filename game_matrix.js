@@ -175,7 +175,7 @@ function GameMatrix(){
 			case 4: pattern = [[4,4],[4,0],[4,0]]; break;
 			case 5: pattern = [[5,0],[5,0],[5,5]]; break;
 			case 6: pattern = [[6,0],[6,6],[0,6]]; break;
-			case 7: pattern = [[0,7],[7.7],[7,0]]; break;
+			case 7: pattern = [[0,7],[7,7],[7,0]]; break;
 		};
 
 		// Set the active type and rotational index.
