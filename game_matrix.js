@@ -75,7 +75,7 @@ function GameMatrix(){
 		Log.log('Clearing the canvas');
 
 		this.ctx.fillStyle = 'rgb(0,0,0)';
-		this.ctx.fillRect(0,0,400,600);
+		this.ctx.fillRect(0,0,this.canvas_width,this.canvas_height);
 
 
 	};
@@ -420,6 +420,15 @@ function GameMatrix(){
 		if(this.anchored){
 			this.scan_lines();
 			this.set_piece();
+
+			if(!this.can_move(this.active_piece)){
+				Log.log('GAME_OVER');
+				clearInterval(this.interval_id);
+				this.init();
+				this.clear_canvas();
+				return;
+			}
+
 			this.anchored = false;
 		}
 

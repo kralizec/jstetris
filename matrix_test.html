@@ -23,17 +23,6 @@
 
 
 				matrix.set_piece();
-				//matrix.draw_piece();
-
-				//matrix.clear_canvas();
-				//matrix.move_down();
-				//matrix.move_down();
-				matrix.move_down();
-				matrix.move_down();
-				matrix.move_horiz(-1);
-				matrix.draw_matrix();
-				matrix.draw_piece();
-				//matrix.scan_lines();
 
 				//document.onkeydown = matrix.kb_input;
 				document.onkeydown = function(e){
@@ -46,7 +35,6 @@
 						case 39: matrix.move_horiz(1); break;
 						case 40: matrix.move_down(); break;
 						case 80: matrix.toggle_pause(matrix); break;
-	
 					};
 
 				};
@@ -55,18 +43,13 @@
 				// Start the game
 				matrix.start(matrix);
 
-				// Set the iteration in motion
-				//interval = setInterval(function(){
-				//	matrix.iterate();
-				//}, 500);
-
 			});
 
 		</script>
 
 	</head>
 	<body>
-		<canvas id="test_canvas" height="600px" width="400px"></canvas>
+		<canvas id="test_canvas" height="300px" width="200px"></canvas>
 		<div id="debug_container"></div>
 	</body>
 </html>
