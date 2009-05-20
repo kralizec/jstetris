@@ -60,19 +60,20 @@ function GameMatrix(){
 		
 		// Create the piece pattern.
 		pattern = null;
+		color = null;
 
 		switch(type){
-			case 1: pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
-			case 2: pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
-			case 3: pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
-			case 4: pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
-			case 5: pattern = [[0,0],[0,1],[0,2],[1,2]]; break;
-			case 6: pattern = [[0,0],[0,1],[1,1],[1,2]]; break;
-			case 7: pattern = [[1,0],[0,1],[1,1],[0,2]]; break;
+			case 1: color = 'blue'; pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
+			case 2: color = 'brown'; pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
+			case 3: color = 'red'; pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
+			case 4: color = 'white'; pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
+			case 5: color = 'magenta'; pattern = [[0,0],[0,1],[0,2],[1,2]]; break;
+			case 6: color = 'green'; pattern = [[0,0],[0,1],[1,1],[1,2]]; break;
+			case 7: color = 'cyan'; pattern = [[1,0],[0,1],[1,1],[0,2]]; break;
 		};
 
 		// Return an array containing the piece type and the pattern.
-		return [ type, pattern ];
+		return [ type, color, pattern ];
 
 	}
 
@@ -111,11 +112,11 @@ function GameMatrix(){
 		// Render the piece
 		// Create the piece pattern.
 		piece = self.create_piece(self.piece_stack[1][0]);
-		pattern = piece[1];
+		pattern = piece[2];
 
 		// TODO: Calculate center and draw scaled piece image!
 
-		this.pre_ctx.fillStyle = 'white';
+		this.pre_ctx.fillStyle = piece[1];
 
 		// Draw points
 		for(x = 0; x < pattern.length; x++){
@@ -201,6 +202,8 @@ function GameMatrix(){
 	this.draw_matrix = draw_matrix;
 	function draw_matrix(){
 
+		Log.log('Drawing the matrix...');
+
 		// Current row/col
 		row = 0;
 		col = 0;
@@ -277,7 +280,7 @@ function GameMatrix(){
 		self.piece_stack.push(piece_obj);
 
 		type = piece_obj[0];
-		piece = piece_obj[1];
+		piece = piece_obj[2];
 
 
 		// Adjust the piece position. (using start coordinates)
@@ -299,26 +302,13 @@ function GameMatrix(){
 	function draw_piece(){
 
 		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
+		color = self.piece_stack[0][1];
+		piece = self.piece_stack[0][2];
 
 		// Draw the active piece.
 		for(x = 0; x < piece.length; x++){
 
 			point = piece[x];
-
-			// TODO:  Refactor this out! We can set the color when the piece is created!
-			color = 'black'
-			switch(type){
-				case null: break;
-				case 0: break;
-				case 1: color = "blue"; break;
-				case 2: color = "brown"; break;
-				case 3: color = "red"; break;
-				case 4: color = "white"; break;
-				case 5: color = "magenta"; break;
-				case 6: color = "green"; break;
-				case 7: color = "cyan"; break;
-			};
 
 			this.ctx.fillStyle = color;
 
@@ -327,7 +317,6 @@ function GameMatrix(){
 			py = point[1] * this.pixel_height;
 			//Log.log('Drawing: (' + px + ',' + py + ')');
 			this.ctx.fillRect(px, py, this.pixel_width, this.pixel_height);
-			
 
 		}
 		
@@ -365,7 +354,7 @@ function GameMatrix(){
 	function move_down(){
 
 		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
+		piece = self.piece_stack[0][2];
 
 		temp_piece = [];
 
@@ -375,7 +364,7 @@ function GameMatrix(){
 		}
 
 		if(this.can_move(temp_piece)){
-			self.piece_stack[0][1] = temp_piece;
+			self.piece_stack[0][2] = temp_piece;
 			this.clear_canvas();
 			this.draw_matrix();
 			this.draw_piece();
@@ -401,7 +390,7 @@ function GameMatrix(){
 	function move_horiz(amount){
 		
 		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
+		piece = self.piece_stack[0][2];
 
 		temp_piece = [];
 
@@ -411,7 +400,7 @@ function GameMatrix(){
 		}
 		
 		if(this.can_move(temp_piece)){
-			self.piece_stack[0][1] = temp_piece;
+			self.piece_stack[0][2] = temp_piece;
 			this.clear_canvas();
 			this.draw_matrix();
 			this.draw_piece();
@@ -493,7 +482,7 @@ function GameMatrix(){
 			this.scan_lines();
 			this.set_piece();
 
-			if(!this.can_move(self.piece_stack[0][1])){
+			if(!this.can_move(self.piece_stack[0][2])){
 				Log.log('GAME_OVER');
 				clearInterval(this.interval_id);
 				this.init();
@@ -543,7 +532,7 @@ function GameMatrix(){
 
 		
 		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
+		piece = self.piece_stack[0][2];
 
 		new_piece = [];
 
@@ -574,7 +563,7 @@ function GameMatrix(){
 
 		// Calculate transform validity
 		if( this.can_move(new_piece) ){
-			self.piece_stack[0][1] = new_piece;
+			self.piece_stack[0][2] = new_piece;
 			this.clear_canvas();
 			this.draw_matrix();
 			this.draw_piece();
