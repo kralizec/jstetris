@@ -3,6 +3,9 @@
 function GameMatrix(){
 
 
+	/* Self reference */
+	self = this;
+
 	/* Methods */
 	this.init = init;
 	this.set_canvas = set_canvas;
@@ -479,10 +482,10 @@ function GameMatrix(){
 	/* Start the game!
 	 */
 	this.start = start;
-	function start(ref){
+	function start(){
 
-		ref.interval_id = setInterval( function(){
-			ref.iterate();
+		self.interval_id = setInterval( function(){
+			self.iterate();
 		}, 500);
 
 	};
@@ -490,13 +493,13 @@ function GameMatrix(){
 	/* Toggle the pause state.
 	 */
 	this.toggle_pause = toggle_pause;
-	function toggle_pause(ref){
+	function toggle_pause(){
 
-		if(ref.interval_id){
+		if(self.interval_id){
 			clearInterval(ref.interval_id);
-			ref.interval_id = null;
+			self.interval_id = null;
 		} else {
-			ref.start(ref);
+			self.start(ref);
 		}
 
 	};
