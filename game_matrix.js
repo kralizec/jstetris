@@ -93,7 +93,6 @@ function GameMatrix(){
 		};
 
 				
-		//document.keypress
 		document.onkeypress = function(e){
 
 			Log.log('key pressed!' + e.keyCode);
@@ -550,22 +549,6 @@ function GameMatrix(){
 	};
 
 
-	this.kb_input = kb_input;
-	function kb_input(e){
-
-		Log.log('key pressed!' + e.keyCode);
-
-		switch(e.keyCode){
-
-			case 37: this.move_horiz(-1); break;
-			case 38: this.rotate(); break;
-			case 39: this.move_horiz(1); break;
-			case 40: this.move_down(); break;
-
-		};
-
-	};
-
 
 	/* Perform a piece matrix rotation.
 	 * FIXME: Get rid of "climbing spin" effect.
@@ -616,17 +599,6 @@ function GameMatrix(){
 
 	};
 
-
-	this.random_matrix = random_matrix;
-	function random_matrix(){
-		
-		for(y = 0; y < this.height; y++){
-			for(x = 0; x < this.width; x++){
-				this.matrix[y][x] = Math.floor(Math.random()*8);
-			}
-		}
-
-	};
 
 };
 
