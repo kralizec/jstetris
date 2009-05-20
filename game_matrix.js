@@ -15,14 +15,6 @@ function GameMatrix(){
 	/* Private Methods */
 
 	/* Vars */
-	this.height = -1;
-	this.width = -1;
-	this.pixel_width = -1;
-	this.pixel_height = -1;
-	this.canvas_width = -1;
-	this.canvas_height = -1;
-	this.area = -1;
-	this.bit_depth = 24;
 
 	/* Matrix */
 	this.matrix = null;
@@ -410,6 +402,9 @@ function GameMatrix(){
 
 		if(this.can_move(temp_piece)){
 			this.active_piece = temp_piece;
+			this.clear_canvas();
+			this.draw_matrix();
+			this.draw_piece();
 		} else {
 			Log.log('Cannot Move down!');
 			//this.anchor();
@@ -440,6 +435,9 @@ function GameMatrix(){
 		
 		if(this.can_move(temp_piece)){
 			this.active_piece = temp_piece;
+			this.clear_canvas();
+			this.draw_matrix();
+			this.draw_piece();
 		} else {
 			Log.log('Cannot Move!');	
 		}	
@@ -554,7 +552,7 @@ function GameMatrix(){
 
 
 	/* Perform a piece matrix rotation.
-	 *
+	 * FIXME: Get rid of "climbing spin" effect.
 	 */
 	this.rotate = rotate;
 	function rotate(){
@@ -590,6 +588,9 @@ function GameMatrix(){
 		// Calculate transform validity
 		if( this.can_move(new_piece) ){
 			this.active_piece = new_piece;
+			this.clear_canvas();
+			this.draw_matrix();
+			this.draw_piece();
 		} else {
 			Log.log("Cannot rotate!");
 		}
