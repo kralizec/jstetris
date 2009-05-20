@@ -109,38 +109,19 @@ function GameMatrix(){
 
 		// Render the piece
 		// Create the piece pattern.
-		pattern = null;
+		piece = self.create_piece(self.piece_stack[0][0]);
+		pattern = piece[1];
 
-		
-		/*
-		switch(this.active_type){
-			case 1: pattern = [[1,1],[1,1]];  break;
-			case 2: pattern = [[2,0],[2,2],[2,0]]; break;
-			case 3: pattern = [[3],[3],[3],[3]]; break;
-			case 4: pattern = [[4,4],[4,0],[4,0]]; break;
-			case 5: pattern = [[5,0],[5,0],[5,5]]; break;
-			case 6: pattern = [[6,0],[6,6],[0,6]]; break;
-			case 7: pattern = [[0,7],[7,7],[7,0]]; break;
-		};
 
-		// Map the piece pattern to the center coordinates.
 		this.pre_ctx.fillStyle = 'white';
-		row = 1;
-		col = 1;
+
+		// Draw points
 		for(x = 0; x < pattern.length; x++){
-			for(y = 0; y < pattern[x].length; y++){
-				Log.log('RENDERING');
-				if(pattern[x][y] > 0){
-					px = (col + 0) * this.pre_pixel_width;
-					py = (row + 0) * this.pre_pixel_height;
-					this.pre_ctx.fillRect(px, py, this.pre_pixel_width, this.pre_pixel_height);
-				}
-				col++;
-			}
-			col = 1;
-			row++;
+			px = (pattern[x][0] + 1) * this.pre_pixel_width;
+			py = (pattern[x][1] + 1) * this.pre_pixel_height;
+			this.pre_ctx.fillRect(px, py, this.pre_pixel_width, this.pre_pixel_height);
 		}
-		*/
+
 
 	}
 
