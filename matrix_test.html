@@ -31,29 +31,29 @@
 					Log.log('key pressed!' + e.keyCode);
 
 					switch(e.keyCode){
-						case 37: matrix.move_horiz(-1); break;
-						case 38: matrix.rotate(); break;
-						case 39: matrix.move_horiz(1); break;
-						case 40: matrix.move_down(); break;
+						//case 37: matrix.move_horiz(-1); break;
+						//case 38: matrix.rotate(); break;
+						//case 39: matrix.move_horiz(1); break;
+						//case 40: matrix.move_down(); break;
 						case 80: matrix.toggle_pause(matrix); break;
 					};
 
 				};
 
 				//document.keypress
-				/*document.onkeypress = function(e){
+				document.onkeypress = function(e){
 
 					Log.log('key pressed!' + e.keyCode);
 
 					switch(e.keyCode){
 						case 37: matrix.move_horiz(-1); break;
-						//case 38: matrix.rotate(); break;
+						case 38: matrix.rotate(); break;
 						case 39: matrix.move_horiz(1); break;
 						case 40: matrix.move_down(); break;
 						//case 80: matrix.toggle_pause(matrix); break;
 					};
 
-				};*/
+				};
 
 
 				// Start the game
