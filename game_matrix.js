@@ -583,31 +583,8 @@ function GameMatrix(){
 		}
 
 
-
 	};
 
-
-
-	/* Anchors the current piece to the board.
-	 */
-	/*this.anchor = anchor;
-	function anchor(){
-
-		Log.log('Anchor?');
-
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
-
-		// Anchor the currenct piece to the board.
-		for(x = 0; x < piece.length; x++){
-			point = piece[x];
-			this.matrix[point[1]][point[0]] = type;
-			Log.log('Point (' + point[0] + ',' + point[1] + ') Type: ' + type);
-		} 
-
-		this.anchored = true;
-
-	};*/
 
 	this.random_matrix = random_matrix;
 	function random_matrix(){
