@@ -318,9 +318,16 @@ function GameMatrix(){
 	};
 
 
+	/**
+	 * Draw the game matrix.
+	 * TODO: Performance!
+	 */
 	this.draw_matrix = function(){
 
 		//Log.log('Drawing the matrix...');
+
+		// Clear first.
+		self.clear_canvas();
 
 		// Current row/col
 		row = 0;
@@ -332,26 +339,17 @@ function GameMatrix(){
 
 				pixel = this.matrix[y][x];
 
-				// Color
-				color = 'black'
 				switch(pixel){
 					case null: break;
 					case 0: break;
-					case 1: color = "blue"; break;
-					case 2: color = "brown"; break;
-					case 3: color = "red"; break;
-					case 4: color = "white"; break;
-					case 5: color = "magenta"; break;
-					case 6: color = "green"; break;
-					case 7: color = "cyan"; break;
+					case 1: self.ctx.fillStyle = "blue"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 2: self.ctx.fillStyle = "brown"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 3: self.ctx.fillStyle = "red"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 4: self.ctx.fillStyle = "white"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 5: self.ctx.fillStyle = "magenta"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 6: self.ctx.fillStyle = "green"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 7: self.ctx.fillStyle = "cyan"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
 				};
-				this.ctx.fillStyle = color;
-
-				// Draw the pixel
-				// TODO: FASTER
-				off_x = col * this.pixel_width
-				off_y = row * this.pixel_height
-				this.ctx.fillRect(off_x, off_y, this.pixel_width, this.pixel_height);
 
 				// Increment the col
 				col++;
@@ -446,8 +444,6 @@ function GameMatrix(){
 		type = self.piece_stack[0][0];
 		//color = 'black';
 		piece = self.piece_stack[0][2];
-
-		//this.ctx.fillStyle = color;
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?		
@@ -605,10 +601,6 @@ function GameMatrix(){
 		// Create a new piece if this is the beginning, or if anchoring ocurred.
 		// Also, scan for lines.
 		if(this.anchored){
-
-			// Redraw Matrix
-			self.draw_matrix();
-
 			// Remove the old piece.
 			self.piece_stack.shift();
 
@@ -616,6 +608,9 @@ function GameMatrix(){
 			if(self.scan_lines()){
 				self.update_status();
 			}
+
+			// Redraw Matrix
+			self.draw_matrix();
 
 			this.set_piece();
 
