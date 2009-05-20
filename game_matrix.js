@@ -206,6 +206,9 @@ function GameMatrix(){
 		this.pixel_height = this.canvas_height / this.height;
 		this.pixel_width = this.canvas_width / this.width;
 
+		// Clear the main canvas
+		self.clear_canvas();
+
 	};
 
 	/* Associate a preview canvas
@@ -490,6 +493,7 @@ function GameMatrix(){
 	this.start = start;
 	function start(){
 
+		// Initialize the iteration timer.
 		self.interval_id = setInterval( function(){
 			self.iterate();
 		}, 500);
