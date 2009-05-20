@@ -188,6 +188,7 @@ function GameMatrix(){
 
 		// Generate some pieces for the queue.
 		self.set_piece();
+		self.set_piece();
 				
 
 	};
