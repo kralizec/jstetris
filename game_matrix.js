@@ -28,6 +28,7 @@ function GameMatrix(){
 	this.matrix = null;
 
 	/* Active tetromino */
+	this.piece_stack = [];
 	this.active_piece = null;
 	this.active_type = -1;
 	this.active_rinded = -1;
@@ -68,6 +69,104 @@ function GameMatrix(){
 
 	};
 
+	/* Associate a preview canvas
+	 */
+	this.set_preview_canvas = set_preview_canvas;
+	function set_preview_canvas(canvas_id){
+
+		this.preview = document.getElementById(canvas_id);
+		this.pre_ctx = this.preview.getContext('2d');
+
+		this.preview_height = this.preview.height;
+		this.preview_width = this.preview.width;
+
+		this.pre_pixel_height = this.preview_height / 6;
+		this.pre_pixel_width = this.preview_width / 6;
+	};
+
+	/* Render the preview.
+	 */
+	this.render_preview = render_preview;
+	function render_preview(){
+		
+		Log.log('Rendering preview');
+
+		// Create preview matrix:
+		preview_matrix = [6];
+		for(r = 0; r < preview_matrix.size; x++){
+			preview_matrix[r] = [0,0,0,0,0,0];
+		}
+
+		// Clear
+		this.pre_ctx.fillStyle = 'rgb(0,0,0)';
+		this.pre_ctx.fillRect(0,0,this.preview_width,this.preview_height);
+
+		// Render the piece
+		// Create the piece pattern.
+		pattern = null;
+	
+		switch(this.active_type){
+			case 1: pattern = [[1,1],[1,1]];  break;
+			case 2: pattern = [[2,0],[2,2],[2,0]]; break;
+			case 3: pattern = [[3],[3],[3],[3]]; break;
+			case 4: pattern = [[4,4],[4,0],[4,0]]; break;
+			case 5: pattern = [[5,0],[5,0],[5,5]]; break;
+			case 6: pattern = [[6,0],[6,6],[0,6]]; break;
+			case 7: pattern = [[0,7],[7,7],[7,0]]; break;
+		};
+
+		// Map the piece pattern to the center coordinates.
+		this.pre_ctx.fillStyle = 'white';
+		row = 1;
+		col = 1;
+		for(x = 0; x < pattern.length; x++){
+			for(y = 0; y < pattern[x].length; y++){
+				Log.log('RENDERING');
+				if(pattern[x][y] > 0){
+					px = (col + 0) * this.pre_pixel_width;
+					py = (row + 0) * this.pre_pixel_height;
+					this.pre_ctx.fillRect(px, py, this.pre_pixel_width, this.pre_pixel_height);
+				}
+				col++;
+			}
+			col = 1;
+			row++;
+		}
+		
+		// Draw the active piece.
+		/*
+		for(x = 0; x < this.active_piece.length; x++){
+
+			point = this.active_piece[x];
+
+			// TODO:  Refactor this out! We can set the color when the piece is created!
+			color = 'black'
+			switch(this.active_type){
+				case null: break;
+				case 0: break;
+				case 1: color = "blue"; break;
+				case 2: color = "brown"; break;
+				case 3: color = "red"; break;
+				case 4: color = "white"; break;
+				case 5: color = "magenta"; break;
+				case 6: color = "green"; break;
+				case 7: color = "cyan"; break;
+			};
+
+			this.ctx.fillStyle = color;
+
+			// Draw the pixel
+			px = point[0] * this.pixel_width;
+			py = point[1] * this.pixel_height;
+			//Log.log('Drawing: (' + px + ',' + py + ')');
+			this.ctx.fillRect(px, py, this.pixel_width, this.pixel_height);
+			
+
+		}
+		*/
+
+	};
+
 	//this.clear_canvas = clear_canvas;
 	this.clear_canvas = clear_canvas;
 	function clear_canvas(){
@@ -101,12 +200,6 @@ function GameMatrix(){
 			for(x = 0; x < this.width; x++){
 
 				pixel = this.matrix[y][x];
-				//Log.log('Drawing: ' + pixel);
-			
-				// Negate if necessary
-				//if(pixel < 0){
-				//	pixel *= -1;
-				//}
 
 				// Color
 				color = 'black'
@@ -168,22 +261,19 @@ function GameMatrix(){
 		// Create the piece pattern.
 		pattern = null;
 	
-		axial = 2;
-	
 		switch(type){
-			case 1: axial = 2; pattern = [[1,1],[1,1]];  break;
-			case 2: axial = 2; pattern = [[2,0],[2,2],[2,0]]; break;
-			case 3: axial = 2; pattern = [[3],[3],[3],[3]]; break;
-			case 4: axial = 2; pattern = [[4,4],[4,0],[4,0]]; break;
-			case 5: axial = 2; pattern = [[5,0],[5,0],[5,5]]; break;
-			case 6: axial = 2; pattern = [[6,0],[6,6],[0,6]]; break;
-			case 7: axial = 2; pattern = [[0,7],[7,7],[7,0]]; break;
+			case 1: pattern = [[1,1],[1,1]];  break;
+			case 2: pattern = [[2,0],[2,2],[2,0]]; break;
+			case 3: pattern = [[3],[3],[3],[3]]; break;
+			case 4: pattern = [[4,4],[4,0],[4,0]]; break;
+			case 5: pattern = [[5,0],[5,0],[5,5]]; break;
+			case 6: pattern = [[6,0],[6,6],[0,6]]; break;
+			case 7: pattern = [[0,7],[7,7],[7,0]]; break;
 		};
 
 		// Set the active type and rotational index.
 		// TODO: Refactor!
 		this.active_type = type;
-		this.active_rindex = axial;
 
 		return pattern;
 
@@ -201,6 +291,9 @@ function GameMatrix(){
 		// Create a random piece.
 		//piece = this.create_piece(5);
 		piece = this.create_piece(Math.floor(Math.random()*7) + 1);
+
+		// TODO: TEST
+		this.render_preview();
 
 		//this.active_type = 5;
 		//this.active_rindex = 2;
@@ -458,15 +551,11 @@ function GameMatrix(){
 		};
 
 	};
-	
 
-	/* Detect rotation conditions. Returns false if piece cannot rotate.
+
+	/* Perform a piece matrix rotation.
+	 *
 	 */
-	this.can_rotate = can_rotate;
-	function can_rotate(){
-
-	};
-
 	this.rotate = rotate;
 	function rotate(){
 
