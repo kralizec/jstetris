@@ -26,11 +26,12 @@ function GameMatrix(){
 	this.lines_display = null;
 	this.score = 0;
 	this.lines = 0;
-	this.level = 0;
+	this.level = 1;
 	
 	/* Game Constants */
 	this.min_speed = 80;   // 80ms
 	this.base_speed = 700; // 700ms
+	this.level_step = 10;  // Increase level every 10 lines.
 
 
 	/*********************************************************************
@@ -81,6 +82,17 @@ function GameMatrix(){
 	/*********************************************************************
 	 * Game Logic
 	 *********************************************************************/
+
+	/**
+	 * Calculates the current game speed.
+	 */
+	this.calculate_speed = function(){
+
+		// TODO: Is the the appropriate speed determination?
+		// speed = (MIN + BASE / LEVEL)
+		return self.min_speed + self.base_speed / self.level
+
+	}
 
 	/* Creates a tetris piece.
 	 *
@@ -144,13 +156,20 @@ function GameMatrix(){
 	}
 
 	/* Start the game!
+	 * Calling start again while running will act like a reset, and can be
+	 * used to increase game speed.
 	 */
 	this.start = function(){
+
+		if(self.interval_id){
+			clearInterval(self.interval_id);
+			self.interval_id = null;
+		}
 
 		// Initialize the iteration timer.
 		self.interval_id = setInterval( function(){
 			self.iterate();
-		}, 500);
+		}, self.calculate_speed());
 
 	};
 
@@ -482,8 +501,17 @@ function GameMatrix(){
 		// Process score and line updates
 		// TODO: Advanced scoring for multiple lines.
 		if(line_count > 0){
-			this.score += (line_count * 10);
-			this.lines += line_count;
+			// Process score and linecount.
+			self.score += (line_count * 10);
+			self.lines += line_count;
+
+			// Process level, and increase if necessary.
+			val = self.lines / ( self.level * self.level_step);
+			if(val > 1){
+				self.level++;
+				// Increase the speed (by restarting interval).
+				self.start();
+			}
 
 			// Return true, indicating updates occurred.
 			return true;
