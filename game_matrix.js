@@ -1,5 +1,6 @@
 /*****************************************************************************
  * Soviet Block Game
+ *   ... In Soviet Russia, Tetris plays YOU!
  *
  * Author: Jason Lawrence (2009)
  $ Email: jason.lawrence@kralizec.org
@@ -58,8 +59,61 @@ function GameMatrix(){
 		
 		// Create the piece pattern.
 		pattern = null;
-	
+
 		switch(type){
+			case 1: pattern = [[0,0],[1,0],[1,0],[1,1]]; break;
+			case 2: pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
+			case 3: pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
+			case 4: pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
+			case 5: pattern = [[0,0],[0,1],[0,2],[1,2]]; break;
+			case 6: pattern = [[0,0],[0,1],[1,1],[1,2]]; break;
+			case 7: pattern = [[1,0],[0,1],[1,1],[0,2]]; break;
+		};
+
+		// Return an array containing the piece type and the pattern.
+		return [ type, pattern ];
+
+	}
+
+
+	/*********************************************************************
+	 * Rendering Logic
+	 *********************************************************************/
+
+	/**
+	 * Clear the game canvas.
+	 */
+	this.clear_canvas = function(){
+		Log.log('Clearing the canvas');
+		this.ctx.fillStyle = 'rgb(0,0,0)';
+		this.ctx.fillRect(0,0,this.canvas_width,this.canvas_height);
+	}
+
+	/**
+	 * Render a preview matrix.
+	 *
+	 */
+	this.render_preview = function(){
+		
+		Log.log('Rendering preview FIXME');
+
+		// Create preview matrix:
+		preview_matrix = [6];
+		for(r = 0; r < preview_matrix.size; x++){
+			preview_matrix[r] = [0,0,0,0,0,0];
+		}
+
+		// Clear
+		this.pre_ctx.fillStyle = 'rgb(0,0,0)';
+		this.pre_ctx.fillRect(0,0,this.preview_width,this.preview_height);
+
+		// Render the piece
+		// Create the piece pattern.
+		pattern = null;
+
+		
+		/*
+		switch(this.active_type){
 			case 1: pattern = [[1,1],[1,1]];  break;
 			case 2: pattern = [[2,0],[2,2],[2,0]]; break;
 			case 3: pattern = [[3],[3],[3],[3]]; break;
@@ -69,18 +123,34 @@ function GameMatrix(){
 			case 7: pattern = [[0,7],[7,7],[7,0]]; break;
 		};
 
-		// Set the active type and rotational index.
-		// TODO: Refactor!
-		this.active_type = type;
-
-		return pattern;
+		// Map the piece pattern to the center coordinates.
+		this.pre_ctx.fillStyle = 'white';
+		row = 1;
+		col = 1;
+		for(x = 0; x < pattern.length; x++){
+			for(y = 0; y < pattern[x].length; y++){
+				Log.log('RENDERING');
+				if(pattern[x][y] > 0){
+					px = (col + 0) * this.pre_pixel_width;
+					py = (row + 0) * this.pre_pixel_height;
+					this.pre_ctx.fillRect(px, py, this.pre_pixel_width, this.pre_pixel_height);
+				}
+				col++;
+			}
+			col = 1;
+			row++;
+		}
+		*/
 
 	}
 
 
+
+	//////////////////////////////////////////////////////////////////////
 	/*********************************************************************
-	 * Rendering Logic
+	 * UNSORTED
 	 *********************************************************************/
+	//////////////////////////////////////////////////////////////////////
 
 	/* Initialize the matrix. */
 	function init(width, height) {
@@ -133,68 +203,6 @@ function GameMatrix(){
 		this.pre_pixel_width = this.preview_width / 6;
 	};
 
-	/* Render the preview.
-	 */
-	this.render_preview = render_preview;
-	function render_preview(){
-		
-		Log.log('Rendering preview');
-
-		// Create preview matrix:
-		preview_matrix = [6];
-		for(r = 0; r < preview_matrix.size; x++){
-			preview_matrix[r] = [0,0,0,0,0,0];
-		}
-
-		// Clear
-		this.pre_ctx.fillStyle = 'rgb(0,0,0)';
-		this.pre_ctx.fillRect(0,0,this.preview_width,this.preview_height);
-
-		// Render the piece
-		// Create the piece pattern.
-		pattern = null;
-	
-		switch(this.active_type){
-			case 1: pattern = [[1,1],[1,1]];  break;
-			case 2: pattern = [[2,0],[2,2],[2,0]]; break;
-			case 3: pattern = [[3],[3],[3],[3]]; break;
-			case 4: pattern = [[4,4],[4,0],[4,0]]; break;
-			case 5: pattern = [[5,0],[5,0],[5,5]]; break;
-			case 6: pattern = [[6,0],[6,6],[0,6]]; break;
-			case 7: pattern = [[0,7],[7,7],[7,0]]; break;
-		};
-
-		// Map the piece pattern to the center coordinates.
-		this.pre_ctx.fillStyle = 'white';
-		row = 1;
-		col = 1;
-		for(x = 0; x < pattern.length; x++){
-			for(y = 0; y < pattern[x].length; y++){
-				Log.log('RENDERING');
-				if(pattern[x][y] > 0){
-					px = (col + 0) * this.pre_pixel_width;
-					py = (row + 0) * this.pre_pixel_height;
-					this.pre_ctx.fillRect(px, py, this.pre_pixel_width, this.pre_pixel_height);
-				}
-				col++;
-			}
-			col = 1;
-			row++;
-		}
-
-	};
-
-	//this.clear_canvas = clear_canvas;
-	this.clear_canvas = clear_canvas;
-	function clear_canvas(){
-
-		Log.log('Clearing the canvas');
-
-		this.ctx.fillStyle = 'rgb(0,0,0)';
-		this.ctx.fillRect(0,0,this.canvas_width,this.canvas_height);
-
-
-	};
 
 
 	function dump(){}
@@ -279,44 +287,23 @@ function GameMatrix(){
 		// TODO: Create a piece buffer!
 		// Create a random piece.
 		//piece = this.create_piece(5);
-		piece = self.create_piece(Math.floor(Math.random()*7) + 1);
+		piece_obj = self.create_piece(Math.floor(Math.random()*7) + 1);
+		self.piece_stack.unshift(piece_obj);
+
+		type = piece_obj[0];
+		piece = piece_obj[1];
 
 		// TODO: TEST
 		this.render_preview();
 
-		//this.active_type = 5;
-		//this.active_rindex = 2;
-
-		// Randomly transpose the piece.
-
-		// Set the active piece coordinates.
+		// Adjust the piece position. (using start coordinates)
+		// TODO: Start coordinates?
 		startx = this.width / 2;
-		row = 0;
-		col = 0;
+		starty = 0;
 
-		// Reset the active piece.
-		this.active_piece = [];
-
-		//for(row in piece){
-		for(y = 0; y < piece.length; y++){
-			line = piece[y];
-			
-			//for(block in row){
-			for(x = 0; x < line.length; x++){
-				block = line[x];
-				//Log.log('bleh');
-				if(block != 0){
-					//Log.log('bleh: ' + (startx + col) + " " + row);
-					this.active_piece.push([startx + col, row]);
-				}
-
-				col++;
-
-			}
-
-			col = 0;
-			row++;
-
+		for( x = 0; x < piece.length; x++ ){
+			piece[x][0] += startx;
+			piece[x][1] += starty;
 		}
 
 
@@ -327,14 +314,17 @@ function GameMatrix(){
 	this.draw_piece = draw_piece;
 	function draw_piece(){
 
-		// Draw the active piece.
-		for(x = 0; x < this.active_piece.length; x++){
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][1];
 
-			point = this.active_piece[x];
+		// Draw the active piece.
+		for(x = 0; x < piece.length; x++){
+
+			point = piece[x];
 
 			// TODO:  Refactor this out! We can set the color when the piece is created!
 			color = 'black'
-			switch(this.active_type){
+			switch(type){
 				case null: break;
 				case 0: break;
 				case 1: color = "blue"; break;
@@ -390,15 +380,18 @@ function GameMatrix(){
 	this.move_down = move_down;
 	function move_down(){
 
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][1];
+
 		temp_piece = [];
 
-		for(x = 0; x < this.active_piece.length; x++){
-			point = this.active_piece[x];
+		for(x = 0; x < piece.length; x++){
+			point = piece[x];
 			temp_piece[x] = [ point[0], point[1] + 1];
 		}
 
 		if(this.can_move(temp_piece)){
-			this.active_piece = temp_piece;
+			self.piece_stack[0][1] = temp_piece;
 			this.clear_canvas();
 			this.draw_matrix();
 			this.draw_piece();
@@ -406,9 +399,9 @@ function GameMatrix(){
 			Log.log('Cannot Move down!');
 			//this.anchor();
 			// Anchor the currenct piece to the board.
-			for(x = 0; x < this.active_piece.length; x++){
-				point = this.active_piece[x];
-				this.matrix[point[1]][point[0]] = this.active_type;
+			for(x = 0; x < piece.length; x++){
+				point = piece[x];
+				this.matrix[point[1]][point[0]] = type;
 			} 
 
 			this.anchored = true;
@@ -423,15 +416,18 @@ function GameMatrix(){
 	this.move_horiz = move_horiz;
 	function move_horiz(amount){
 		
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][1];
+
 		temp_piece = [];
 
-		for(x = 0; x < this.active_piece.length; x++){
-			point = this.active_piece[x];
+		for(x = 0; x < piece.length; x++){
+			point = piece[x];
 			temp_piece[x] = [ point[0] + amount, point[1]];
 		}
 		
 		if(this.can_move(temp_piece)){
-			this.active_piece = temp_piece;
+			self.piece_stack[0][1] = temp_piece;
 			this.clear_canvas();
 			this.draw_matrix();
 			this.draw_piece();
@@ -509,7 +505,7 @@ function GameMatrix(){
 			this.scan_lines();
 			this.set_piece();
 
-			if(!this.can_move(this.active_piece)){
+			if(!this.can_move(self.piece_stack[0][1])){
 				Log.log('GAME_OVER');
 				clearInterval(this.interval_id);
 				this.init();
@@ -554,7 +550,10 @@ function GameMatrix(){
 	this.rotate = rotate;
 	function rotate(){
 
-		piece = this.active_piece;
+		
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][1];
+
 		new_piece = [];
 
 		// Calculate block center
@@ -584,7 +583,7 @@ function GameMatrix(){
 
 		// Calculate transform validity
 		if( this.can_move(new_piece) ){
-			this.active_piece = new_piece;
+			self.piece_stack[0][1] = new_piece;
 			this.clear_canvas();
 			this.draw_matrix();
 			this.draw_piece();
@@ -603,11 +602,15 @@ function GameMatrix(){
 	this.anchor = anchor;
 	function anchor(){
 
+
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][1];
+
 		// Anchor the currenct piece to the board.
-		for(x = 0; x < this.active_piece.length; x++){
-			point = this.active_piece[x];
-			this.matrix[point[1]][point[0]] = this.active_type;
-			Log.log('Point (' + point[0] + ',' + point[1] + ') Type: ' + this.active_type);
+		for(x = 0; x < piece.length; x++){
+			point = piece[x];
+			this.matrix[point[1]][point[0]] = type;
+			Log.log('Point (' + point[0] + ',' + point[1] + ') Type: ' + type);
 		} 
 
 		this.anchored = true;
