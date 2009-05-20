@@ -97,7 +97,7 @@ function GameMatrix(){
 	/* Creates a tetris piece.
 	 *
 	 * Format:
-	 *    [ COLOR, TYPE, [ [P1],[P2],... ] ]
+	 *    [ TYPE, COLOR, [ [P1],[P2],... ] ]
 	 *
 	 */
 	this.create_piece = function(type){
@@ -207,8 +207,8 @@ function GameMatrix(){
 	 */
 	this.clear_canvas = function(){
 		//Log.log('Clearing the canvas');
-		this.ctx.fillStyle = 'rgb(0,0,0)';
-		this.ctx.fillRect(0,0,this.canvas_width,this.canvas_height);
+		//this.ctx.fillStyle = 'rgb(0,0,0)';
+		this.ctx.clearRect(0,0,this.canvas_width,this.canvas_height);
 	}
 
 	/**
@@ -427,21 +427,14 @@ function GameMatrix(){
 		color = self.piece_stack[0][1];
 		piece = self.piece_stack[0][2];
 
-		// Draw the active piece.
-		for(x = 0; x < piece.length; x++){
+		this.ctx.fillStyle = color;
 
-			point = piece[x];
-
-			this.ctx.fillStyle = color;
-
-			// Draw the pixel
-			px = point[0] * this.pixel_width;
-			py = point[1] * this.pixel_height;
-			////Log.log('Drawing: (' + px + ',' + py + ')');
-			this.ctx.fillRect(px, py, this.pixel_width, this.pixel_height);
-
-		}
-		
+		// Tetrominos are always composed of 4 squares.
+		// TODO: Can we enhance performance with better shape calculation?		
+		this.ctx.fillRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		this.ctx.fillRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		this.ctx.fillRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		this.ctx.fillRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
 
 	}
 
@@ -451,23 +444,17 @@ function GameMatrix(){
 	function clear_piece(){
 
 		type = self.piece_stack[0][0];
-		color = 'black';
+		//color = 'black';
 		piece = self.piece_stack[0][2];
 
-		// Draw the active piece.
-		for(x = 0; x < piece.length; x++){
+		//this.ctx.fillStyle = color;
 
-			point = piece[x];
-
-			this.ctx.fillStyle = color;
-
-			// Draw the pixel
-			px = point[0] * this.pixel_width;
-			py = point[1] * this.pixel_height;
-			////Log.log('Drawing: (' + px + ',' + py + ')');
-			this.ctx.fillRect(px, py, this.pixel_width, this.pixel_height);
-
-		}
+		// Tetrominos are always composed of 4 squares.
+		// TODO: Can we enhance performance with better shape calculation?		
+		this.ctx.clearRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		this.ctx.clearRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		this.ctx.clearRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		this.ctx.clearRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
 		
 	}
 
@@ -645,10 +632,6 @@ function GameMatrix(){
 
 			this.anchored = false;
 		}
-
-		// Redraw
-		//this.draw_matrix();
-		//this.draw_piece();
 
 		// Process user input. Rotation and Horizontal movement.
 		// ...or move down.
