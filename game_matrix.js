@@ -48,6 +48,35 @@ function GameMatrix(){
 	 * Game Logic
 	 *********************************************************************/
 
+	/* Creates a tetris piece.
+	 *
+	 * Format:
+	 *    [ COLOR, TYPE, [ [P1],[P2],... ] ]
+	 *
+	 */
+	this.create_piece = function(type){
+		
+		// Create the piece pattern.
+		pattern = null;
+	
+		switch(type){
+			case 1: pattern = [[1,1],[1,1]];  break;
+			case 2: pattern = [[2,0],[2,2],[2,0]]; break;
+			case 3: pattern = [[3],[3],[3],[3]]; break;
+			case 4: pattern = [[4,4],[4,0],[4,0]]; break;
+			case 5: pattern = [[5,0],[5,0],[5,5]]; break;
+			case 6: pattern = [[6,0],[6,6],[0,6]]; break;
+			case 7: pattern = [[0,7],[7,7],[7,0]]; break;
+		};
+
+		// Set the active type and rotational index.
+		// TODO: Refactor!
+		this.active_type = type;
+
+		return pattern;
+
+	}
+
 
 	/*********************************************************************
 	 * Rendering Logic
@@ -237,35 +266,7 @@ function GameMatrix(){
 
 	};
 
-	/* Creates a tetris piece.
-	 *
-	 * Format:
-	 *    [ COLOR, TYPE, [ [P1],[P2],... ] ]
-	 *
-	 */
-	this.create_piece = create_piece;
-	function create_piece(type){
-		
-		// Create the piece pattern.
-		pattern = null;
-	
-		switch(type){
-			case 1: pattern = [[1,1],[1,1]];  break;
-			case 2: pattern = [[2,0],[2,2],[2,0]]; break;
-			case 3: pattern = [[3],[3],[3],[3]]; break;
-			case 4: pattern = [[4,4],[4,0],[4,0]]; break;
-			case 5: pattern = [[5,0],[5,0],[5,5]]; break;
-			case 6: pattern = [[6,0],[6,6],[0,6]]; break;
-			case 7: pattern = [[0,7],[7,7],[7,0]]; break;
-		};
 
-		// Set the active type and rotational index.
-		// TODO: Refactor!
-		this.active_type = type;
-
-		return pattern;
-
-	}
 
 	/* Place a piece on the matrix.
 	 */
@@ -278,7 +279,7 @@ function GameMatrix(){
 		// TODO: Create a piece buffer!
 		// Create a random piece.
 		//piece = this.create_piece(5);
-		piece = this.create_piece(Math.floor(Math.random()*7) + 1);
+		piece = self.create_piece(Math.floor(Math.random()*7) + 1);
 
 		// TODO: TEST
 		this.render_preview();
