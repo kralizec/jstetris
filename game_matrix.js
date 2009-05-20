@@ -284,7 +284,7 @@ function GameMatrix(){
 
 
 	/* Removes a line, causing the rest of the lines to fall downwards.
-	 *
+	 * TODO: Multi-line removal detection will be required for proper scoring.
 	 */
 	this.remove_line = remove_line;
 	function remove_line(index){
