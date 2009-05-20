@@ -35,7 +35,7 @@ function GameMatrix(){
 	/* Initialize the matrix. */
 	function init(width, height) {
 	
-      // Debug
+		// Debug
 		Log.log('Creating game matrix');
 
 		// Set class vars
@@ -53,7 +53,7 @@ function GameMatrix(){
 
 	};
 
-   /* Associate a canvas element with this object.
+	/* Associate a canvas element with this object.
 	 */
 	function set_canvas(canvas_id) {
 
@@ -124,7 +124,10 @@ function GameMatrix(){
 				this.ctx.fillStyle = color;
 
 				// Draw the pixel
-				this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height);
+				// TODO: FASTER
+				off_x = col * this.pixel_width
+				off_y = row * this.pixel_height
+				this.ctx.fillRect(off_x, off_y, this.pixel_width, this.pixel_height);
 
 				// Increment the col
 				col++;
@@ -195,7 +198,7 @@ function GameMatrix(){
 		// TODO: Create a piece buffer!
 		// Create a random piece.
 		//piece = this.create_piece(5);
-		piece = this.create_piece(Math.floor(Math.random()*7)+1);
+		piece = this.create_piece(Math.floor(Math.random()*7));
 
 		//this.active_type = 5;
 		//this.active_rindex = 2;
@@ -262,10 +265,10 @@ function GameMatrix(){
 			this.ctx.fillStyle = color;
 
 			// Draw the pixel
-			px = point[0];
-			py = point[1];
+			px = point[0] * this.pixel_width;
+			py = point[1] * this.pixel_height;
 			//Log.log('Drawing: (' + px + ',' + py + ')');
-			this.ctx.fillRect(px * this.pixel_width, py * this.pixel_height, this.pixel_width, this.pixel_height);
+			this.ctx.fillRect(px, py, this.pixel_width, this.pixel_height);
 			
 
 		}
@@ -421,6 +424,7 @@ function GameMatrix(){
 		switch(e.keyCode){
 
 			case 37: this.move_horiz(-1); break;
+			case 38: this.rotate(); break;
 			case 39: this.move_horiz(1); break;
 			case 40: this.move_down(); break;
 
@@ -441,7 +445,44 @@ function GameMatrix(){
 	this.rotate = rotate;
 	function rotate(){
 
+		piece = this.active_piece;
+		new_piece = [];
 
+		// matrix-transform
+		
+		// Determine axial point (does tetris have a rule for this?)
+		// TODO: Pick the real value, not 2!
+		axial = 2;
+
+		r_x = piece[axial][0];
+		r_y = piece[axial][1];
+
+		// ... TRANSFORM!!!
+		for( x = 0; x < 4; x++ ){
+
+			t_x = piece[x][0];
+			t_y = piece[x][1];
+
+			d_x = t_x - r_x;
+			d_y = t_y - r_y;
+
+			t_x = t_x - (d_x + d_y);
+			t_y = t_y - (d_x + d_y);
+
+			//new_piece[x][0] = t_x;
+			//new_piece[x][1] = t_y;
+			new_piece[x] = [t_x,t_y];
+
+		}
+		
+		
+
+		// Calculate transform validity
+		if( this.can_move(new_piece) ){
+			this.active_piece = new_piece;
+		} else {
+			Log.log("Cannot rotate!");
+		}
 	};
 
 	/* Anchors the current piece to the board.
