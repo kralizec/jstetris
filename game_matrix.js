@@ -496,10 +496,10 @@ function GameMatrix(){
 	function toggle_pause(){
 
 		if(self.interval_id){
-			clearInterval(ref.interval_id);
+			clearInterval(self.interval_id);
 			self.interval_id = null;
 		} else {
-			self.start(ref);
+			self.start();
 		}
 
 	};
