@@ -34,6 +34,9 @@ function GameMatrix(){
 	this.level_step = 10;  // Increase level every 10 lines.
 
 
+	this.move_speed = 50; // 50ms
+
+
 	/*********************************************************************
 	 * Public Methods
 	 *********************************************************************/
@@ -129,7 +132,7 @@ function GameMatrix(){
 
 	this.initiate_controls = function(){
 
-		document.onkeydown = function(e){
+		/*document.onkeydown = function(e){
 
 			//Log.log('key pressed!' + e.keyCode);
 
@@ -137,10 +140,10 @@ function GameMatrix(){
 				case 80: self.toggle_pause(); break;
 			};
 
-		};
+		};*/
 
 				
-		document.onkeypress = function(e){
+		/*document.onkeydown = function(e){
 
 			//Log.log('key pressed!' + e.keyCode);
 
@@ -149,11 +152,117 @@ function GameMatrix(){
 				case 38: self.rotate(); break;
 				case 39: self.move_horiz(1); break;
 				case 40: self.move_down(); break;
+				case 80: self.toggle_pause(); break;
+				
+			};
+
+		};*/
+
+		document.onkeydown = function(e){
+
+			//Log.log('key pressed!' + e.keyCode);
+			if(self.movement_interval){
+				clearInterval(self.movement_interval);
+				self.movement_interval = null;
+			}
+
+			switch(e.keyCode){
+				case 37: self.move_horiz(-1); self.continuous_movement( 'self.move_horiz(-1)' ); break;
+				case 38: self.rotate(); break;
+				case 39: self.move_horiz(1); self.continuous_movement( 'self.move_horiz(1)' ); break;
+				case 40: self.move_down(); self.continuous_movement( 'self.move_down()' ); break;
+				case 80: self.toggle_pause(); break;	
 			};
 
 		};
 
+		document.onkeyup = function(e){
+			//Log.log('key up: ' + e.keyCode);
+			if(self.movement_interval){
+				clearInterval(self.movement_interval);
+				self.movement_interval = null;
+				/*switch(e.keyCode){
+					case 37: break;
+					case 38: break;
+					case 39: break;
+					case 40: break;
+					case 80: break;
+				};*/
+			}
+
+		};
+
 	}
+
+	/**
+	 * Continuous movement.
+	 * Sets a movement interval.
+	 */
+	this.continuous_movement = function(func){
+
+		if(self.movement_interval){
+			clearInterval(self.movement_interval);
+			self.movement_interval = null;
+		}
+		self.movement_interval = setInterval(func, self.move_speed);
+		
+		
+
+	};
+
+
+	this.move_horiz = function(amount){
+
+
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][2];
+
+		temp_piece = [];
+
+		for(x = 0; x < piece.length; x++){
+			point = piece[x];
+			temp_piece[x] = [ point[0] + amount, point[1]];
+		}
+		
+		if(this.can_move(temp_piece)){
+			this.clear_piece();			
+			self.piece_stack[0][2] = temp_piece;
+			this.draw_piece();
+		} else {
+			//Log.log('Cannot Move!');	
+		}		
+
+	}
+
+	this.move_down = function(){
+
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][2];
+
+		temp_piece = [];
+
+		for(x = 0; x < piece.length; x++){
+			point = piece[x];
+			temp_piece[x] = [ point[0], point[1] + 1];
+		}
+
+		if(this.can_move(temp_piece)){
+			this.clear_piece();			
+			self.piece_stack[0][2] = temp_piece;
+			this.draw_piece();
+		} else {
+			//Log.log('Cannot Move down!');
+			// Anchor the currenct piece to the board.
+			for(x = 0; x < piece.length; x++){
+				point = piece[x];
+				this.matrix[point[1]][point[0]] = type;
+			} 
+
+			this.anchored = true;
+
+		}
+	}
+
 
 	/* Start the game!
 	 * Calling start again while running will act like a reset, and can be
@@ -161,6 +270,7 @@ function GameMatrix(){
 	 */
 	this.start = function(){
 
+		// Clear interval if an interval is set.
 		if(self.interval_id){
 			clearInterval(self.interval_id);
 			self.interval_id = null;
@@ -191,7 +301,8 @@ function GameMatrix(){
 	 * Rendering Logic
 	 *********************************************************************/
 
-	/** Update the game status display.
+	/**
+	 * Update the game status display.
 	 */
 	this.update_status = function(){
 		//Log.log('Updating status...');
@@ -504,8 +615,7 @@ function GameMatrix(){
 
 	/* Sinks the piece. Returns true if successful, false if collision.
 	 */
-	this.move_down = move_down;
-	function move_down(){
+	this.move_down_old = function(){
 
 		type = self.piece_stack[0][0];
 		piece = self.piece_stack[0][2];
@@ -538,7 +648,7 @@ function GameMatrix(){
 
 	/* Move left or right. (-) for left.
 	 */
-	this.move_horiz = function(amount){
+	this.move_horiz_old = function(amount){
 		
 		type = self.piece_stack[0][0];
 		piece = self.piece_stack[0][2];
@@ -586,8 +696,9 @@ function GameMatrix(){
 			}
 
 		}
-		
+
 		return valid;
+
 	};
 
 	
