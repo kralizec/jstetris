@@ -35,7 +35,10 @@ function GameMatrix(){
 
 
 	/* This is the speed at which movement events cycle when keys are held down */
-	this.move_speed = 75; // 50ms
+	this.move_speed = 50; // 75ms
+	
+	/* This is the period of time after which depressed keys cause repetitious action */
+	this.repeat_wait = 75; // 50ms
 
 
 	/*********************************************************************
@@ -154,19 +157,19 @@ function GameMatrix(){
 			switch(e.keyCode){
 				case 37:
 				eval(left);
-				self.l_int = setTimeout('self.l_int = self.continuous_movement(left)', 50 );
+				self.l_int = setTimeout('self.l_int = self.continuous_movement(left)', self.repeat_wait );
 				break;
 				case 38:
 				eval(rotate);
-				self.rot_int = setTimeout('self.rot_int = self.continuous_movement(rotate)', 50 );
+				self.rot_int = setTimeout('self.rot_int = self.continuous_movement(rotate)', self.repeat_wait );
 				break;
 				case 39:
 				eval(right);
-				self.r_int = setTimeout('self.r_int = self.continuous_movement(right)', 50);
+				self.r_int = setTimeout('self.r_int = self.continuous_movement(right)', self.repeat_wait );
 				break;
 				case 40:
 				eval(down);
-				self.d_int = setTimeout('self.d_int = self.continuous_movement(down)', 50);
+				self.d_int = setTimeout('self.d_int = self.continuous_movement(down)', self.repeat_wait );
 				break;
 				case 80: self.toggle_pause(); break;	
 			};
