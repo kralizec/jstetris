@@ -425,14 +425,14 @@ function GameMatrix(){
 		color = self.piece_stack[0][1];
 		piece = self.piece_stack[0][2];
 
-		this.ctx.fillStyle = color;
+		self.ctx.fillStyle = color;
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?		
-		this.ctx.fillRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		this.ctx.fillRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		this.ctx.fillRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		this.ctx.fillRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.fillRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.fillRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.fillRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.fillRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
 
 	}
 
@@ -447,10 +447,10 @@ function GameMatrix(){
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?		
-		this.ctx.clearRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		this.ctx.clearRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		this.ctx.clearRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		this.ctx.clearRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.clearRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.clearRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.clearRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.clearRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
 		
 	}
 
@@ -538,8 +538,7 @@ function GameMatrix(){
 
 	/* Move left or right. (-) for left.
 	 */
-	this.move_horiz = move_horiz;
-	function move_horiz(amount){
+	this.move_horiz = function(amount){
 		
 		type = self.piece_stack[0][0];
 		piece = self.piece_stack[0][2];
@@ -563,8 +562,7 @@ function GameMatrix(){
 
 	/* Detect anchoring conditions. Returns false if piece must be anchored.
 	 */
-	this.can_move = can_move;
-	function can_move(piece){
+	this.can_move = function(piece){
 
 		valid = true;
 
