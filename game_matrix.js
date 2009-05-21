@@ -34,7 +34,6 @@ function GameMatrix(){
 	 * Variables and Constants
 	 *********************************************************************/
 
-
 	/* self reference */
 	self = this;
 	
@@ -61,6 +60,19 @@ function GameMatrix(){
 	this.repeat_wait = 75; // 75ms
 
 
+	// A Tango color palette for drawing blocks.
+	// Adding a null first element in case board spaces are set to 0.
+	this.colors = [
+		[ null ],
+		[ "#fce94f", "#edd400", "#c4a000"],
+		[ "#8ae234", "#73d216", "#4e9a06"],
+		[ "#e9b96e", "#c17d11", "#8f5902"],
+		[ "#fcaf3e", "#f57900", "#ce5c00"],
+		[ "#ad7fa8", "#75507b", "#5c3566"],
+		[ "#ef2929", "#cc0000", "#a40000"],
+		[ "#729fcf", "#3465a4", "#204a87"]
+	];
+
 	/*********************************************************************
 	 * Initialization Logic (Needs work)
 	 *********************************************************************/
@@ -70,7 +82,6 @@ function GameMatrix(){
 	 * TODO: Make this a little saner.
 	 */
 	this.create_status_display = function(display_id){
-
 
 		// Create the display table and append to the display container.
 		display_table = document.createElement('table');
@@ -647,28 +658,6 @@ function GameMatrix(){
 	 *********************************************************************/
 
 	/**
-	 * Retrieve the color palette for a given block type.
-	 * TODO: Speed this up by replacing with a constant array?
-	 */
-	this.get_colors = function(type){
-
-		// Tango colors.
-		switch(type){
-			case undefined: return null; break;
-			case null:      return null; break;
-			case 0:         return null; break;
-			case 1: return [ "#fce94f", "#edd400", "#c4a000"]; break;
-			case 2: return [ "#8ae234", "#73d216", "#4e9a06"]; break;
-			case 3: return [ "#e9b96e", "#c17d11", "#8f5902"]; break;
-			case 4: return [ "#fcaf3e", "#f57900", "#ce5c00"]; break;
-			case 5: return [ "#ad7fa8", "#75507b", "#5c3566"]; break;
-			case 6: return [ "#ef2929", "#cc0000", "#a40000"]; break;
-			case 7: return [ "#729fcf", "#3465a4", "#204a87"]; break;
-		};
-
-	}
-
-	/**
 	 * Clears and redraws the current piece.
 	 */
 	this.redraw_current_piece = function(new_piece){
@@ -723,7 +712,7 @@ function GameMatrix(){
 		pattern = piece[1];
 
 		// TODO: Calculate center and draw scaled piece image!
-		colors = self.get_colors(piece[0]);
+		//colors =  self.get_colors(piece[0]);
 
 		for(i = 0; i < 4; i++){
 			x = (pattern[i][0] + 1) * this.pre_pixel_width;
@@ -737,13 +726,13 @@ function GameMatrix(){
 			i_h = this.pre_pixel_width * 0.5;
 
 
-			self.pre_ctx.fillStyle = colors[0];
+			self.pre_ctx.fillStyle = self.colors[piece[0]][0];
 			self.pre_ctx.fillRect(x,y,w,h);
 				
-			self.pre_ctx.fillStyle = colors[1];
+			self.pre_ctx.fillStyle = self.colors[piece[0]][1];
 			self.pre_ctx.strokeRect(x,y,w,h);
 
-			self.pre_ctx.fillStyle = colors[2];
+			self.pre_ctx.fillStyle = self.colors[piece[0]][2];
 			self.pre_ctx.fillRect(i_x,i_y,i_w,i_h);
 
 		}
@@ -764,7 +753,8 @@ function GameMatrix(){
 
 	/**
 	 * Draw the game matrix.
-	 * TODO: Performance!
+	 * TODO: Performance! We can speed this up with an update_matrix method
+	 * that does not redraw the whole board.
 	 */
 	this.draw_matrix = function(){
 
@@ -783,9 +773,8 @@ function GameMatrix(){
 
 				pixel = this.matrix[r][c];
 
-				colors = self.get_colors(pixel);
-				
-				if(colors != null){
+				// TODO: Get rid of the need for this conditional, if possible.
+				if(pixel >= 1){
 					x = c * this.pixel_width;
 					y = r * this.pixel_height;
 					w = this.pixel_width;
@@ -797,13 +786,13 @@ function GameMatrix(){
 					i_h = this.pixel_width * 0.5;
 
 
-					self.ctx.fillStyle = colors[0];
+					self.ctx.fillStyle = self.colors[pixel][0];
 					self.ctx.fillRect(x,y,w,h);
 
-					self.ctx.fillStyle = colors[1];
+					self.ctx.fillStyle = self.colors[pixel][1];
 					self.ctx.strokeRect(x,y,w,h);
 
-					self.ctx.fillStyle = colors[2];
+					self.ctx.fillStyle = self.colors[pixel][2];
 					self.ctx.fillRect(i_x,i_y,i_w,i_h);
 				}
 
@@ -826,7 +815,7 @@ function GameMatrix(){
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
-		colors = self.get_colors(type);
+		//colors = self.get_colors(type);
 
 		for(i = 0; i < 4; i++){
 
@@ -843,13 +832,13 @@ function GameMatrix(){
 
 
 			// Draw the colored blocks.
-			self.ctx.fillStyle = colors[0];
+			self.ctx.fillStyle = self.colors[type][0];
 			self.ctx.fillRect(x,y,w,h);
 				
-			self.ctx.fillStyle = colors[1];
+			self.ctx.fillStyle = self.colors[type][1];
 			self.ctx.strokeRect(x,y,w,h);
 
-			self.ctx.fillStyle = colors[2];
+			self.ctx.fillStyle = self.colors[type][2];
 			self.ctx.fillRect(i_x,i_y,i_w,i_h);
 
 		}
