@@ -137,34 +137,31 @@ function GameMatrix(){
 		document.onkeydown = function(e){
 
 			//Log.log('key pressed!' + e.keyCode);
-			if(self.movement_interval){
-				clearInterval(self.movement_interval);
-				self.movement_interval = null;
-			}
+
+			if(self.l_int){ clearInterval(self.l_int); self.l_int = null; }
+			if(self.r_int){ clearInterval(self.r_int); self.r_int = null; }
+			if(self.d_int){ clearInterval(self.d_int); self.d_int = null; }
+			if(self.rot_int){ clearInterval(self.rot_int); self.rot_int = null; }
 
 			switch(e.keyCode){
-				case 37: self.continuous_movement( 'self.move_horiz(-1)' ); break;
-				case 38: self.continuous_movement( 'self.rotate()' ); break;
-				case 39: self.continuous_movement( 'self.move_horiz(1)' ); break;
-				case 40: self.continuous_movement( 'self.move_down()' ); break;
+				case 37: self.l_int = self.continuous_movement( 'self.move_horiz(-1)' ); break;
+				case 38: self.rot_int = self.continuous_movement( 'self.rotate()' ); break;
+				case 39: self.r_int = self.continuous_movement( 'self.move_horiz(1)' ); break;
+				case 40: self.d_int = self.continuous_movement( 'self.move_down()' ); break;
 				case 80: self.toggle_pause(); break;	
 			};
+
 
 		};
 
 		document.onkeyup = function(e){
 			//Log.log('key up: ' + e.keyCode);
-			if(self.movement_interval){
-				clearInterval(self.movement_interval);
-				self.movement_interval = null;
-				/*switch(e.keyCode){
-					case 37: break;
-					case 38: break;
-					case 39: break;
-					case 40: break;
-					case 80: break;
-				};*/
-			}
+			switch(e.keyCode){
+				case 37: clearInterval(self.l_int); self.l_int = null; break;
+				case 38: clearInterval(self.rot_int); self.rot_int = null; break;
+				case 39: clearInterval(self.r_int); self.r_int = null; break;
+				case 40: clearInterval(self.d_int); self.d_int = null; break;
+			};
 
 		};
 
@@ -176,13 +173,10 @@ function GameMatrix(){
 	 */
 	this.continuous_movement = function(func){
 
-		if(self.movement_interval){
-			clearInterval(self.movement_interval);
-			self.movement_interval = null;
-		}
-		self.movement_interval = setInterval(func, self.move_speed);
-		
-		
+		// Eval the expression once.
+		eval(func);
+
+		return setInterval(func, self.move_speed);
 
 	};
 
