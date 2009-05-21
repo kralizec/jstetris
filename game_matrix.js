@@ -54,7 +54,6 @@ function GameMatrix(){
 	this.base_speed = 700; // 700ms
 	this.level_step = 10;  // Increase level every 10 lines.
 
-
 	/* This is the speed at which movement events cycle when keys are held down */
 	this.move_speed = 50; // 50ms
 	
@@ -63,12 +62,7 @@ function GameMatrix(){
 
 
 	/*********************************************************************
-	 * Public Methods
-	 *********************************************************************/
-
-
-	/*********************************************************************
-	 * Initialization Logic
+	 * Initialization Logic (Needs work)
 	 *********************************************************************/
 
 	/**
@@ -104,344 +98,6 @@ function GameMatrix(){
 		self.level_display.innerHTML = this.level;
 
 	}
-
-
-
-	/*********************************************************************
-	 * Game Logic
-	 *********************************************************************/
-
-	/**
-	 * Calculates the current game speed.
-	 */
-	this.calculate_speed = function(){
-
-		// TODO: Is the the appropriate speed determination?
-		// speed = (MIN + BASE / LEVEL)
-		return self.min_speed + self.base_speed / self.level
-
-	}
-
-	/* Creates a tetris piece.
-	 *
-	 * Format:
-	 *    [ TYPE, [ [P1],[P2],... ] ]
-	 *
-	 */
-	this.create_piece = function(type){
-		
-		// Create the piece pattern.
-		pattern = null;
-
-		switch(type){
-			case 1: pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
-			case 2: pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
-			case 3: pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
-			case 4: pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
-			case 5: pattern = [[0,0],[0,1],[0,2],[1,2]]; break;
-			case 6: pattern = [[0,0],[0,1],[1,1],[1,2]]; break;
-			case 7: pattern = [[1,0],[0,1],[1,1],[0,2]]; break;
-		};
-
-		// Return an array containing the piece type and the pattern.
-		return [ type, pattern ];
-
-	}
-
-
-
-	/*********************************************************************
-	 * Game Control Logic
-	 *********************************************************************/
-
-
-	/**
-	 * Initiate keyboard controls.
-	 *   The goal here is to get a good feel on all non-IE browsers.
-	 *   TODO: Performance, feel, code cleanup.
-	 */
-	this.initiate_controls = function(){
-
-
-		left = 'self.move_horiz(-1)';
-		right = 'self.move_horiz(1)';
-		down = 'self.move_down()';
-		rotate = 'self.rotate()';
-
-		document.onkeydown = function(e){
-
-			//Log.log('key pressed!' + e.keyCode);
-
-			// Don't allow simultaneous movements.
-			if(self.l_int){ clearInterval(self.l_int); self.l_int = null; }
-			if(self.r_int){ clearInterval(self.r_int); self.r_int = null; }
-			if(self.d_int){ clearInterval(self.d_int); self.d_int = null; }
-			if(self.rot_int){ clearInterval(self.rot_int); self.rot_int = null; }
-
-			switch(e.keyCode){
-				case 37:
-				eval(left);
-				self.l_int = setTimeout('self.l_int = self.continuous_movement(left)', self.repeat_wait );
-				break;
-				case 38:
-				eval(rotate);
-				//self.rot_int = setTimeout('self.rot_int = self.continuous_movement(rotate)', self.repeat_wait );
-				break;
-				case 39:
-				eval(right);
-				self.r_int = setTimeout('self.r_int = self.continuous_movement(right)', self.repeat_wait );
-				break;
-				case 40:
-				eval(down);
-				self.d_int = setTimeout('self.d_int = self.continuous_movement(down)', self.repeat_wait );
-				break;
-				case 80: self.toggle_pause(); break;	
-			};
-
-
-		};
-
-		document.onkeyup = function(e){
-			//Log.log('key up: ' + e.keyCode);
-			switch(e.keyCode){
-				case 37: clearInterval(self.l_int); self.l_int = null; break;
-				case 38: clearInterval(self.rot_int); self.rot_int = null; break;
-				case 39: clearInterval(self.r_int); self.r_int = null; break;
-				case 40: clearInterval(self.d_int); self.d_int = null; break;
-			};
-
-		};
-
-	}
-
-	/**
-	 * Continuous movement.
-	 * Sets a movement interval.
-	 */
-	this.continuous_movement = function(func){
-
-		// Eval the expression once.
-		//eval(func);
-
-		return setInterval(func, self.move_speed);
-
-	};
-
-
-	/**
-	 * Trigger horizontal movement. Use negetive numbers to move left.
-	 */
-	this.move_horiz = function(amount){
-
-
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
-
-		temp_piece = [];
-
-		for(x = 0; x < piece.length; x++){
-			point = piece[x];
-			temp_piece[x] = [ point[0] + amount, point[1]];
-		}
-		
-		if(this.can_move(temp_piece)){
-			this.clear_piece();			
-			self.piece_stack[0][1] = temp_piece;
-			this.draw_piece();
-		}		
-
-	}
-
-	/**
-	 * Trigger downward movement. Returns false if anchoring conditions are
-	 * encountered.
-	 */
-	this.move_down = function(){
-
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
-
-		temp_piece = [];
-
-		for(x = 0; x < piece.length; x++){
-			point = piece[x];
-			temp_piece[x] = [ point[0], point[1] + 1];
-		}
-
-		if(this.can_move(temp_piece)){
-			this.clear_piece();
-			self.piece_stack[0][1] = temp_piece;
-			this.draw_piece();
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Anchor the current piece to the board.
-	 */
-	this.anchor_current = function(){
-
-		// Anchor the current piece to the board.
-		for(x = 0; x < self.piece_stack[0][1].length; x++){
-			point = self.piece_stack[0][1][x];
-			self.matrix[point[1]][point[0]] = type;
-		}
-
-	}
-
-	/**
-	 * Start the game!
-	 * Calling start again while running will act like a reset, and can be
-	 * used to increase game speed.
-	 */
-	this.start = function(){
-
-		// Clear interval if an interval is set.
-		if(self.interval_id){
-			clearInterval(self.interval_id);
-			self.interval_id = null;
-		}
-
-		// Initialize the iteration timer.
-		self.interval_id = setInterval( function(){
-			self.iterate();
-		}, self.calculate_speed());
-
-	};
-
-	/**
-	 * Toggle the pause state.
-	 */
-	this.toggle_pause = function(){
-
-		if(self.interval_id){
-			clearInterval(self.interval_id);
-			self.interval_id = null;
-		} else {
-			self.start();
-		}
-
-	}
-
-
-	/*********************************************************************
-	 * Rendering Logic
-	 *********************************************************************/
-
-	/**
-	 * Retrieve the color palette for a given block type.
-	 */
-	this.get_colors = function(type){
-
-		// Tango colors.
-		switch(type){
-			case undefined: return null; break;
-			case null:      return null; break;
-			case 0:         return null; break;
-			case 1: return [ "#fce94f", "#edd400", "#c4a000"]; break;
-			case 2: return [ "#8ae234", "#73d216", "#4e9a06"]; break;
-			case 3: return [ "#e9b96e", "#c17d11", "#8f5902"]; break;
-			case 4: return [ "#fcaf3e", "#f57900", "#ce5c00"]; break;
-			case 5: return [ "#ad7fa8", "#75507b", "#5c3566"]; break;
-			case 6: return [ "#ef2929", "#cc0000", "#a40000"]; break;
-			case 7: return [ "#729fcf", "#3465a4", "#204a87"]; break;
-		};
-
-	}
-
-	/**
-	 * Update the game status display.
-	 */
-	this.update_status = function(){
-		//Log.log('Updating status...');
-
-		this.score_display.innerHTML = this.score;
-		this.lines_display.innerHTML = this.lines;
-		this.level_display.innerHTML = this.level;
-
-	}
-
-	/**
-	 * Clear the game canvas.
-	 */
-	this.clear_canvas = function(){
-		//Log.log('Clearing the canvas');
-		//this.ctx.fillStyle = 'rgb(0,0,0)';
-		this.ctx.clearRect(0,0,this.canvas_width,this.canvas_height);
-	}
-
-	/**
-	 * Render a preview matrix.
-	 *
-	 * TODO: Size the preview piece and properly center.
-	 */
-	this.render_preview = function(){
-		
-		//Log.log('Rendering preview FIXME');
-
-		// Create preview matrix:
-		preview_matrix = [6];
-		for(r = 0; r < preview_matrix.size; x++){
-			preview_matrix[r] = [0,0,0,0,0,0];
-		}
-
-		// Clear
-		this.pre_ctx.fillStyle = 'rgb(0,0,0)';
-		this.pre_ctx.fillRect(0,0,this.preview_width,this.preview_height);
-
-		// Render the piece
-		// Create the piece pattern.
-		piece = self.create_piece(self.piece_stack[1][0]);
-		pattern = piece[1];
-
-		// TODO: Calculate center and draw scaled piece image!
-		colors = self.get_colors(piece[0]);
-
-		for(i = 0; i < 4; i++){
-			x = (pattern[i][0] + 1) * this.pre_pixel_width;
-			y = (pattern[i][1] + 1) * this.pre_pixel_height;
-			w = this.pre_pixel_width;
-			h = this.pre_pixel_height;
-
-			i_x = x + (this.pre_pixel_width * 0.25);
-			i_y = y + (this.pre_pixel_width * 0.25);
-			i_w = this.pre_pixel_width * 0.5;	
-			i_h = this.pre_pixel_width * 0.5;
-
-
-			self.pre_ctx.fillStyle = colors[0];
-			self.pre_ctx.fillRect(x,y,w,h);
-				
-			self.pre_ctx.fillStyle = colors[1];
-			self.pre_ctx.strokeRect(x,y,w,h);
-
-			self.pre_ctx.fillStyle = colors[2];
-			self.pre_ctx.fillRect(i_x,i_y,i_w,i_h);
-
-		}
-
-
-	}
-
-	/**
-	 * Draw an individual block.
-	 */
-	this.draw_block = function(color, x, y, w, h){
-
-				this.ctx.fillStyle = color;
-				this.ctx.fillRect(x, y, w, h);
-
-	}
-
-
-
-	//////////////////////////////////////////////////////////////////////
-	/*********************************************************************
-	 * EXTRA CLEANUP NEEDED BELOW
-	 *********************************************************************/
-	//////////////////////////////////////////////////////////////////////
 
 	/**
 	 * Initialize the matrix.
@@ -510,82 +166,53 @@ function GameMatrix(){
 	};
 
 
-	/**
-	 * Draw the game matrix.
-	 * TODO: Performance!
-	 */
-	this.draw_matrix = function(){
-
-		//Log.log('Drawing the matrix...');
-
-		// Clear first.
-		self.clear_canvas();
-
-		// Current row/col
-		row = 0;
-		col = 0;
-
-		// Render the matrix.
-		for(r = 0; r < this.height; r++){
-			for(c = 0; c < this.width; c++){
-
-				pixel = this.matrix[r][c];
-
-				colors = self.get_colors(pixel);
-				
-				if(colors != null){
-					x = c * this.pixel_width;
-					y = r * this.pixel_height;
-					w = this.pixel_width;
-					h = this.pixel_height;
-
-					i_x = x + (this.pixel_width * 0.25);
-					i_y = y + (this.pixel_width * 0.25);
-					i_w = this.pixel_width * 0.5;	
-					i_h = this.pixel_width * 0.5;
-
-
-					self.ctx.fillStyle = colors[0];
-					self.ctx.fillRect(x,y,w,h);
-
-					self.ctx.fillStyle = colors[1];
-					self.ctx.strokeRect(x,y,w,h);
-
-					self.ctx.fillStyle = colors[2];
-					self.ctx.fillRect(i_x,i_y,i_w,i_h);
-				}
-
-			}
-
-		}
-
-	};
-
+	/*********************************************************************
+	 * Game Logic
+	 *********************************************************************/
 
 	/**
-	 * Removes a line, causing the rest of the lines to fall downwards.
-	 * TODO: Multi-line removal detection will be required for proper scoring.
+	 * Calculates the current game speed.
 	 */
-	this.remove_line = remove_line;
-	function remove_line(index){
+	this.calculate_speed = function(){
 
-		// Remove the old line.
-		this.matrix.splice(index, 1);
+		// TODO: Is the the appropriate speed determination?
+		// speed = (MIN + BASE / LEVEL)
+		return self.min_speed + self.base_speed / self.level
+
+	}
+
+	/* Creates a tetris piece.
+	 *
+	 * Format:
+	 *    [ TYPE, [ [P1],[P2],... ] ]
+	 *
+	 */
+	this.create_piece = function(type){
 		
-		// Push a new line.
-		this.matrix.unshift(new Array(this.width));
+		// Create the piece pattern.
+		pattern = null;
 
-	};
+		switch(type){
+			case 1: pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
+			case 2: pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
+			case 3: pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
+			case 4: pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
+			case 5: pattern = [[0,0],[0,1],[0,2],[1,2]]; break;
+			case 6: pattern = [[0,0],[0,1],[1,1],[1,2]]; break;
+			case 7: pattern = [[1,0],[0,1],[1,1],[0,2]]; break;
+		};
 
+		// Return an array containing the piece type and the pattern.
+		return [ type, pattern ];
 
+	}
 
-	/* Place a piece on the matrix.
+	/**
+	 * Place a piece on the matrix.
+	 * TODO: Cleanup
 	 */
 	this.set_piece = set_piece;
 	function set_piece(){
-
-		// DEBUG
-		//Log.log('Creating a game piece!');
 
 		// Create a random piece.
 		// FIXME: Using Math.round/floor/etc and others will result in
@@ -616,63 +243,6 @@ function GameMatrix(){
 
 	}
 
-	/**
-	 * Draw the currenct piece on the game board.
-	 */
-	this.draw_piece = function(){
-
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
-
-		// Tetrominos are always composed of 4 squares.
-		// TODO: Can we enhance performance with better shape calculation?
-		colors = self.get_colors(type);
-
-		for(i = 0; i < 4; i++){
-
-			// Precalculating these values, primarily for readability.
-			x = piece[i][0] * this.pixel_width;
-			y = piece[i][1] * this.pixel_height;
-			w = this.pixel_width;
-			h = this.pixel_height;
-
-			i_x = x + (this.pixel_width * 0.25);
-			i_y = y + (this.pixel_width * 0.25);
-			i_w = this.pixel_width * 0.5;	
-			i_h = this.pixel_width * 0.5;
-
-
-			// Draw the colored blocks.
-			self.ctx.fillStyle = colors[0];
-			self.ctx.fillRect(x,y,w,h);
-				
-			self.ctx.fillStyle = colors[1];
-			self.ctx.strokeRect(x,y,w,h);
-
-			self.ctx.fillStyle = colors[2];
-			self.ctx.fillRect(i_x,i_y,i_w,i_h);
-
-		}
-
-	}
-
-	/**
-	 * Clear the current piece (clears to transparency).
-	 */
-	this.clear_piece = clear_piece;
-	function clear_piece(){
-
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
-
-		// Tetrominos are always composed of 4 squares.
-		// TODO: Can we enhance performance with better shape calculation?		
-		self.ctx.clearRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		self.ctx.clearRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		self.ctx.clearRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		self.ctx.clearRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		
-	}
 
 	/**
 	 * Scan for and remove completed lines from the matrix.
@@ -758,7 +328,34 @@ function GameMatrix(){
 
 	};
 
-	
+
+	/**
+	 * Anchor the current piece to the board.
+	 */
+	this.anchor_current = function(){
+
+		// Anchor the current piece to the board.
+		for(x = 0; x < self.piece_stack[0][1].length; x++){
+			point = self.piece_stack[0][1][x];
+			self.matrix[point[1]][point[0]] = type;
+		}
+
+	}
+
+	/**
+	 * Removes a line, causing the rest of the lines to fall downwards.
+	 * TODO: Multi-line removal detection will be required for proper scoring.
+	 */
+	this.remove_line = function(index){
+
+		// Remove the old line.
+		this.matrix.splice(index, 1);
+		
+		// Push a new line.
+		this.matrix.unshift(new Array(this.width));
+
+	}
+
 	/**
 	 * Execute a game iteration.
 	 */
@@ -802,10 +399,11 @@ function GameMatrix(){
 
 	/**
 	 * GAME OVER, d00d.
+	 * TODO: Display some kind of insulting message.
 	 */
 	this.game_over = function(){
 
-		Log.log('GAME_OVER');
+		//Log.log('GAME_OVER');
 
 		// Clear the game iteration timer interval.
 		clearInterval(this.interval_id);
@@ -818,52 +416,138 @@ function GameMatrix(){
 
 	}
 
+
+
+
+	/*********************************************************************
+	 * Game Control Logic
+	 *********************************************************************/
+
+
 	/**
-	 * Execute a game iteration.
-	 * TODO: Cleanup.
+	 * Initiate keyboard controls.
+	 *   The goal here is to get a good feel on all non-IE browsers.
+	 *   TODO: Performance, feel, code cleanup.
 	 */
-	this.iterate_old = function(){
+	this.initiate_controls = function(){
 
-		// Create a new piece if this is the beginning, or if anchoring ocurred.
-		// Also, scan for lines.
-		if(this.anchored){
-			// Remove the old piece.
-			self.piece_stack.shift();
 
-			// Scan for lines, and update status if there were any.
-			if(self.scan_lines()){
-				self.update_status();
-			}
+		left = 'self.move_horiz(-1)';
+		right = 'self.move_horiz(1)';
+		down = 'self.move_down()';
+		rotate = 'self.rotate()';
 
-			// Redraw Matrix
-			self.draw_matrix();
+		document.onkeydown = function(e){
 
-			this.set_piece();
+			//Log.log('key pressed!' + e.keyCode);
 
-			if(!this.can_move(self.piece_stack[0][1])){
-				//Log.log('GAME_OVER');
-				clearInterval(this.interval_id);
-				this.init();
-				this.clear_canvas();
-				return;
-			}
+			// Don't allow simultaneous movements.
+			if(self.l_int){ clearInterval(self.l_int); self.l_int = null; }
+			if(self.r_int){ clearInterval(self.r_int); self.r_int = null; }
+			if(self.d_int){ clearInterval(self.d_int); self.d_int = null; }
+			if(self.rot_int){ clearInterval(self.rot_int); self.rot_int = null; }
 
-			// TODO: Render here?
-			this.render_preview();
+			switch(e.keyCode){
+				case 37:
+				eval(left);
+				self.l_int = setTimeout('self.l_int = self.continuous_movement(left)', self.repeat_wait );
+				break;
+				case 38:
+				eval(rotate);
+				//self.rot_int = setTimeout('self.rot_int = self.continuous_movement(rotate)', self.repeat_wait );
+				break;
+				case 39:
+				eval(right);
+				self.r_int = setTimeout('self.r_int = self.continuous_movement(right)', self.repeat_wait );
+				break;
+				case 40:
+				eval(down);
+				self.d_int = setTimeout('self.d_int = self.continuous_movement(down)', self.repeat_wait );
+				break;
+				case 80: self.toggle_pause(); break;	
+			};
 
-			this.anchored = false;
-		}
 
-		// Process user input. Rotation and Horizontal movement.
-		// ...or move down.
-		this.move_down();
+		};
+
+		document.onkeyup = function(e){
+			//Log.log('key up: ' + e.keyCode);
+			switch(e.keyCode){
+				case 37: clearInterval(self.l_int); self.l_int = null; break;
+				case 38: clearInterval(self.rot_int); self.rot_int = null; break;
+				case 39: clearInterval(self.r_int); self.r_int = null; break;
+				case 40: clearInterval(self.d_int); self.d_int = null; break;
+			};
+
+		};
 
 	}
 
+	/**
+	 * Continuous movement.
+	 * Sets a movement interval.
+	 */
+	this.continuous_movement = function(func){
+
+		// Eval the expression once.
+		//eval(func);
+
+		return setInterval(func, self.move_speed);
+
+	};
 
 
 	/**
+	 * Trigger horizontal movement. Use negative numbers to move left.
+	 * NOTE: This will trigger a redraw of the current piece if successful.
+	 */
+	this.move_horiz = function(amount){
+
+
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][1];
+
+		temp_piece = [];
+
+		for(x = 0; x < piece.length; x++){
+			point = piece[x];
+			temp_piece[x] = [ point[0] + amount, point[1]];
+		}
+		
+		if(self.can_move(temp_piece)){
+			self.redraw_current_piece(temp_piece);
+		}		
+
+	}
+
+	/**
+	 * Trigger downward movement. Returns false if anchoring conditions are
+	 * encountered.
+	 * NOTE: This will trigger a redraw of the current piece if successful.
+	 */
+	this.move_down = function(){
+
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][1];
+
+		temp_piece = [];
+
+		for(x = 0; x < piece.length; x++){
+			point = piece[x];
+			temp_piece[x] = [ point[0], point[1] + 1];
+		}
+
+		if(self.can_move(temp_piece)){
+			self.redraw_current_piece(temp_piece);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Perform a piece matrix rotation.
+	 * NOTE: This will trigger a redraw of the current piece if successful.
 	 * TODO: Cleanup.
 	 */
 	this.rotate = function(){
@@ -886,6 +570,7 @@ function GameMatrix(){
 		fix_y = 0;
 		shift_y = 0;
 
+		// FIXME: Find a clever (mathematical) way out of this madness.
 		// Elaborate (and annoying) fix for spin-climbing.
 		switch(type){
 			case 1: return; break;
@@ -895,7 +580,6 @@ function GameMatrix(){
 			case 5: fix_x = 0.25; fix_y = 0.25; break;
 			case 6: if(self.even) { shift_y = -1; self.even = false; } else { self.even = true; } break;
 			case 7: if(self.even) { shift_y = -1; self.even = false; } else { self.even = true; } break;
-		
 		};
 
 
@@ -916,14 +600,279 @@ function GameMatrix(){
 
 		}
 
-		// Calculate transform validity
-		if( this.can_move(new_piece) ){
-			this.clear_piece();
-			self.piece_stack[0][1] = new_piece;
-			this.draw_piece();
+		// Calculate transform validity and redraw if ok.
+		if( self.can_move(new_piece) ){
+			self.redraw_current_piece(new_piece);
+		}
+
+	}
+
+	/**
+	 * Start the game!
+	 * Calling start again while running will act like a reset, and can be
+	 * used to increase game speed.
+	 */
+	this.start = function(){
+
+		// Clear interval if an interval is set.
+		if(self.interval_id){
+			clearInterval(self.interval_id);
+			self.interval_id = null;
+		}
+
+		// Initialize the iteration timer.
+		self.interval_id = setInterval( function(){
+			self.iterate();
+		}, self.calculate_speed());
+
+	};
+
+	/**
+	 * Toggle the pause state.
+	 */
+	this.toggle_pause = function(){
+
+		if(self.interval_id){
+			clearInterval(self.interval_id);
+			self.interval_id = null;
+		} else {
+			self.start();
+		}
+
+	}
+
+
+	/*********************************************************************
+	 * Rendering Logic
+	 *********************************************************************/
+
+	/**
+	 * Retrieve the color palette for a given block type.
+	 * TODO: Speed this up by replacing with a constant array?
+	 */
+	this.get_colors = function(type){
+
+		// Tango colors.
+		switch(type){
+			case undefined: return null; break;
+			case null:      return null; break;
+			case 0:         return null; break;
+			case 1: return [ "#fce94f", "#edd400", "#c4a000"]; break;
+			case 2: return [ "#8ae234", "#73d216", "#4e9a06"]; break;
+			case 3: return [ "#e9b96e", "#c17d11", "#8f5902"]; break;
+			case 4: return [ "#fcaf3e", "#f57900", "#ce5c00"]; break;
+			case 5: return [ "#ad7fa8", "#75507b", "#5c3566"]; break;
+			case 6: return [ "#ef2929", "#cc0000", "#a40000"]; break;
+			case 7: return [ "#729fcf", "#3465a4", "#204a87"]; break;
+		};
+
+	}
+
+	/**
+	 * Clears and redraws the current piece.
+	 */
+	this.redraw_current_piece = function(new_piece){
+
+		self.clear_piece();
+		self.piece_stack[0][1] = new_piece;
+		self.draw_piece();
+
+	}
+
+	/**
+	 * Update the game status display.
+	 */
+	this.update_status = function(){
+		//Log.log('Updating status...');
+
+		this.score_display.innerHTML = this.score;
+		this.lines_display.innerHTML = this.lines;
+		this.level_display.innerHTML = this.level;
+
+	}
+
+	/**
+	 * Clear the game canvas. Resets to transparency.
+	 */
+	this.clear_canvas = function(){
+		this.ctx.clearRect(0,0,this.canvas_width,this.canvas_height);
+	}
+
+	/**
+	 * Render a preview matrix.
+	 *
+	 * TODO: Size the preview piece and properly center.
+	 */
+	this.render_preview = function(){
+		
+		//Log.log('Rendering preview FIXME');
+
+		// Create preview matrix:
+		preview_matrix = [6];
+		for(r = 0; r < preview_matrix.size; x++){
+			preview_matrix[r] = [0,0,0,0,0,0];
+		}
+
+		// Clear
+		this.pre_ctx.fillStyle = 'rgb(0,0,0)';
+		this.pre_ctx.fillRect(0,0,this.preview_width,this.preview_height);
+
+		// Render the piece
+		// Create the piece pattern.
+		piece = self.create_piece(self.piece_stack[1][0]);
+		pattern = piece[1];
+
+		// TODO: Calculate center and draw scaled piece image!
+		colors = self.get_colors(piece[0]);
+
+		for(i = 0; i < 4; i++){
+			x = (pattern[i][0] + 1) * this.pre_pixel_width;
+			y = (pattern[i][1] + 1) * this.pre_pixel_height;
+			w = this.pre_pixel_width;
+			h = this.pre_pixel_height;
+
+			i_x = x + (this.pre_pixel_width * 0.25);
+			i_y = y + (this.pre_pixel_width * 0.25);
+			i_w = this.pre_pixel_width * 0.5;	
+			i_h = this.pre_pixel_width * 0.5;
+
+
+			self.pre_ctx.fillStyle = colors[0];
+			self.pre_ctx.fillRect(x,y,w,h);
+				
+			self.pre_ctx.fillStyle = colors[1];
+			self.pre_ctx.strokeRect(x,y,w,h);
+
+			self.pre_ctx.fillStyle = colors[2];
+			self.pre_ctx.fillRect(i_x,i_y,i_w,i_h);
+
+		}
+
+
+	}
+
+	/**
+	 * Draw an individual block.
+	 */
+	this.draw_block = function(color, x, y, w, h){
+
+				this.ctx.fillStyle = color;
+				this.ctx.fillRect(x, y, w, h);
+
+	}
+
+
+	/**
+	 * Draw the game matrix.
+	 * TODO: Performance!
+	 */
+	this.draw_matrix = function(){
+
+		//Log.log('Drawing the matrix...');
+
+		// Clear first.
+		self.clear_canvas();
+
+		// Current row/col
+		row = 0;
+		col = 0;
+
+		// Render the matrix.
+		for(r = 0; r < this.height; r++){
+			for(c = 0; c < this.width; c++){
+
+				pixel = this.matrix[r][c];
+
+				colors = self.get_colors(pixel);
+				
+				if(colors != null){
+					x = c * this.pixel_width;
+					y = r * this.pixel_height;
+					w = this.pixel_width;
+					h = this.pixel_height;
+
+					i_x = x + (this.pixel_width * 0.25);
+					i_y = y + (this.pixel_width * 0.25);
+					i_w = this.pixel_width * 0.5;	
+					i_h = this.pixel_width * 0.5;
+
+
+					self.ctx.fillStyle = colors[0];
+					self.ctx.fillRect(x,y,w,h);
+
+					self.ctx.fillStyle = colors[1];
+					self.ctx.strokeRect(x,y,w,h);
+
+					self.ctx.fillStyle = colors[2];
+					self.ctx.fillRect(i_x,i_y,i_w,i_h);
+				}
+
+			}
+
 		}
 
 	};
+
+
+
+
+	/**
+	 * Draw the currenct piece on the game board.
+	 */
+	this.draw_piece = function(){
+
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][1];
+
+		// Tetrominos are always composed of 4 squares.
+		// TODO: Can we enhance performance with better shape calculation?
+		colors = self.get_colors(type);
+
+		for(i = 0; i < 4; i++){
+
+			// Precalculating these values, primarily for readability.
+			x = piece[i][0] * this.pixel_width;
+			y = piece[i][1] * this.pixel_height;
+			w = this.pixel_width;
+			h = this.pixel_height;
+
+			i_x = x + (this.pixel_width * 0.25);
+			i_y = y + (this.pixel_width * 0.25);
+			i_w = this.pixel_width * 0.5;	
+			i_h = this.pixel_width * 0.5;
+
+
+			// Draw the colored blocks.
+			self.ctx.fillStyle = colors[0];
+			self.ctx.fillRect(x,y,w,h);
+				
+			self.ctx.fillStyle = colors[1];
+			self.ctx.strokeRect(x,y,w,h);
+
+			self.ctx.fillStyle = colors[2];
+			self.ctx.fillRect(i_x,i_y,i_w,i_h);
+
+		}
+
+	}
+
+	/**
+	 * Clear the current piece (clears to transparency).
+	 */
+	this.clear_piece = clear_piece;
+	function clear_piece(){
+
+		type = self.piece_stack[0][0];
+		piece = self.piece_stack[0][1];
+
+		// Tetrominos are always composed of 4 squares.
+		// TODO: Can we enhance performance with better shape calculation?		
+		self.ctx.clearRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.clearRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.clearRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		self.ctx.clearRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		
+	}
 
 
 };
