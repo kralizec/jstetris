@@ -34,6 +34,7 @@ function GameMatrix(){
 	this.level_step = 10;  // Increase level every 10 lines.
 
 
+	/* This is the speed at which movement events cycle when keys are held down */
 	this.move_speed = 75; // 50ms
 
 

@@ -1,10 +1,12 @@
 #debug_container
 {
-	/*float: right;*/
+	float: right;
 	margin: 5px;
 	/*background-color: black;*/
-	height: 200px;
+	height: 300px;
+	width: 300px;
 	overflow: auto;
+	border: 2px solid blue;
 }
 
 #test_canvas
@@ -12,9 +14,21 @@
 	float: left;
 	margin: 5px;
 	background-color: black;
+	border: 2px solid blue;
 }
 
 #preview_canvas
 {
+	float: right;
 	margin: 5px;
+	border: 2px solid blue;
+}
+
+#status_display
+{
+	float: right;
+	margin: 5px;
+	border: 2px solid blue;
+	width: 300px;
+	height: 75px;
 }
