@@ -133,21 +133,41 @@ function GameMatrix(){
 
 	this.initiate_controls = function(){
 
+
+		left = 'self.move_horiz(-1)';
+		right = 'self.move_horiz(1)';
+		down = 'self.move_down()';
+		rotate = 'self.rotate()';
+
+		
 		
 		document.onkeydown = function(e){
 
 			//Log.log('key pressed!' + e.keyCode);
 
+			// Don't allow simultaneous movements.
 			if(self.l_int){ clearInterval(self.l_int); self.l_int = null; }
 			if(self.r_int){ clearInterval(self.r_int); self.r_int = null; }
 			if(self.d_int){ clearInterval(self.d_int); self.d_int = null; }
 			if(self.rot_int){ clearInterval(self.rot_int); self.rot_int = null; }
 
 			switch(e.keyCode){
-				case 37: self.l_int = self.continuous_movement( 'self.move_horiz(-1)' ); break;
-				case 38: self.rot_int = self.continuous_movement( 'self.rotate()' ); break;
-				case 39: self.r_int = self.continuous_movement( 'self.move_horiz(1)' ); break;
-				case 40: self.d_int = self.continuous_movement( 'self.move_down()' ); break;
+				case 37:
+				eval(left);
+				self.l_int = setTimeout('self.l_int = self.continuous_movement(left)', 50 );
+				break;
+				case 38:
+				eval(rotate);
+				self.rot_int = setTimeout('self.rot_int = self.continuous_movement(rotate)', 50 );
+				break;
+				case 39:
+				eval(right);
+				self.r_int = setTimeout('self.r_int = self.continuous_movement(right)', 50);
+				break;
+				case 40:
+				eval(down);
+				self.d_int = setTimeout('self.d_int = self.continuous_movement(down)', 50);
+				break;
 				case 80: self.toggle_pause(); break;	
 			};
 
@@ -174,7 +194,7 @@ function GameMatrix(){
 	this.continuous_movement = function(func){
 
 		// Eval the expression once.
-		eval(func);
+		//eval(func);
 
 		return setInterval(func, self.move_speed);
 
@@ -718,10 +738,8 @@ function GameMatrix(){
 	/* Perform a piece matrix rotation.
 	 * FIXME: Get rid of "climbing spin" effect.
 	 */
-	this.rotate = rotate;
-	function rotate(){
+	this.rotate = function(){
 
-		
 		type = self.piece_stack[0][0];
 		piece = self.piece_stack[0][2];
 
