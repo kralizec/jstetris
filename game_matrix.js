@@ -167,7 +167,7 @@ function GameMatrix(){
 				break;
 				case 38:
 				eval(rotate);
-				self.rot_int = setTimeout('self.rot_int = self.continuous_movement(rotate)', self.repeat_wait );
+				//self.rot_int = setTimeout('self.rot_int = self.continuous_movement(rotate)', self.repeat_wait );
 				break;
 				case 39:
 				eval(right);
