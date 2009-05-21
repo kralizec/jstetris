@@ -436,7 +436,10 @@ function GameMatrix(){
 	 *********************************************************************/
 	//////////////////////////////////////////////////////////////////////
 
-	/* Initialize the matrix. */
+	/**
+	 * Initialize the matrix.
+	 * TODO: Improve init logic.
+	 */
 	this.init = function(width, height) {
 	
 		// Debug
@@ -462,7 +465,8 @@ function GameMatrix(){
 
 	};
 
-	/* Associate a canvas element with this object.
+	/**
+	 * Associate a canvas element with this object.
 	 */
 	this.set_canvas = function(canvas_id) {
 
@@ -480,7 +484,8 @@ function GameMatrix(){
 
 	}
 
-	/* Associate a preview canvas
+	/**
+	 * Associate a preview canvas
 	 */
 	this.set_preview_canvas = function(canvas_id){
 
@@ -550,7 +555,8 @@ function GameMatrix(){
 	};
 
 
-	/* Removes a line, causing the rest of the lines to fall downwards.
+	/**
+	 * Removes a line, causing the rest of the lines to fall downwards.
 	 * TODO: Multi-line removal detection will be required for proper scoring.
 	 */
 	this.remove_line = remove_line;
@@ -606,8 +612,7 @@ function GameMatrix(){
 	/**
 	 * Draw the currenct piece on the game board.
 	 */
-	this.draw_piece = draw_piece;
-	function draw_piece(){
+	this.draw_piece = function(){
 
 		type = self.piece_stack[0][0];
 		piece = self.piece_stack[0][1];
@@ -617,6 +622,8 @@ function GameMatrix(){
 		colors = self.get_colors(type);
 
 		for(i = 0; i < 4; i++){
+
+			// Precalculating these values, primarily for readability.
 			x = piece[i][0] * this.pixel_width;
 			y = piece[i][1] * this.pixel_height;
 			w = this.pixel_width;
@@ -628,6 +635,7 @@ function GameMatrix(){
 			i_h = this.pixel_width * 0.5;
 
 
+			// Draw the colored blocks.
 			self.ctx.fillStyle = colors[0];
 			self.ctx.fillRect(x,y,w,h);
 				
@@ -641,13 +649,13 @@ function GameMatrix(){
 
 	}
 
-	/* Clear the current piece (draw over with background color).
+	/**
+	 * Clear the current piece (clears to transparency).
 	 */
 	this.clear_piece = clear_piece;
 	function clear_piece(){
 
 		type = self.piece_stack[0][0];
-		//color = 'black';
 		piece = self.piece_stack[0][1];
 
 		// Tetrominos are always composed of 4 squares.
@@ -659,7 +667,9 @@ function GameMatrix(){
 		
 	}
 
-	/* Scan for and remove completed lines from the matrix.
+	/**
+	 * Scan for and remove completed lines from the matrix.
+	 * TODO: Bring some sanity to this.
 	 */
 	this.scan_lines = scan_lines;
 	function scan_lines(){
@@ -710,6 +720,7 @@ function GameMatrix(){
 	/**
 	 * Detect whether or not the given piece is a valid move. Returns false
 	 * if invalid, otherwise true.
+	 * TODO: Cleanup
 	 */
 	this.can_move = function(piece){
 
@@ -741,7 +752,9 @@ function GameMatrix(){
 	};
 
 	
-	/* Iterate.
+	/**
+	 * Execute a game iteration.
+	 * TODO: Cleanup.
 	 */
 	this.iterate = function(){
 
@@ -788,6 +801,7 @@ function GameMatrix(){
 
 	/**
 	 * Perform a piece matrix rotation.
+	 * TODO: Cleanup.
 	 */
 	this.rotate = function(){
 
