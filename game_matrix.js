@@ -253,7 +253,8 @@ function GameMatrix(){
 	}
 
 	/**
-	 * Trigger downward movement.
+	 * Trigger downward movement. Returns false if anchoring conditions are
+	 * encountered.
 	 */
 	this.move_down = function(){
 
@@ -268,21 +269,27 @@ function GameMatrix(){
 		}
 
 		if(this.can_move(temp_piece)){
-			this.clear_piece();			
+			this.clear_piece();
 			self.piece_stack[0][1] = temp_piece;
 			this.draw_piece();
+			return true;
 		} else {
-			//Log.log('Cannot Move down!');
-			// Anchor the currenct piece to the board.
-			for(x = 0; x < piece.length; x++){
-				point = piece[x];
-				this.matrix[point[1]][point[0]] = type;
-			} 
-
-			this.anchored = true;
+			return false;
 		}
 	}
 
+	/**
+	 * Anchor the current piece to the board.
+	 */
+	this.anchor_current = function(){
+
+		// Anchor the current piece to the board.
+		for(x = 0; x < self.piece_stack[0][1].length; x++){
+			point = self.piece_stack[0][1][x];
+			self.matrix[point[1]][point[0]] = type;
+		}
+
+	}
 
 	/**
 	 * Start the game!
@@ -754,18 +761,74 @@ function GameMatrix(){
 	
 	/**
 	 * Execute a game iteration.
-	 * TODO: Cleanup.
 	 */
 	this.iterate = function(){
+
+		// Move down, and perform anchoring operations if move_down
+		// returns false (indicating anchoring conditions).
+		if(!self.move_down()){
+
+			// Anchor the current piece.
+			self.anchor_current();
+
+			// Shift the old piece off the stack.
+			self.piece_stack.shift();
+
+			// Scan for lines.
+			self.scan_lines();
+			
+			// Update the status display.
+			self.update_status();
+
+			// Draw the new matrix
+			self.draw_matrix();
+
+			// Set a new random piece on the board.
+			self.set_piece();
+
+			// Trigger Game Over if can_move returns false.
+			if(!self.can_move(self.piece_stack[0][1])){
+				self.game_over();
+				return;
+			} else {
+				
+				// Render a new piece preview.
+				self.render_preview();
+			}
+
+		}
+
+	}
+
+	/**
+	 * GAME OVER, d00d.
+	 */
+	this.game_over = function(){
+
+		Log.log('GAME_OVER');
+
+		// Clear the game iteration timer interval.
+		clearInterval(this.interval_id);
+
+		// Reset the initialization state.		
+		self.init();
+		
+		// Clear the game canvas.
+		self.clear_canvas();
+
+	}
+
+	/**
+	 * Execute a game iteration.
+	 * TODO: Cleanup.
+	 */
+	this.iterate_old = function(){
 
 		// Create a new piece if this is the beginning, or if anchoring ocurred.
 		// Also, scan for lines.
 		if(this.anchored){
 			// Remove the old piece.
 			self.piece_stack.shift();
-
-			// Fix for rotation climbing issues.
-			self.r_height = null;
 
 			// Scan for lines, and update status if there were any.
 			if(self.scan_lines()){

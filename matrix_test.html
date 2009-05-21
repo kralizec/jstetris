@@ -16,7 +16,9 @@
 				var matrix = new GameMatrix();
 
 				matrix.init(10,18);
-				matrix.set_canvas('test_canvas');
+
+				// Initialize the game and preview canvas objects.
+				matrix.set_canvas('game_canvas');
 				matrix.set_preview_canvas('preview_canvas');
 
 				// Initialize the status display
@@ -33,7 +35,7 @@
 
 	</head>
 	<body>
-		<canvas id="test_canvas" height="540px" width="300px"></canvas>
+		<canvas id="game_canvas" height="540px" width="300px"></canvas>
 		<div id="right_pane">
 			<canvas id="preview_canvas" height="100px" width="100px"></canvas>
 			<div id='status_display'></div>
