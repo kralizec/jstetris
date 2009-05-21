@@ -324,6 +324,7 @@ function GameMatrix(){
 	/**
 	 * Render a preview matrix.
 	 *
+	 * TODO: Size the preview piece and properly center.
 	 */
 	this.render_preview = function(){
 		
@@ -712,6 +713,9 @@ function GameMatrix(){
 			// Remove the old piece.
 			self.piece_stack.shift();
 
+			// Fix for rotation climbing issues.
+			self.r_height = null;
+
 			// Scan for lines, and update status if there were any.
 			if(self.scan_lines()){
 				self.update_status();
@@ -744,8 +748,8 @@ function GameMatrix(){
 
 
 
-	/* Perform a piece matrix rotation.
-	 * FIXME: Get rid of "climbing spin" effect.
+	/**
+	 * Perform a piece matrix rotation.
 	 */
 	this.rotate = function(){
 
@@ -761,10 +765,28 @@ function GameMatrix(){
 			r_x += piece[x][0];
 			r_y += piece[x][1];
 		}
-		r_x = Math.floor(r_x / 4);
-		r_y = Math.floor(r_y / 4);
 
-		//Log.log('RX: ' + r_x + ' RY: ' + r_y);
+		// Fix for spin climbing.
+		fix_x = 0;
+		fix_y = 0;
+		shift_y = 0;
+
+		no_round = false;
+		switch(type){
+			case 1: return; break;
+			case 2: fix_x = 0.25; fix_y = 0.25; break; 
+			case 3: if(self.even) { shift_y = -1; self.even = false; } else { self.even = true; } break;
+			case 4: fix_x = 0.25; fix_y = 0.25; break;
+			case 5: fix_x = 0.25; fix_y = 0.25; break;
+			case 6: if(self.even) { shift_y = -1; self.even = false; } else { self.even = true; } break;
+			case 7: if(self.even) { shift_y = -1; self.even = false; } else { self.even = true; } break;
+		
+		};
+
+
+		r_x = Math.round((r_x/4) - fix_x);
+		r_y = Math.round((r_y/4) - fix_y);
+	
 
 		// ... TRANSFORM!!!
 		for( x = 0; x < 4; x++ ){
@@ -775,7 +797,7 @@ function GameMatrix(){
 			t_x = y1 + r_x - r_y;
 			t_y = r_x + r_y - x1;
 
-			new_piece[x] = [t_x,t_y];
+			new_piece[x] = [t_x, t_y + shift_y];
 
 		}
 
