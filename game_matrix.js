@@ -1,10 +1,31 @@
 /*****************************************************************************
- * Soviet Block Game
+ * Soviet Block Game v0.0.1
  *   ... In Soviet Russia, Tetris plays YOU!
  *
  * Author: Jason Lawrence (2009)
  * Email: jason.lawrence@kralizec.org
  * License: You should all know about GPLv3 by now.
+ *
+ * Controls:
+ *   Arrow Keys will move, and the up arrow rotates the piece. Holding a key
+ *   down will trigger auto-movement after a brief timeout. Auto-rotation is
+ *   disabled by default (this is also more consistent with the Tetris feel I
+ *   am going for).
+ *   'p' will pause the game, though this will likely change.
+ *   More to come...
+ *
+ *
+ * TODO List:
+ *   1: Cleanup of method structure.
+ *   2: More advanced scoring.
+ *   3: Gameplay tweaks (level speeds, control response, etc).
+ *   4: Game Over message.
+ *   5: Menu and help options.
+ *   6: Music. (Procedurally generated?)
+ *   7: Interface for stats tracking backend.
+ *   8: Changing level backgrounds (easy, css backgrounds are supported).
+ *   9: Block and background theming (possibly user customizable).
+ *  10: Performance tweaks.
  *
  *****************************************************************************/
 function GameMatrix(){
@@ -35,10 +56,10 @@ function GameMatrix(){
 
 
 	/* This is the speed at which movement events cycle when keys are held down */
-	this.move_speed = 50; // 75ms
+	this.move_speed = 50; // 50ms
 	
 	/* This is the period of time after which depressed keys cause repetitious action */
-	this.repeat_wait = 75; // 50ms
+	this.repeat_wait = 75; // 75ms
 
 
 	/*********************************************************************
@@ -104,27 +125,26 @@ function GameMatrix(){
 	/* Creates a tetris piece.
 	 *
 	 * Format:
-	 *    [ TYPE, COLOR, [ [P1],[P2],... ] ]
+	 *    [ TYPE, [ [P1],[P2],... ] ]
 	 *
 	 */
 	this.create_piece = function(type){
 		
 		// Create the piece pattern.
 		pattern = null;
-		color = null;
 
 		switch(type){
-			case 1: color = 'blue';    pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
-			case 2: color = 'brown';   pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
-			case 3: color = 'red';     pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
-			case 4: color = 'white';   pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
-			case 5: color = 'magenta'; pattern = [[0,0],[0,1],[0,2],[1,2]]; break;
-			case 6: color = 'green';   pattern = [[0,0],[0,1],[1,1],[1,2]]; break;
-			case 7: color = 'cyan';    pattern = [[1,0],[0,1],[1,1],[0,2]]; break;
+			case 1: pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
+			case 2: pattern = [[0,0],[0,1],[1,1],[0,2]]; break;
+			case 3: pattern = [[0,0],[0,1],[0,2],[0,3]]; break;
+			case 4: pattern = [[0,0],[1,0],[0,1],[0,2]]; break;
+			case 5: pattern = [[0,0],[0,1],[0,2],[1,2]]; break;
+			case 6: pattern = [[0,0],[0,1],[1,1],[1,2]]; break;
+			case 7: pattern = [[1,0],[0,1],[1,1],[0,2]]; break;
 		};
 
 		// Return an array containing the piece type and the pattern.
-		return [ type, color, pattern ];
+		return [ type, pattern ];
 
 	}
 
@@ -138,7 +158,7 @@ function GameMatrix(){
 	/**
 	 * Initiate keyboard controls.
 	 *   The goal here is to get a good feel on all non-IE browsers.
-	 *   TODO: Performance, feel.
+	 *   TODO: Performance, feel, code cleanup.
 	 */
 	this.initiate_controls = function(){
 
@@ -148,8 +168,6 @@ function GameMatrix(){
 		down = 'self.move_down()';
 		rotate = 'self.rotate()';
 
-		
-		
 		document.onkeydown = function(e){
 
 			//Log.log('key pressed!' + e.keyCode);
@@ -210,11 +228,14 @@ function GameMatrix(){
 	};
 
 
+	/**
+	 * Trigger horizontal movement. Use negetive numbers to move left.
+	 */
 	this.move_horiz = function(amount){
 
 
 		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][2];
+		piece = self.piece_stack[0][1];
 
 		temp_piece = [];
 
@@ -225,18 +246,19 @@ function GameMatrix(){
 		
 		if(this.can_move(temp_piece)){
 			this.clear_piece();			
-			self.piece_stack[0][2] = temp_piece;
+			self.piece_stack[0][1] = temp_piece;
 			this.draw_piece();
-		} else {
-			//Log.log('Cannot Move!');	
 		}		
 
 	}
 
+	/**
+	 * Trigger downward movement.
+	 */
 	this.move_down = function(){
 
 		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][2];
+		piece = self.piece_stack[0][1];
 
 		temp_piece = [];
 
@@ -247,7 +269,7 @@ function GameMatrix(){
 
 		if(this.can_move(temp_piece)){
 			this.clear_piece();			
-			self.piece_stack[0][2] = temp_piece;
+			self.piece_stack[0][1] = temp_piece;
 			this.draw_piece();
 		} else {
 			//Log.log('Cannot Move down!');
@@ -258,12 +280,12 @@ function GameMatrix(){
 			} 
 
 			this.anchored = true;
-
 		}
 	}
 
 
-	/* Start the game!
+	/**
+	 * Start the game!
 	 * Calling start again while running will act like a reset, and can be
 	 * used to increase game speed.
 	 */
@@ -282,7 +304,8 @@ function GameMatrix(){
 
 	};
 
-	/* Toggle the pause state.
+	/**
+	 * Toggle the pause state.
 	 */
 	this.toggle_pause = function(){
 
@@ -299,6 +322,27 @@ function GameMatrix(){
 	/*********************************************************************
 	 * Rendering Logic
 	 *********************************************************************/
+
+	/**
+	 * Retrieve the color palette for a given block type.
+	 */
+	this.get_colors = function(type){
+
+		// Tango colors.
+		switch(type){
+			case undefined: return null; break;
+			case null:      return null; break;
+			case 0:         return null; break;
+			case 1: return [ "#fce94f", "#edd400", "#c4a000"]; break;
+			case 2: return [ "#8ae234", "#73d216", "#4e9a06"]; break;
+			case 3: return [ "#e9b96e", "#c17d11", "#8f5902"]; break;
+			case 4: return [ "#fcaf3e", "#f57900", "#ce5c00"]; break;
+			case 5: return [ "#ad7fa8", "#75507b", "#5c3566"]; break;
+			case 6: return [ "#ef2929", "#cc0000", "#a40000"]; break;
+			case 7: return [ "#729fcf", "#3465a4", "#204a87"]; break;
+		};
+
+	}
 
 	/**
 	 * Update the game status display.
@@ -343,19 +387,44 @@ function GameMatrix(){
 		// Render the piece
 		// Create the piece pattern.
 		piece = self.create_piece(self.piece_stack[1][0]);
-		pattern = piece[2];
+		pattern = piece[1];
 
 		// TODO: Calculate center and draw scaled piece image!
+		colors = self.get_colors(piece[0]);
 
-		this.pre_ctx.fillStyle = piece[1];
+		for(i = 0; i < 4; i++){
+			x = (pattern[i][0] + 1) * this.pre_pixel_width;
+			y = (pattern[i][1] + 1) * this.pre_pixel_height;
+			w = this.pre_pixel_width;
+			h = this.pre_pixel_height;
 
-		// Draw points
-		for(x = 0; x < pattern.length; x++){
-			px = (pattern[x][0] + 1) * this.pre_pixel_width;
-			py = (pattern[x][1] + 1) * this.pre_pixel_height;
-			this.pre_ctx.fillRect(px, py, this.pre_pixel_width, this.pre_pixel_height);
+			i_x = x + (this.pre_pixel_width * 0.25);
+			i_y = y + (this.pre_pixel_width * 0.25);
+			i_w = this.pre_pixel_width * 0.5;	
+			i_h = this.pre_pixel_width * 0.5;
+
+
+			self.pre_ctx.fillStyle = colors[0];
+			self.pre_ctx.fillRect(x,y,w,h);
+				
+			self.pre_ctx.fillStyle = colors[1];
+			self.pre_ctx.strokeRect(x,y,w,h);
+
+			self.pre_ctx.fillStyle = colors[2];
+			self.pre_ctx.fillRect(i_x,i_y,i_w,i_h);
+
 		}
 
+
+	}
+
+	/**
+	 * Draw an individual block.
+	 */
+	this.draw_block = function(color, x, y, w, h){
+
+				this.ctx.fillStyle = color;
+				this.ctx.fillRect(x, y, w, h);
 
 	}
 
@@ -363,7 +432,7 @@ function GameMatrix(){
 
 	//////////////////////////////////////////////////////////////////////
 	/*********************************************************************
-	 * UNSORTED
+	 * EXTRA CLEANUP NEEDED BELOW
 	 *********************************************************************/
 	//////////////////////////////////////////////////////////////////////
 
@@ -445,54 +514,36 @@ function GameMatrix(){
 		col = 0;
 
 		// Render the matrix.
-		for(y = 0; y < this.height; y++){
-			for(x = 0; x < this.width; x++){
+		for(r = 0; r < this.height; r++){
+			for(c = 0; c < this.width; c++){
 
-				pixel = this.matrix[y][x];
+				pixel = this.matrix[r][c];
 
-				switch(pixel){
-					case null: break;
-					case 0: break;
-					case 1: self.ctx.fillStyle = "#fce94f"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 2: self.ctx.fillStyle = "#8ae234"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 3: self.ctx.fillStyle = "#e9b96e"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 4: self.ctx.fillStyle = "#fcaf3e"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 5: self.ctx.fillStyle = "#ad7fa8"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 6: self.ctx.fillStyle = "#ef2929"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 7: self.ctx.fillStyle = "#729fcf"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-				};
+				colors = self.get_colors(pixel);
+				
+				if(colors != null){
+					x = c * this.pixel_width;
+					y = r * this.pixel_height;
+					w = this.pixel_width;
+					h = this.pixel_height;
 
-				switch(pixel){
-					case null: break;
-					case 0: break;
-					case 1: self.ctx.fillStyle = "#edd400"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 2: self.ctx.fillStyle = "#73d216"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 3: self.ctx.fillStyle = "#c17d11"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 4: self.ctx.fillStyle = "#f57900"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 5: self.ctx.fillStyle = "#75507b"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 6: self.ctx.fillStyle = "#cc0000"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 7: self.ctx.fillStyle = "#3465a4"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-				};
+					i_x = x + (this.pixel_width * 0.25);
+					i_y = y + (this.pixel_width * 0.25);
+					i_w = this.pixel_width * 0.5;	
+					i_h = this.pixel_width * 0.5;
 
-				switch(pixel){
-					case null: break;
-					case 0: break;
-					case 1: self.ctx.fillStyle = "#c4a000"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 2: self.ctx.fillStyle = "#4e9a06"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 3: self.ctx.fillStyle = "#8f5902"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 4: self.ctx.fillStyle = "#ce5c00"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 5: self.ctx.fillStyle = "#5c3566"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 6: self.ctx.fillStyle = "#a40000"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 7: self.ctx.fillStyle = "#204a87"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-				};
 
-				// Increment the col
-				col++;
+					self.ctx.fillStyle = colors[0];
+					self.ctx.fillRect(x,y,w,h);
+
+					self.ctx.fillStyle = colors[1];
+					self.ctx.strokeRect(x,y,w,h);
+
+					self.ctx.fillStyle = colors[2];
+					self.ctx.fillRect(i_x,i_y,i_w,i_h);
+				}
+
 			}
-
-			// Increment the row, reset col.
-			row++
-			col = 0;
 
 		}
 
@@ -536,7 +587,7 @@ function GameMatrix(){
 		self.piece_stack.push(piece_obj);
 
 		type = piece_obj[0];
-		piece = piece_obj[2];
+		piece = piece_obj[1];
 
 
 		// Adjust the piece position. (using start coordinates)
@@ -552,60 +603,42 @@ function GameMatrix(){
 
 	}
 
-	/* Draw the currenct piece on the game board.
+	/**
+	 * Draw the currenct piece on the game board.
 	 */
 	this.draw_piece = draw_piece;
 	function draw_piece(){
 
 		type = self.piece_stack[0][0];
-		//color = self.piece_stack[0][1];
-		piece = self.piece_stack[0][2];
-
-		//self.ctx.fillStyle = color;
+		piece = self.piece_stack[0][1];
 
 		// Tetrominos are always composed of 4 squares.
-		// TODO: Can we enhance performance with better shape calculation?		
-		//self.ctx.fillRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		//self.ctx.fillRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		//self.ctx.fillRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		//self.ctx.fillRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		for(x = 0; x < 4; x++){
-				switch(type){
-					case null: break;
-					case 0: break;
-					case 1: self.ctx.fillStyle = "#fce94f"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 2: self.ctx.fillStyle = "#8ae234"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 3: self.ctx.fillStyle = "#e9b96e"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 4: self.ctx.fillStyle = "#fcaf3e"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 5: self.ctx.fillStyle = "#ad7fa8"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 6: self.ctx.fillStyle = "#ef2929"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 7: self.ctx.fillStyle = "#729fcf"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-				};
+		// TODO: Can we enhance performance with better shape calculation?
+		colors = self.get_colors(type);
 
-				switch(type){
-					case null: break;
-					case 0: break;
-					case 1: self.ctx.fillStyle = "#edd400"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 2: self.ctx.fillStyle = "#73d216"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 3: self.ctx.fillStyle = "#c17d11"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 4: self.ctx.fillStyle = "#f57900"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 5: self.ctx.fillStyle = "#75507b"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 6: self.ctx.fillStyle = "#cc0000"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 7: self.ctx.fillStyle = "#3465a4"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
-				};
+		for(i = 0; i < 4; i++){
+			x = piece[i][0] * this.pixel_width;
+			y = piece[i][1] * this.pixel_height;
+			w = this.pixel_width;
+			h = this.pixel_height;
 
-				switch(type){
-					case null: break;
-					case 0: break;
-					case 1: self.ctx.fillStyle = "#c4a000"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 2: self.ctx.fillStyle = "#4e9a06"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 3: self.ctx.fillStyle = "#8f5902"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 4: self.ctx.fillStyle = "#ce5c00"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 5: self.ctx.fillStyle = "#5c3566"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 6: self.ctx.fillStyle = "#a40000"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-					case 7: self.ctx.fillStyle = "#204a87"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
-				};
+			i_x = x + (this.pixel_width * 0.25);
+			i_y = y + (this.pixel_width * 0.25);
+			i_w = this.pixel_width * 0.5;	
+			i_h = this.pixel_width * 0.5;
+
+
+			self.ctx.fillStyle = colors[0];
+			self.ctx.fillRect(x,y,w,h);
+				
+			self.ctx.fillStyle = colors[1];
+			self.ctx.strokeRect(x,y,w,h);
+
+			self.ctx.fillStyle = colors[2];
+			self.ctx.fillRect(i_x,i_y,i_w,i_h);
+
 		}
+
 	}
 
 	/* Clear the current piece (draw over with background color).
@@ -615,7 +648,7 @@ function GameMatrix(){
 
 		type = self.piece_stack[0][0];
 		//color = 'black';
-		piece = self.piece_stack[0][2];
+		piece = self.piece_stack[0][1];
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?		
@@ -674,64 +707,9 @@ function GameMatrix(){
 		}
 	};
 
-	/* Sinks the piece. Returns true if successful, false if collision.
-	 */
-	this.move_down_old = function(){
-
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][2];
-
-		temp_piece = [];
-
-		for(x = 0; x < piece.length; x++){
-			point = piece[x];
-			temp_piece[x] = [ point[0], point[1] + 1];
-		}
-
-		if(this.can_move(temp_piece)){
-			this.clear_piece();			
-			self.piece_stack[0][2] = temp_piece;
-			this.draw_piece();
-		} else {
-			//Log.log('Cannot Move down!');
-			// Anchor the currenct piece to the board.
-			for(x = 0; x < piece.length; x++){
-				point = piece[x];
-				this.matrix[point[1]][point[0]] = type;
-			} 
-
-			this.anchored = true;
-
-		}
-
-
-	};
-
-	/* Move left or right. (-) for left.
-	 */
-	this.move_horiz_old = function(amount){
-		
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][2];
-
-		temp_piece = [];
-
-		for(x = 0; x < piece.length; x++){
-			point = piece[x];
-			temp_piece[x] = [ point[0] + amount, point[1]];
-		}
-		
-		if(this.can_move(temp_piece)){
-			this.clear_piece();			
-			self.piece_stack[0][2] = temp_piece;
-			this.draw_piece();
-		} else {
-			//Log.log('Cannot Move!');	
-		}	
-
-	}
-
-	/* Detect anchoring conditions. Returns false if piece must be anchored.
+	/**
+	 * Detect whether or not the given piece is a valid move. Returns false
+	 * if invalid, otherwise true.
 	 */
 	this.can_move = function(piece){
 
@@ -765,8 +743,7 @@ function GameMatrix(){
 	
 	/* Iterate.
 	 */
-	this.iterate = iterate;
-	function iterate(){
+	this.iterate = function(){
 
 		// Create a new piece if this is the beginning, or if anchoring ocurred.
 		// Also, scan for lines.
@@ -787,7 +764,7 @@ function GameMatrix(){
 
 			this.set_piece();
 
-			if(!this.can_move(self.piece_stack[0][2])){
+			if(!this.can_move(self.piece_stack[0][1])){
 				//Log.log('GAME_OVER');
 				clearInterval(this.interval_id);
 				this.init();
@@ -805,7 +782,7 @@ function GameMatrix(){
 		// ...or move down.
 		this.move_down();
 
-	};
+	}
 
 
 
@@ -815,7 +792,7 @@ function GameMatrix(){
 	this.rotate = function(){
 
 		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][2];
+		piece = self.piece_stack[0][1];
 
 		new_piece = [];
 
@@ -832,7 +809,7 @@ function GameMatrix(){
 		fix_y = 0;
 		shift_y = 0;
 
-		no_round = false;
+		// Elaborate (and annoying) fix for spin-climbing.
 		switch(type){
 			case 1: return; break;
 			case 2: fix_x = 0.25; fix_y = 0.25; break; 
@@ -865,12 +842,9 @@ function GameMatrix(){
 		// Calculate transform validity
 		if( this.can_move(new_piece) ){
 			this.clear_piece();
-			self.piece_stack[0][2] = new_piece;
+			self.piece_stack[0][1] = new_piece;
 			this.draw_piece();
-		} else {
-			//Log.log("Cannot rotate!");
 		}
-
 
 	};
 
