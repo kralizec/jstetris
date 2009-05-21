@@ -1,5 +1,6 @@
 #debug_container
 {
+	display: none;
 	float: right;
 	margin: 5px;
 	/*background-color: black;*/
@@ -29,6 +30,15 @@
 	float: right;
 	margin: 5px;
 	border: 2px solid blue;
-	width: 300px;
+	width: 100px;
 	height: 75px;
+	background-color: white;
+}
+
+#tetris
+{
+	width: 450px;
+	height: 560px;
+	border: 2px solid blue;
+	background-color: black;
 }
