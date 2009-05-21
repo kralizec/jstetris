@@ -134,6 +134,12 @@ function GameMatrix(){
 	 * Game Control Logic
 	 *********************************************************************/
 
+
+	/**
+	 * Initiate keyboard controls.
+	 *   The goal here is to get a good feel on all non-IE browsers.
+	 *   TODO: Performance, feel.
+	 */
 	this.initiate_controls = function(){
 
 
