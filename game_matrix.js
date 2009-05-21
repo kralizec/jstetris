@@ -575,7 +575,7 @@ function GameMatrix(){
 
 			// Process level, and increase if necessary.
 			val = self.lines / ( self.level * self.level_step);
-			if(val > 1){
+			if(val >= 1){
 				self.level++;
 				// Increase the speed (by restarting interval).
 				self.start();
