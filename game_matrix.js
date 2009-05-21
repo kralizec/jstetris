@@ -703,8 +703,8 @@ function GameMatrix(){
 		}
 
 		// Clear
-		this.pre_ctx.fillStyle = 'rgb(0,0,0)';
-		this.pre_ctx.fillRect(0,0,this.preview_width,this.preview_height);
+		//this.pre_ctx.fillStyle = 'rgb(0,0,0)';
+		this.pre_ctx.clearRect(0,0,this.preview_width,this.preview_height);
 
 		// Render the piece
 		// Create the piece pattern.

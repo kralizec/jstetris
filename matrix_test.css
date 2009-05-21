@@ -15,30 +15,31 @@
 	float: left;
 	margin: 5px;
 	background-color: black;
-	border: 2px solid blue;
+	border: 2px solid #babdb6;
 }
 
 #preview_canvas
 {
 	float: right;
 	margin: 5px;
-	border: 2px solid blue;
+	border: 2px solid #babdb6;
+	background-color: #555753;
 }
 
 #status_display
 {
 	float: right;
 	margin: 5px;
-	border: 2px solid blue;
+	border: 2px solid #babdb6;
 	width: 100px;
 	height: 75px;
-	background-color: white;
+	background-color: #eeeeec;
 }
 
 #tetris
 {
-	width: 450px;
+	width: 430px;
 	height: 560px;
-	border: 2px solid blue;
-	background-color: black;
+	border: 2px solid #2e3436;
+	background-color: #888a85;
 }
