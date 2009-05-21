@@ -453,13 +453,37 @@ function GameMatrix(){
 				switch(pixel){
 					case null: break;
 					case 0: break;
-					case 1: self.ctx.fillStyle = "blue"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 2: self.ctx.fillStyle = "brown"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 3: self.ctx.fillStyle = "red"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 4: self.ctx.fillStyle = "white"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 5: self.ctx.fillStyle = "magenta"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 6: self.ctx.fillStyle = "green"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
-					case 7: self.ctx.fillStyle = "cyan"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 1: self.ctx.fillStyle = "#fce94f"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 2: self.ctx.fillStyle = "#8ae234"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 3: self.ctx.fillStyle = "#e9b96e"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 4: self.ctx.fillStyle = "#fcaf3e"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 5: self.ctx.fillStyle = "#ad7fa8"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 6: self.ctx.fillStyle = "#ef2929"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 7: self.ctx.fillStyle = "#729fcf"; this.ctx.fillRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+				};
+
+				switch(pixel){
+					case null: break;
+					case 0: break;
+					case 1: self.ctx.fillStyle = "#edd400"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 2: self.ctx.fillStyle = "#73d216"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 3: self.ctx.fillStyle = "#c17d11"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 4: self.ctx.fillStyle = "#f57900"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 5: self.ctx.fillStyle = "#75507b"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 6: self.ctx.fillStyle = "#cc0000"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 7: self.ctx.fillStyle = "#3465a4"; this.ctx.strokeRect(col * this.pixel_width, row * this.pixel_height, this.pixel_width, this.pixel_height); break;
+				};
+
+				switch(pixel){
+					case null: break;
+					case 0: break;
+					case 1: self.ctx.fillStyle = "#c4a000"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 2: self.ctx.fillStyle = "#4e9a06"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 3: self.ctx.fillStyle = "#8f5902"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 4: self.ctx.fillStyle = "#ce5c00"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 5: self.ctx.fillStyle = "#5c3566"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 6: self.ctx.fillStyle = "#a40000"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 7: self.ctx.fillStyle = "#204a87"; this.ctx.fillRect((col * this.pixel_width) + (this.pixel_width * 0.25), (row * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
 				};
 
 				// Increment the col
@@ -501,8 +525,9 @@ function GameMatrix(){
 
 		// Create a random piece.
 		// FIXME: Using Math.round/floor/etc and others will result in
-		// a NON distribution. This is bad, as we want our tetrominos
-		// to be truly (or at least almost) generated at random!
+		// a NON random distribution. This is bad, as we want our
+		// tetrominos to be truly (or at least almost) generated at
+		// random!
 		rand_type = Math.floor(Math.random() * (7 - 1 + 1)) + 1;
 		piece_obj = self.create_piece(rand_type);
 		//piece_obj = self.create_piece(Math.floor(Math.random()*7) + 1);
@@ -533,18 +558,54 @@ function GameMatrix(){
 	function draw_piece(){
 
 		type = self.piece_stack[0][0];
-		color = self.piece_stack[0][1];
+		//color = self.piece_stack[0][1];
 		piece = self.piece_stack[0][2];
 
-		self.ctx.fillStyle = color;
+		//self.ctx.fillStyle = color;
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?		
-		self.ctx.fillRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		self.ctx.fillRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		self.ctx.fillRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		self.ctx.fillRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		//self.ctx.fillRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		//self.ctx.fillRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		//self.ctx.fillRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		//self.ctx.fillRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		for(x = 0; x < 4; x++){
+				switch(type){
+					case null: break;
+					case 0: break;
+					case 1: self.ctx.fillStyle = "#fce94f"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 2: self.ctx.fillStyle = "#8ae234"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 3: self.ctx.fillStyle = "#e9b96e"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 4: self.ctx.fillStyle = "#fcaf3e"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 5: self.ctx.fillStyle = "#ad7fa8"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 6: self.ctx.fillStyle = "#ef2929"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 7: self.ctx.fillStyle = "#729fcf"; this.ctx.fillRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+				};
 
+				switch(type){
+					case null: break;
+					case 0: break;
+					case 1: self.ctx.fillStyle = "#edd400"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 2: self.ctx.fillStyle = "#73d216"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 3: self.ctx.fillStyle = "#c17d11"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 4: self.ctx.fillStyle = "#f57900"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 5: self.ctx.fillStyle = "#75507b"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 6: self.ctx.fillStyle = "#cc0000"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+					case 7: self.ctx.fillStyle = "#3465a4"; this.ctx.strokeRect(piece[x][0] * this.pixel_width, piece[x][1] * this.pixel_height, this.pixel_width, this.pixel_height); break;
+				};
+
+				switch(type){
+					case null: break;
+					case 0: break;
+					case 1: self.ctx.fillStyle = "#c4a000"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 2: self.ctx.fillStyle = "#4e9a06"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 3: self.ctx.fillStyle = "#8f5902"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 4: self.ctx.fillStyle = "#ce5c00"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 5: self.ctx.fillStyle = "#5c3566"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 6: self.ctx.fillStyle = "#a40000"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+					case 7: self.ctx.fillStyle = "#204a87"; this.ctx.fillRect((piece[x][0] * this.pixel_width) + (this.pixel_width * 0.25), (piece[x][1] * this.pixel_height) + (this.pixel_height * 0.25), this.pixel_width * 0.5, this.pixel_height * 0.5); break;
+				};
+		}
 	}
 
 	/* Clear the current piece (draw over with background color).
