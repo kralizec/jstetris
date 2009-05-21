@@ -34,7 +34,7 @@ function GameMatrix(){
 	this.level_step = 10;  // Increase level every 10 lines.
 
 
-	this.move_speed = 50; // 50ms
+	this.move_speed = 75; // 50ms
 
 
 	/*********************************************************************
@@ -132,32 +132,7 @@ function GameMatrix(){
 
 	this.initiate_controls = function(){
 
-		/*document.onkeydown = function(e){
-
-			//Log.log('key pressed!' + e.keyCode);
-
-			switch(e.keyCode){
-				case 80: self.toggle_pause(); break;
-			};
-
-		};*/
-
-				
-		/*document.onkeydown = function(e){
-
-			//Log.log('key pressed!' + e.keyCode);
-
-			switch(e.keyCode){
-				case 37: self.move_horiz(-1); break;
-				case 38: self.rotate(); break;
-				case 39: self.move_horiz(1); break;
-				case 40: self.move_down(); break;
-				case 80: self.toggle_pause(); break;
-				
-			};
-
-		};*/
-
+		
 		document.onkeydown = function(e){
 
 			//Log.log('key pressed!' + e.keyCode);
@@ -167,10 +142,10 @@ function GameMatrix(){
 			}
 
 			switch(e.keyCode){
-				case 37: self.move_horiz(-1); self.continuous_movement( 'self.move_horiz(-1)' ); break;
-				case 38: self.rotate(); break;
-				case 39: self.move_horiz(1); self.continuous_movement( 'self.move_horiz(1)' ); break;
-				case 40: self.move_down(); self.continuous_movement( 'self.move_down()' ); break;
+				case 37: self.continuous_movement( 'self.move_horiz(-1)' ); break;
+				case 38: self.continuous_movement( 'self.rotate()' ); break;
+				case 39: self.continuous_movement( 'self.move_horiz(1)' ); break;
+				case 40: self.continuous_movement( 'self.move_down()' ); break;
 				case 80: self.toggle_pause(); break;	
 			};
 
