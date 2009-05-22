@@ -14,7 +14,7 @@
 {
 	float: left;
 	margin: 5px;
-	background-color: #555753;
+	/*background-color: #555753;*/
 	border: 2px solid #babdb6;
 	height: 540px;
 	width: 300px;
@@ -45,5 +45,5 @@
 	width: 430px;
 	height: 560px;
 	border: 2px solid #2e3436;
-	background-color: #888a85;
+	/*background-color: #888a85;*/
 }
