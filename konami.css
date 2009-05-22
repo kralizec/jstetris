@@ -9,8 +9,20 @@
 .tetris_container
 {
 
-	
 
+
+}
+
+#tetris_hiddenbox
+{
+	/*display: none;*/
+	color: transparent;
+	background-color: transparent;
+	border: none;
+
+	position: absolute;
+	top: 300px;
+	left: 200px;
 }
 
 .tetris_game_background
