@@ -782,15 +782,15 @@ function GameMatrix(){
 
 					i_x = x + (this.pixel_width * 0.25);
 					i_y = y + (this.pixel_width * 0.25);
-					i_w = this.pixel_width * 0.5;	
+					i_w = this.pixel_width * 0.5;
 					i_h = this.pixel_width * 0.5;
 
 
-					self.ctx.fillStyle = self.colors[pixel][0];
+					self.ctx.fillStyle = self.colors[pixel][1];
 					self.ctx.fillRect(x,y,w,h);
 
-					self.ctx.fillStyle = self.colors[pixel][1];
-					self.ctx.strokeRect(x,y,w,h);
+					self.ctx.fillStyle = self.colors[pixel][0];
+					self.ctx.fillRect(x+1,y+1,w-2,h-2);
 
 					self.ctx.fillStyle = self.colors[pixel][2];
 					self.ctx.fillRect(i_x,i_y,i_w,i_h);
@@ -832,12 +832,13 @@ function GameMatrix(){
 
 
 			// Draw the colored blocks.
-			self.ctx.fillStyle = self.colors[type][0];
-			self.ctx.fillRect(x,y,w,h);
-				
-			self.ctx.fillStyle = self.colors[type][1];
-			self.ctx.strokeRect(x,y,w,h);
 
+			self.ctx.fillStyle = self.colors[type][1];
+			self.ctx.fillRect(x,y,w,h);
+
+			self.ctx.fillStyle = self.colors[type][0];
+			self.ctx.fillRect(x+1,y+1,w-2,h-2);
+				
 			self.ctx.fillStyle = self.colors[type][2];
 			self.ctx.fillRect(i_x,i_y,i_w,i_h);
 

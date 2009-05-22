@@ -14,8 +14,10 @@
 {
 	float: left;
 	margin: 5px;
-	background-color: black;
+	background-color: #555753;
 	border: 2px solid #babdb6;
+	height: 540px;
+	width: 300px;
 }
 
 #preview_canvas
@@ -24,6 +26,8 @@
 	margin: 5px;
 	border: 2px solid #babdb6;
 	background-color: #555753;
+	height: 100px;
+	width: 100px;
 }
 
 #status_display
