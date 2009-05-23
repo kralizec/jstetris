@@ -12,22 +12,20 @@
 			$(document).ready( function(){
 			
 				scroll(0,0);
-	
-				var matrix = new GameMatrix();
 
-				matrix.init(10,18);
+				tetris.init(10,18);
 
 				// Initialize the game and preview canvas objects.
-				matrix.set_canvas('game_canvas');
-				matrix.set_preview_canvas('preview_canvas');
+				tetris.set_canvas('game_canvas');
+				tetris.set_preview_canvas('preview_canvas');
 
 				// Initialize the status display
-				matrix.create_status_display('status_display');
+				tetris.create_status_display('status_display');
 				
-				matrix.initiate_controls();
+				tetris.initiate_controls();
 
 				// Start the game
-				matrix.start();
+				tetris.start();
 
 			});
 

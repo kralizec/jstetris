@@ -26,43 +26,43 @@
  *   8: Changing level backgrounds (easy, css backgrounds are supported).
  *   9: Block and background theming (possibly user customizable).
  *  10: Performance tweaks.
+ *  11: Create drawing methods that better utilize javascript's function context paradigm.
+ *  12: Utilize new drawing methods to enable complex animations. (dieflashdie)
  *
  *****************************************************************************/
-function GameMatrix(){
+
+var tetris = {
 
 	/*********************************************************************
 	 * Variables and Constants
 	 *********************************************************************/
 
-	/* self reference */
-	self = this;
-	
 	/* Active tetromino stack */
-	this.piece_stack = [];
+	piece_stack:[],
 
 	/* Statistics Vars */
-	this.score_display = null;
-	this.level_display = null;
-	this.lines_display = null;
-	this.score = 0;
-	this.lines = 0;
-	this.level = 1;
+	score_display: null,
+	level_display: null,
+	lines_display: null,
+	score: 0,
+	lines: 0,
+	level: 1,
 	
 	/* Game Constants */
-	this.min_speed = 80;   // 80ms
-	this.base_speed = 700; // 700ms
-	this.level_step = 10;  // Increase level every 10 lines.
+	min_speed : 80,   // 80ms
+	base_speed : 700, // 700ms
+	level_step : 10,  // Increase level every 10 lines.
 
 	/* This is the speed at which movement events cycle when keys are held down */
-	this.move_speed = 50; // 50ms
+	move_speed : 50, // 50ms
 	
 	/* This is the period of time after which depressed keys cause repetitious action */
-	this.repeat_wait = 75; // 75ms
+	repeat_wait : 75, // 75ms
 
 
 	// A Tango color palette for drawing blocks.
-	// Adding a null first element in case board spaces are set to 0.
-	this.colors = [
+	// Adding a null first element in case board spaces are set to 0. (get rid of this).
+	colors : [
 		[ null ],
 		[ "#fce94f", "#edd400", "#c4a000"],
 		[ "#8ae234", "#73d216", "#4e9a06"],
@@ -71,7 +71,7 @@ function GameMatrix(){
 		[ "#ad7fa8", "#75507b", "#5c3566"],
 		[ "#ef2929", "#cc0000", "#a40000"],
 		[ "#729fcf", "#3465a4", "#204a87"]
-	];
+	],
 
 	/*********************************************************************
 	 * Initialization Logic (Needs work)
@@ -81,7 +81,7 @@ function GameMatrix(){
 	 * Creates the status display.
 	 * TODO: Make this a little saner.
 	 */
-	this.create_status_display = function(display_id){
+	create_status_display:function(display_id){
 
 		// Create the display table and append to the display container.
 		display_table = document.createElement('table');
@@ -99,82 +99,82 @@ function GameMatrix(){
 		level_row.insertCell(-1).innerHTML = "Level:";
 
 		// Initialize the value cells.
-		self.score_display = score_row.insertCell(-1);
-		self.lines_display = lines_row.insertCell(-1);
-		self.level_display = level_row.insertCell(-1);
+		tetris.score_display = score_row.insertCell(-1);
+		tetris.lines_display = lines_row.insertCell(-1);
+		tetris.level_display = level_row.insertCell(-1);
 
 		// Set values
-		self.score_display.innerHTML = this.score;
-		self.lines_display.innerHTML = this.lines;
-		self.level_display.innerHTML = this.level;
+		tetris.score_display.innerHTML = tetris.score;
+		tetris.lines_display.innerHTML = tetris.lines;
+		tetris.level_display.innerHTML = tetris.level;
 
-	}
+	},
 
 	/**
 	 * Initialize the matrix.
 	 * TODO: Improve init logic.
 	 */
-	this.init = function(width, height) {
+	init:function(width, height) {
 	
 		// Debug
 		//Log.log('Creating game matrix');
 
 		// Set class vars
-		this.width = width;
-		this.height = height;
-		this.area = width * height;
+		tetris.width = width;
+		tetris.height = height;
+		tetris.area = width * height;
 
 		// Compute board parameters
-		this.matrix = [width];
+		tetris.matrix = [width];
 
 		// Initialize
 		for(y = 0; y < height; y++){
-			this.matrix[y] = new Array(width);
+			tetris.matrix[y] = new Array(width);
 		}
 
 		// Generate some pieces for the queue.
-		self.set_piece();
-		self.set_piece();
+		tetris.set_piece();
+		tetris.set_piece();
 				
 
-	};
+	},
 
 	/**
 	 * Associate a canvas element with this object.
 	 */
-	this.set_canvas = function(canvas_id) {
+	set_canvas:function(canvas_id) {
 
-		this.canvas = document.getElementById(canvas_id);
-		this.ctx = this.canvas.getContext('2d');
+		tetris.canvas = document.getElementById(canvas_id);
+		tetris.ctx = tetris.canvas.getContext('2d');
 
-		this.canvas_height = this.canvas.height;
-		this.canvas_width = this.canvas.width;
+		tetris.canvas_height = tetris.canvas.height;
+		tetris.canvas_width = tetris.canvas.width;
 
-		this.pixel_height = this.canvas_height / this.height;
-		this.pixel_width = this.canvas_width / this.width;
+		tetris.pixel_height = tetris.canvas_height / tetris.height;
+		tetris.pixel_width = tetris.canvas_width / tetris.width;
 
 		// Clear the main canvas
-		self.clear_canvas();
+		tetris.clear_canvas();
 
-	}
+	},
 
 	/**
 	 * Associate a preview canvas
 	 */
-	this.set_preview_canvas = function(canvas_id){
+	set_preview_canvas:function(canvas_id){
 
-		this.preview = document.getElementById(canvas_id);
-		this.pre_ctx = this.preview.getContext('2d');
+		tetris.preview = document.getElementById(canvas_id);
+		tetris.pre_ctx = tetris.preview.getContext('2d');
 
-		this.preview_height = this.preview.height;
-		this.preview_width = this.preview.width;
+		tetris.preview_height = tetris.preview.height;
+		tetris.preview_width = tetris.preview.width;
 
-		this.pre_pixel_height = this.preview_height / 6;
-		this.pre_pixel_width = this.preview_width / 6;
+		tetris.pre_pixel_height = tetris.preview_height / 6;
+		tetris.pre_pixel_width = tetris.preview_width / 6;
 
 		// TODO: Render initial preview here?
-		this.render_preview();
-	};
+		tetris.render_preview();
+	},
 
 
 	/*********************************************************************
@@ -184,13 +184,13 @@ function GameMatrix(){
 	/**
 	 * Calculates the current game speed.
 	 */
-	this.calculate_speed = function(){
+	calculate_speed:function(){
 
 		// TODO: Is the the appropriate speed determination?
 		// speed = (MIN + BASE / LEVEL)
-		return self.min_speed + self.base_speed / self.level
+		return tetris.min_speed + tetris.base_speed / tetris.level
 
-	}
+	},
 
 	/* Creates a tetris piece.
 	 *
@@ -198,7 +198,7 @@ function GameMatrix(){
 	 *    [ TYPE, [ [P1],[P2],... ] ]
 	 *
 	 */
-	this.create_piece = function(type){
+	create_piece:function(type){
 		
 		// Create the piece pattern.
 		pattern = null;
@@ -216,14 +216,13 @@ function GameMatrix(){
 		// Return an array containing the piece type and the pattern.
 		return [ type, pattern ];
 
-	}
+	},
 
 	/**
 	 * Place a piece on the matrix.
 	 * TODO: Cleanup
 	 */
-	this.set_piece = set_piece;
-	function set_piece(){
+	set_piece:function(){
 
 		// Create a random piece.
 		// FIXME: Using Math.round/floor/etc and others will result in
@@ -231,11 +230,11 @@ function GameMatrix(){
 		// tetrominos to be truly (or at least almost) generated at
 		// random!
 		rand_type = Math.floor(Math.random() * (7 - 1 + 1)) + 1;
-		piece_obj = self.create_piece(rand_type);
-		//piece_obj = self.create_piece(Math.floor(Math.random()*7) + 1);
+		piece_obj = tetris.create_piece(rand_type);
+		//piece_obj = tetris.create_piece(Math.floor(Math.random()*7) + 1);
 		
-		//self.piece_stack.unshift(piece_obj);
-		self.piece_stack.push(piece_obj);
+		//tetris.piece_stack.unshift(piece_obj);
+		tetris.piece_stack.push(piece_obj);
 
 		type = piece_obj[0];
 		piece = piece_obj[1];
@@ -243,7 +242,7 @@ function GameMatrix(){
 
 		// Adjust the piece position. (using start coordinates)
 		// TODO: Start coordinates?
-		startx = this.width / 2;
+		startx = tetris.width / 2;
 		starty = 0;
 
 		for( x = 0; x < piece.length; x++ ){
@@ -252,33 +251,32 @@ function GameMatrix(){
 		}
 
 
-	}
+	},
 
 
 	/**
 	 * Scan for and remove completed lines from the matrix.
-	 * TODO: Bring some sanity to this.
+	 * TODO: Bring some sanity to tetris.
 	 */
-	this.scan_lines = scan_lines;
-	function scan_lines(){
+	scan_lines:function(){
 
 		// Counter for total number of lines removed this pass. This is
 		// related to Tetris scoring.
 		line_count = 0;
 
 		// Actually remove the lines.
-		for(y = 0; y < this.height; y++){
+		for(y = 0; y < tetris.height; y++){
 			line_status = true;
-			for(x = 0; x < this.width; x++){
+			for(x = 0; x < tetris.width; x++){
 				
-				pixel = this.matrix[y][x];
+				pixel = tetris.matrix[y][x];
 
 				if(pixel == null || pixel <= 0){
 					line_status = false;
 				}
 			}
 			if(line_status){
-				this.remove_line(y);
+				tetris.remove_line(y);
 				line_count++;
 			}
 		}
@@ -287,15 +285,15 @@ function GameMatrix(){
 		// TODO: Advanced scoring for multiple lines.
 		if(line_count > 0){
 			// Process score and linecount.
-			self.score += (line_count * 10);
-			self.lines += line_count;
+			tetris.score += (line_count * 10);
+			tetris.lines += line_count;
 
 			// Process level, and increase if necessary.
-			val = self.lines / ( self.level * self.level_step);
+			val = tetris.lines / ( tetris.level * tetris.level_step);
 			if(val >= 1){
-				self.level++;
+				tetris.level++;
 				// Increase the speed (by restarting interval).
-				self.start();
+				tetris.start();
 			}
 
 			// Return true, indicating updates occurred.
@@ -303,14 +301,14 @@ function GameMatrix(){
 		} else {
 			return false;
 		}
-	};
+	},
 
 	/**
 	 * Detect whether or not the given piece is a valid move. Returns false
 	 * if invalid, otherwise true.
 	 * TODO: Cleanup
 	 */
-	this.can_move = function(piece){
+	can_move:function(piece){
 
 		valid = true;
 
@@ -318,17 +316,17 @@ function GameMatrix(){
 			point = piece[x];
 			
 			// Ensure that the points are on the board.
-			if((point[0] >= this.width) || (point[0] < 0)){
+			if((point[0] >= tetris.width) || (point[0] < 0)){
 				valid = false;
 				break;
 			}
-			else if((point[1] >= this.height) || (point[1] < 0)){
+			else if((point[1] >= tetris.height) || (point[1] < 0)){
 				valid = false;
 				break;
 			}
 
 			// Set valid equal to false if the space is occupied.
-			if(this.matrix[point[1]][point[0]] > 0){
+			if(tetris.matrix[point[1]][point[0]] > 0){
 				valid = false;
 				break;
 			}
@@ -337,95 +335,95 @@ function GameMatrix(){
 
 		return valid;
 
-	};
+	},
 
 
 	/**
 	 * Anchor the current piece to the board.
 	 */
-	this.anchor_current = function(){
+	anchor_current:function(){
 
 		// Anchor the current piece to the board.
-		for(x = 0; x < self.piece_stack[0][1].length; x++){
-			point = self.piece_stack[0][1][x];
-			self.matrix[point[1]][point[0]] = type;
+		for(x = 0; x < tetris.piece_stack[0][1].length; x++){
+			point = tetris.piece_stack[0][1][x];
+			tetris.matrix[point[1]][point[0]] = type;
 		}
 
-	}
+	},
 
 	/**
 	 * Removes a line, causing the rest of the lines to fall downwards.
 	 * TODO: Multi-line removal detection will be required for proper scoring.
 	 */
-	this.remove_line = function(index){
+	remove_line:function(index){
 
 		// Remove the old line.
-		this.matrix.splice(index, 1);
+		tetris.matrix.splice(index, 1);
 		
 		// Push a new line.
-		this.matrix.unshift(new Array(this.width));
+		tetris.matrix.unshift(new Array(tetris.width));
 
-	}
+	},
 
 	/**
 	 * Execute a game iteration.
 	 */
-	this.iterate = function(){
+	iterate:function(){
 
 		// Move down, and perform anchoring operations if move_down
 		// returns false (indicating anchoring conditions).
-		if(!self.move_down()){
+		if(!tetris.move_down()){
 
 			// Anchor the current piece.
-			self.anchor_current();
+			tetris.anchor_current();
 
 			// Shift the old piece off the stack.
-			self.piece_stack.shift();
+			tetris.piece_stack.shift();
 
 			// Scan for lines.
-			self.scan_lines();
+			tetris.scan_lines();
 			
 			// Update the status display.
-			self.update_status();
+			tetris.update_status();
 
 			// Draw the new matrix
-			self.draw_matrix();
+			tetris.draw_matrix();
 
 			// Set a new random piece on the board.
-			self.set_piece();
+			tetris.set_piece();
 
 			// Trigger Game Over if can_move returns false.
-			if(!self.can_move(self.piece_stack[0][1])){
-				self.game_over();
+			if(!tetris.can_move(tetris.piece_stack[0][1])){
+				tetris.game_over();
 				return;
 			} else {
 				
 				// Render a new piece preview.
-				self.render_preview();
+				tetris.render_preview();
 			}
 
 		}
 
-	}
+	},
 
 	/**
 	 * GAME OVER, d00d.
 	 * TODO: Display some kind of insulting message.
 	 */
-	this.game_over = function(){
+	game_over:function(){
 
 		//Log.log('GAME_OVER');
 
 		// Clear the game iteration timer interval.
-		clearInterval(this.interval_id);
+		clearInterval(tetris.interval_id);
 
 		// Reset the initialization state.		
-		self.init();
+		tetris.init();
 		
 		// Clear the game canvas.
-		self.clear_canvas();
+		tetris.clear_canvas();
 
-	}
+	},
 
 
 
@@ -440,42 +438,42 @@ function GameMatrix(){
 	 *   The goal here is to get a good feel on all non-IE browsers.
 	 *   TODO: Performance, feel, code cleanup.
 	 */
-	this.initiate_controls = function(){
+	initiate_controls:function(){
 
 
-		left = 'self.move_horiz(-1)';
-		right = 'self.move_horiz(1)';
-		down = 'self.move_down()';
-		rotate = 'self.rotate()';
+		left = 'tetris.move_horiz(-1)';
+		right = 'tetris.move_horiz(1)';
+		down = 'tetris.move_down()';
+		rotate = 'tetris.rotate()';
 
 		document.onkeydown = function(e){
 
 			//Log.log('key pressed!' + e.keyCode);
 
 			// Don't allow simultaneous movements.
-			if(self.l_int){ clearInterval(self.l_int); self.l_int = null; }
-			if(self.r_int){ clearInterval(self.r_int); self.r_int = null; }
-			if(self.d_int){ clearInterval(self.d_int); self.d_int = null; }
-			if(self.rot_int){ clearInterval(self.rot_int); self.rot_int = null; }
+			if(tetris.l_int){ clearInterval(tetris.l_int); tetris.l_int = null; }
+			if(tetris.r_int){ clearInterval(tetris.r_int); tetris.r_int = null; }
+			if(tetris.d_int){ clearInterval(tetris.d_int); tetris.d_int = null; }
+			if(tetris.rot_int){ clearInterval(tetris.rot_int); tetris.rot_int = null; }
 
 			switch(e.keyCode){
 				case 37:
 				eval(left);
-				self.l_int = setTimeout('self.l_int = self.continuous_movement(left)', self.repeat_wait );
+				tetris.l_int = setTimeout('tetris.l_int = tetris.continuous_movement(left)', tetris.repeat_wait );
 				break;
 				case 38:
 				eval(rotate);
-				//self.rot_int = setTimeout('self.rot_int = self.continuous_movement(rotate)', self.repeat_wait );
+				//tetris.rot_int = setTimeout('tetris.rot_int = tetris.continuous_movement(rotate)', tetris.repeat_wait );
 				break;
 				case 39:
 				eval(right);
-				self.r_int = setTimeout('self.r_int = self.continuous_movement(right)', self.repeat_wait );
+				tetris.r_int = setTimeout('tetris.r_int = tetris.continuous_movement(right)', tetris.repeat_wait );
 				break;
 				case 40:
 				eval(down);
-				self.d_int = setTimeout('self.d_int = self.continuous_movement(down)', self.repeat_wait );
+				tetris.d_int = setTimeout('tetris.d_int = tetris.continuous_movement(down)', tetris.repeat_wait );
 				break;
-				case 80: self.toggle_pause(); break;	
+				case 80: tetris.toggle_pause(); break;	
 			};
 
 
@@ -484,39 +482,39 @@ function GameMatrix(){
 		document.onkeyup = function(e){
 			//Log.log('key up: ' + e.keyCode);
 			switch(e.keyCode){
-				case 37: clearInterval(self.l_int); self.l_int = null; break;
-				case 38: clearInterval(self.rot_int); self.rot_int = null; break;
-				case 39: clearInterval(self.r_int); self.r_int = null; break;
-				case 40: clearInterval(self.d_int); self.d_int = null; break;
+				case 37: clearInterval(tetris.l_int); tetris.l_int = null; break;
+				case 38: clearInterval(tetris.rot_int); tetris.rot_int = null; break;
+				case 39: clearInterval(tetris.r_int); tetris.r_int = null; break;
+				case 40: clearInterval(tetris.d_int); tetris.d_int = null; break;
 			};
 
 		};
 
-	}
+	},
 
 	/**
 	 * Continuous movement.
 	 * Sets a movement interval.
 	 */
-	this.continuous_movement = function(func){
+	continuous_movement:function(func){
 
 		// Eval the expression once.
 		//eval(func);
 
-		return setInterval(func, self.move_speed);
+		return setInterval(func, tetris.move_speed);
 
-	};
+	},
 
 
 	/**
 	 * Trigger horizontal movement. Use negative numbers to move left.
 	 * NOTE: This will trigger a redraw of the current piece if successful.
 	 */
-	this.move_horiz = function(amount){
+	move_horiz:function(amount){
 
 
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
+		type = tetris.piece_stack[0][0];
+		piece = tetris.piece_stack[0][1];
 
 		temp_piece = [];
 
@@ -525,21 +523,21 @@ function GameMatrix(){
 			temp_piece[x] = [ point[0] + amount, point[1]];
 		}
 		
-		if(self.can_move(temp_piece)){
-			self.redraw_current_piece(temp_piece);
+		if(tetris.can_move(temp_piece)){
+			tetris.redraw_current_piece(temp_piece);
 		}		
 
-	}
+	},
 
 	/**
 	 * Trigger downward movement. Returns false if anchoring conditions are
 	 * encountered.
 	 * NOTE: This will trigger a redraw of the current piece if successful.
 	 */
-	this.move_down = function(){
+	move_down:function(){
 
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
+		type = tetris.piece_stack[0][0];
+		piece = tetris.piece_stack[0][1];
 
 		temp_piece = [];
 
@@ -548,23 +546,23 @@ function GameMatrix(){
 			temp_piece[x] = [ point[0], point[1] + 1];
 		}
 
-		if(self.can_move(temp_piece)){
-			self.redraw_current_piece(temp_piece);
+		if(tetris.can_move(temp_piece)){
+			tetris.redraw_current_piece(temp_piece);
 			return true;
 		} else {
 			return false;
 		}
-	}
+	},
 
 	/**
 	 * Perform a piece matrix rotation.
 	 * NOTE: This will trigger a redraw of the current piece if successful.
 	 * TODO: Cleanup.
 	 */
-	this.rotate = function(){
+	rotate:function(){
 
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
+		type = tetris.piece_stack[0][0];
+		piece = tetris.piece_stack[0][1];
 
 		new_piece = [];
 
@@ -586,11 +584,11 @@ function GameMatrix(){
 		switch(type){
 			case 1: return; break;
 			case 2: fix_x = 0.25; fix_y = 0.25; break; 
-			case 3: if(self.even) { shift_y = -1; self.even = false; } else { self.even = true; } break;
+			case 3: if(tetris.even) { shift_y = -1; tetris.even = false; } else { tetris.even = true; } break;
 			case 4: fix_x = 0.25; fix_y = 0.25; break;
 			case 5: fix_x = 0.25; fix_y = 0.25; break;
-			case 6: if(self.even) { shift_y = -1; self.even = false; } else { self.even = true; } break;
-			case 7: if(self.even) { shift_y = -1; self.even = false; } else { self.even = true; } break;
+			case 6: if(tetris.even) { shift_y = -1; tetris.even = false; } else { tetris.even = true; } break;
+			case 7: if(tetris.even) { shift_y = -1; tetris.even = false; } else { tetris.even = true; } break;
 		};
 
 
@@ -612,45 +610,45 @@ function GameMatrix(){
 		}
 
 		// Calculate transform validity and redraw if ok.
-		if( self.can_move(new_piece) ){
-			self.redraw_current_piece(new_piece);
+		if( tetris.can_move(new_piece) ){
+			tetris.redraw_current_piece(new_piece);
 		}
 
-	}
+	},
 
 	/**
 	 * Start the game!
 	 * Calling start again while running will act like a reset, and can be
 	 * used to increase game speed.
 	 */
-	this.start = function(){
+	start:function(){
 
 		// Clear interval if an interval is set.
-		if(self.interval_id){
-			clearInterval(self.interval_id);
-			self.interval_id = null;
+		if(tetris.interval_id){
+			clearInterval(tetris.interval_id);
+			tetris.interval_id = null;
 		}
 
 		// Initialize the iteration timer.
-		self.interval_id = setInterval( function(){
-			self.iterate();
-		}, self.calculate_speed());
+		tetris.interval_id = setInterval( function(){
+			tetris.iterate();
+		}, tetris.calculate_speed());
 
-	};
+	},
 
 	/**
 	 * Toggle the pause state.
 	 */
-	this.toggle_pause = function(){
+	toggle_pause:function(){
 
-		if(self.interval_id){
-			clearInterval(self.interval_id);
-			self.interval_id = null;
+		if(tetris.interval_id){
+			clearInterval(tetris.interval_id);
+			tetris.interval_id = null;
 		} else {
-			self.start();
+			tetris.start();
 		}
 
-	}
+	},
 
 
 	/*********************************************************************
@@ -660,39 +658,39 @@ function GameMatrix(){
 	/**
 	 * Clears and redraws the current piece.
 	 */
-	this.redraw_current_piece = function(new_piece){
+	redraw_current_piece:function(new_piece){
 
-		self.clear_piece();
-		self.piece_stack[0][1] = new_piece;
-		self.draw_piece();
+		tetris.clear_piece();
+		tetris.piece_stack[0][1] = new_piece;
+		tetris.draw_piece();
 
-	}
+	},
 
 	/**
 	 * Update the game status display.
 	 */
-	this.update_status = function(){
+	update_status:function(){
 		//Log.log('Updating status...');
 
-		this.score_display.innerHTML = this.score;
-		this.lines_display.innerHTML = this.lines;
-		this.level_display.innerHTML = this.level;
+		tetris.score_display.innerHTML = tetris.score;
+		tetris.lines_display.innerHTML = tetris.lines;
+		tetris.level_display.innerHTML = tetris.level;
 
-	}
+	},
 
 	/**
 	 * Clear the game canvas. Resets to transparency.
 	 */
-	this.clear_canvas = function(){
-		this.ctx.clearRect(0,0,this.canvas_width,this.canvas_height);
-	}
+	clear_canvas:function(){
+		tetris.ctx.clearRect(0,0,tetris.canvas_width,tetris.canvas_height);
+	},
 
 	/**
 	 * Render a preview matrix.
 	 *
 	 * TODO: Size the preview piece and properly center.
 	 */
-	this.render_preview = function(){
+	render_preview:function(){
 		
 		//Log.log('Rendering preview FIXME');
 
@@ -703,52 +701,52 @@ function GameMatrix(){
 		}
 
 		// Clear
-		//this.pre_ctx.fillStyle = 'rgb(0,0,0)';
-		this.pre_ctx.clearRect(0,0,this.preview_width,this.preview_height);
+		//tetris.pre_ctx.fillStyle = 'rgb(0,0,0)';
+		tetris.pre_ctx.clearRect(0,0,tetris.preview_width,tetris.preview_height);
 
 		// Render the piece
 		// Create the piece pattern.
-		piece = self.create_piece(self.piece_stack[1][0]);
+		piece = tetris.create_piece(tetris.piece_stack[1][0]);
 		pattern = piece[1];
 
 		// TODO: Calculate center and draw scaled piece image!
-		//colors =  self.get_colors(piece[0]);
+		//colors =  tetris.get_colors(piece[0]);
 
 		for(i = 0; i < 4; i++){
-			x = (pattern[i][0] + 1) * this.pre_pixel_width;
-			y = (pattern[i][1] + 1) * this.pre_pixel_height;
-			w = this.pre_pixel_width;
-			h = this.pre_pixel_height;
+			x = (pattern[i][0] + 1) * tetris.pre_pixel_width;
+			y = (pattern[i][1] + 1) * tetris.pre_pixel_height;
+			w = tetris.pre_pixel_width;
+			h = tetris.pre_pixel_height;
 
-			i_x = x + (this.pre_pixel_width * 0.25);
-			i_y = y + (this.pre_pixel_width * 0.25);
-			i_w = this.pre_pixel_width * 0.5;	
-			i_h = this.pre_pixel_width * 0.5;
+			i_x = x + (tetris.pre_pixel_width * 0.25);
+			i_y = y + (tetris.pre_pixel_width * 0.25);
+			i_w = tetris.pre_pixel_width * 0.5;	
+			i_h = tetris.pre_pixel_width * 0.5;
 
 
-			self.pre_ctx.fillStyle = self.colors[piece[0]][0];
-			self.pre_ctx.fillRect(x,y,w,h);
+			tetris.pre_ctx.fillStyle = tetris.colors[piece[0]][0];
+			tetris.pre_ctx.fillRect(x,y,w,h);
 				
-			self.pre_ctx.fillStyle = self.colors[piece[0]][1];
-			self.pre_ctx.strokeRect(x,y,w,h);
+			tetris.pre_ctx.fillStyle = tetris.colors[piece[0]][1];
+			tetris.pre_ctx.strokeRect(x,y,w,h);
 
-			self.pre_ctx.fillStyle = self.colors[piece[0]][2];
-			self.pre_ctx.fillRect(i_x,i_y,i_w,i_h);
+			tetris.pre_ctx.fillStyle = tetris.colors[piece[0]][2];
+			tetris.pre_ctx.fillRect(i_x,i_y,i_w,i_h);
 
 		}
 
 
-	}
+	},
 
 	/**
 	 * Draw an individual block.
 	 */
-	this.draw_block = function(color, x, y, w, h){
+	draw_block:function(color, x, y, w, h){
 
-				this.ctx.fillStyle = color;
-				this.ctx.fillRect(x, y, w, h);
+				tetris.ctx.fillStyle = color;
+				tetris.ctx.fillRect(x, y, w, h);
 
-	}
+	},
 
 
 	/**
@@ -756,51 +754,51 @@ function GameMatrix(){
 	 * TODO: Performance! We can speed this up with an update_matrix method
 	 * that does not redraw the whole board.
 	 */
-	this.draw_matrix = function(){
+	draw_matrix:function(){
 
 		//Log.log('Drawing the matrix...');
 
 		// Clear first.
-		self.clear_canvas();
+		tetris.clear_canvas();
 
 		// Current row/col
 		row = 0;
 		col = 0;
 
 		// Render the matrix.
-		for(r = 0; r < this.height; r++){
-			for(c = 0; c < this.width; c++){
+		for(r = 0; r < tetris.height; r++){
+			for(c = 0; c < tetris.width; c++){
 
-				pixel = this.matrix[r][c];
+				pixel = tetris.matrix[r][c];
 
 				// TODO: Get rid of the need for this conditional, if possible.
 				if(pixel >= 1){
-					x = c * this.pixel_width;
-					y = r * this.pixel_height;
-					w = this.pixel_width;
-					h = this.pixel_height;
+					x = c * tetris.pixel_width;
+					y = r * tetris.pixel_height;
+					w = tetris.pixel_width;
+					h = tetris.pixel_height;
 
-					i_x = x + (this.pixel_width * 0.25);
-					i_y = y + (this.pixel_width * 0.25);
-					i_w = this.pixel_width * 0.5;
-					i_h = this.pixel_width * 0.5;
+					i_x = x + (tetris.pixel_width * 0.25);
+					i_y = y + (tetris.pixel_width * 0.25);
+					i_w = tetris.pixel_width * 0.5;
+					i_h = tetris.pixel_width * 0.5;
 
 
-					self.ctx.fillStyle = self.colors[pixel][1];
-					self.ctx.fillRect(x,y,w,h);
+					tetris.ctx.fillStyle = tetris.colors[pixel][1];
+					tetris.ctx.fillRect(x,y,w,h);
 
-					self.ctx.fillStyle = self.colors[pixel][0];
-					self.ctx.fillRect(x+1,y+1,w-2,h-2);
+					tetris.ctx.fillStyle = tetris.colors[pixel][0];
+					tetris.ctx.fillRect(x+1,y+1,w-2,h-2);
 
-					self.ctx.fillStyle = self.colors[pixel][2];
-					self.ctx.fillRect(i_x,i_y,i_w,i_h);
+					tetris.ctx.fillStyle = tetris.colors[pixel][2];
+					tetris.ctx.fillRect(i_x,i_y,i_w,i_h);
 				}
 
 			}
 
 		}
 
-	};
+	},
 
 
 
@@ -808,62 +806,61 @@ function GameMatrix(){
 	/**
 	 * Draw the currenct piece on the game board.
 	 */
-	this.draw_piece = function(){
+	draw_piece:function(){
 
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
+		type = tetris.piece_stack[0][0];
+		piece = tetris.piece_stack[0][1];
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
-		//colors = self.get_colors(type);
+		//colors = tetris.get_colors(type);
 
 		for(i = 0; i < 4; i++){
 
 			// Precalculating these values, primarily for readability.
-			x = piece[i][0] * this.pixel_width;
-			y = piece[i][1] * this.pixel_height;
-			w = this.pixel_width;
-			h = this.pixel_height;
+			x = piece[i][0] * tetris.pixel_width;
+			y = piece[i][1] * tetris.pixel_height;
+			w = tetris.pixel_width;
+			h = tetris.pixel_height;
 
-			i_x = x + (this.pixel_width * 0.25);
-			i_y = y + (this.pixel_width * 0.25);
-			i_w = this.pixel_width * 0.5;	
-			i_h = this.pixel_width * 0.5;
+			i_x = x + (tetris.pixel_width * 0.25);
+			i_y = y + (tetris.pixel_width * 0.25);
+			i_w = tetris.pixel_width * 0.5;	
+			i_h = tetris.pixel_width * 0.5;
 
 
 			// Draw the colored blocks.
 
-			self.ctx.fillStyle = self.colors[type][1];
-			self.ctx.fillRect(x,y,w,h);
+			tetris.ctx.fillStyle = tetris.colors[type][1];
+			tetris.ctx.fillRect(x,y,w,h);
 
-			self.ctx.fillStyle = self.colors[type][0];
-			self.ctx.fillRect(x+1,y+1,w-2,h-2);
+			tetris.ctx.fillStyle = tetris.colors[type][0];
+			tetris.ctx.fillRect(x+1,y+1,w-2,h-2);
 				
-			self.ctx.fillStyle = self.colors[type][2];
-			self.ctx.fillRect(i_x,i_y,i_w,i_h);
+			tetris.ctx.fillStyle = tetris.colors[type][2];
+			tetris.ctx.fillRect(i_x,i_y,i_w,i_h);
 
 		}
 
-	}
+	},
 
 	/**
 	 * Clear the current piece (clears to transparency).
 	 */
-	this.clear_piece = clear_piece;
-	function clear_piece(){
+	clear_piece:function(){
 
-		type = self.piece_stack[0][0];
-		piece = self.piece_stack[0][1];
+		type = tetris.piece_stack[0][0];
+		piece = tetris.piece_stack[0][1];
 
 		// Tetrominos are always composed of 4 squares.
-		// TODO: Can we enhance performance with better shape calculation?		
-		self.ctx.clearRect(piece[0][0] * this.pixel_width, piece[0][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		self.ctx.clearRect(piece[1][0] * this.pixel_width, piece[1][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		self.ctx.clearRect(piece[2][0] * this.pixel_width, piece[2][1] * this.pixel_height, this.pixel_width, this.pixel_height);
-		self.ctx.clearRect(piece[3][0] * this.pixel_width, piece[3][1] * this.pixel_height, this.pixel_width, this.pixel_height);
+		// TODO: Can we enhance performance with better shape calculation?
+		tetris.ctx.clearRect(piece[0][0] * tetris.pixel_width, piece[0][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
+		tetris.ctx.clearRect(piece[1][0] * tetris.pixel_width, piece[1][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
+		tetris.ctx.clearRect(piece[2][0] * tetris.pixel_width, piece[2][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
+		tetris.ctx.clearRect(piece[3][0] * tetris.pixel_width, piece[3][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		
 	}
 
 
-};
+}
 

@@ -13,7 +13,8 @@
 
 				// Append the popup window.
 				//$("<div class='tetris_popup'><div id='tetris'><canvas=''></canvas></div></div>");
-				$("<div class='tetris_popup'></div>").appendTo('#konami');
+								
+				$("<div class='tetris_popup'></div>").appendTo('body');
 				$("<div class='tetris_container'></div>").appendTo('.tetris_popup');
 				$("<div class='tetris_background'></div>'").appendTo('.tetris_container');
 				$("<div class='tetris_game_background'></div>'").appendTo('.tetris_container');
@@ -31,21 +32,26 @@
 				//$("#game_canvas").fadeIn();
 
 				// Initialize tetris
-				var matrix = new GameMatrix();
+				//var tetris = new Tetris();
 
-				matrix.init(10,18);
+				tetris.init(10,18);
 
 				// Initialize the game and preview canvas objects.
-				matrix.set_canvas('game_canvas');
-				matrix.set_preview_canvas('preview_canvas');
+				tetris.set_canvas('game_canvas');
+				tetris.set_preview_canvas('preview_canvas');
 
 				// Initialize the status display
-				matrix.create_status_display('status_display');
+				tetris.create_status_display('status_display');
 				
-				matrix.initiate_controls();
+				tetris.initiate_controls();
 
 				// Start the game
-				matrix.start();
+				tetris.start();
+
+				
+
+				//tetris.create();
+				//tetris.load();
 
 			};
 
@@ -70,6 +76,5 @@ Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots 
 Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.
 
 
-		<div id='konami'></div>
 	</body>
 </html>
