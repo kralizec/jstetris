@@ -28,6 +28,7 @@
  *  10: Performance tweaks.
  *  11: Create drawing methods that better utilize javascript's function context paradigm.
  *  12: Utilize new drawing methods to enable complex animations. (dieflashdie)
+ *  13: Fix preview window rendering (do after steps 11-12).
  *
  *****************************************************************************/
 
@@ -36,6 +37,11 @@ var tetris = {
 	/*********************************************************************
 	 * Variables and Constants
 	 *********************************************************************/
+
+	/* Rendering var defaults */
+	game_canvas_id:'game_canvas',
+	preview_canvas_id:'preview_canvas',
+	status_display_id:'status_display',
 
 	/* Active tetromino stack */
 	piece_stack:[],
@@ -587,9 +593,10 @@ var tetris = {
 	/**
 	 * Start the game! Only run this ONCE for each game!
 	 * This should be usable as a new game method.
+	 * TODO: Clean up.
 	 */
 	start:function(){
-		
+
 		// Compute board parameters
 		tetris.matrix = [tetris.height];
 
@@ -604,6 +611,16 @@ var tetris = {
 		// Generate some pieces for the queue.
 		tetris.set_piece();
 		tetris.set_piece();
+
+		// Set the canvasses and status section.
+		tetris.set_canvas(tetris.game_canvas_id);
+		tetris.set_preview_canvas(tetris.preview_canvas_id);
+
+		// Initialize the status display
+		tetris.create_status_display(tetris.status_display_id);
+
+		// Initiate the user controls.		
+		tetris.initiate_controls();
 
 		// Clear interval if an interval is set.
 		if(tetris.interval_id){

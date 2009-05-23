@@ -11,18 +11,7 @@
 
 			$(document).ready( function(){
 			
-				scroll(0,0);
-
-				// Initialize the game and preview canvas objects.
-				tetris.set_canvas('game_canvas');
-				tetris.set_preview_canvas('preview_canvas');
-
-				// Initialize the status display
-				tetris.create_status_display('status_display');
-				
-				tetris.initiate_controls();
-
-				// Start the game
+				// Start the game (Uses default canvas/display ids)
 				tetris.start();
 
 			});

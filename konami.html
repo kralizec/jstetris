@@ -11,9 +11,6 @@
 
 			konami.code = function(){
 
-				// Append the popup window.
-				//$("<div class='tetris_popup'><div id='tetris'><canvas=''></canvas></div></div>");
-								
 				$("<div class='tetris_popup'></div>").appendTo('body');
 				$("<div class='tetris_container'></div>").appendTo('.tetris_popup');
 				$("<div class='tetris_background'></div>'").appendTo('.tetris_container');
@@ -31,27 +28,8 @@
 				//$("#tetris").fadeTo(300, 0.5);
 				//$("#game_canvas").fadeIn();
 
-				// Initialize tetris
-				//var tetris = new Tetris();
-
-				//tetris.init(10,18);
-
-				// Initialize the game and preview canvas objects.
-				tetris.set_canvas('game_canvas');
-				tetris.set_preview_canvas('preview_canvas');
-
-				// Initialize the status display
-				tetris.create_status_display('status_display');
-				
-				tetris.initiate_controls();
-
-				// Start the game
+				// Start the game (Uses default canvas/display ids)
 				tetris.start();
-
-				
-
-				//tetris.create();
-				//tetris.load();
 
 			};
 
