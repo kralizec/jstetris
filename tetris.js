@@ -47,8 +47,10 @@ var tetris = {
 	score: 0,
 	lines: 0,
 	level: 1,
-	
+
 	/* Game Constants */
+	width:10,
+	height:18,
 	min_speed : 80,   // 80ms
 	base_speed : 700, // 700ms
 	level_step : 10,  // Increase level every 10 lines.
@@ -111,35 +113,6 @@ var tetris = {
 	},
 
 	/**
-	 * Initialize the matrix.
-	 * TODO: Improve init logic.
-	 */
-	init:function(width, height) {
-	
-		// Debug
-		//Log.log('Creating game matrix');
-
-		// Set class vars
-		tetris.width = width;
-		tetris.height = height;
-		tetris.area = width * height;
-
-		// Compute board parameters
-		tetris.matrix = [width];
-
-		// Initialize
-		for(y = 0; y < height; y++){
-			tetris.matrix[y] = new Array(width);
-		}
-
-		// Generate some pieces for the queue.
-		tetris.set_piece();
-		tetris.set_piece();
-				
-
-	},
-
-	/**
 	 * Associate a canvas element with this object.
 	 */
 	set_canvas:function(canvas_id) {
@@ -152,9 +125,6 @@ var tetris = {
 
 		tetris.pixel_height = tetris.canvas_height / tetris.height;
 		tetris.pixel_width = tetris.canvas_width / tetris.width;
-
-		// Clear the main canvas
-		tetris.clear_canvas();
 
 	},
 
@@ -172,8 +142,6 @@ var tetris = {
 		tetris.pre_pixel_height = tetris.preview_height / 6;
 		tetris.pre_pixel_width = tetris.preview_width / 6;
 
-		// TODO: Render initial preview here?
-		tetris.render_preview();
 	},
 
 
@@ -293,7 +261,7 @@ var tetris = {
 			if(val >= 1){
 				tetris.level++;
 				// Increase the speed (by restarting interval).
-				tetris.start();
+				tetris.recalc_speed();
 			}
 
 			// Return true, indicating updates occurred.
@@ -617,11 +585,25 @@ var tetris = {
 	},
 
 	/**
-	 * Start the game!
-	 * Calling start again while running will act like a reset, and can be
-	 * used to increase game speed.
+	 * Start the game! Only run this ONCE for each game!
+	 * This should be usable as a new game method.
 	 */
 	start:function(){
+		
+		// Compute board parameters
+		tetris.matrix = [tetris.height];
+
+		// Initialize
+		for(y = 0; y < tetris.height; y++){
+			tetris.matrix[y] = new Array(tetris.width);
+		}
+
+		// Reset the piece queue.
+		tetris.piece_stack = [];
+
+		// Generate some pieces for the queue.
+		tetris.set_piece();
+		tetris.set_piece();
 
 		// Clear interval if an interval is set.
 		if(tetris.interval_id){
@@ -637,7 +619,8 @@ var tetris = {
 	},
 
 	/**
-	 * Toggle the pause state.
+	 * Toggle the pause state. (Also recalculates game speed, as a side
+	 * effect).
 	 */
 	toggle_pause:function(){
 
@@ -645,9 +628,29 @@ var tetris = {
 			clearInterval(tetris.interval_id);
 			tetris.interval_id = null;
 		} else {
-			tetris.start();
+			// Initialize the iteration timer.
+			tetris.interval_id = setInterval( function(){
+				tetris.iterate();
+			}, tetris.calculate_speed());
 		}
 
+	},
+
+	/**
+	 * Recalculates and adjusts the game's speed. Useful for starting new
+	 * levels.
+	 */
+	recalc_speed:function(){
+		if(tetris.interval_id){
+			clearInterval(tetris.interval_id);
+			tetris.interval_id = setInterval( function(){
+				tetris.iterate();
+			}, tetris.calculate_speed());
+		} else {
+			tetris.interval_id = setInterval( function(){
+				tetris.iterate();
+			}, tetris.calculate_speed());
+		}
 	},
 
 
