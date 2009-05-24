@@ -442,7 +442,8 @@ var tetris = {
 		clearInterval(tetris.interval_id);
 
 		// Reset the initialization state.		
-		tetris.init();
+		// TODO
+		//tetris.reset();
 		
 		// Clear the game canvas.
 		tetris.clear_canvas();
