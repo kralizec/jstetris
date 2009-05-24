@@ -102,7 +102,7 @@ var tetris = {
 		// Create a text box and focus it to prevent vertical arrow key scrolling.
 		hidden_box = $("<input type='text' id='tetris_hiddenbox'/>")
 		tetris_right.append(hidden_box);
-		hidden_box.display = 'none';
+		hidden_box.hide();
 		hidden_box.focus();
 
 
