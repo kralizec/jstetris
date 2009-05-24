@@ -1,1 +1,19 @@
-TODO
+JS-Tetris
+License: GPL
+Homepage: http://kralizec.org/jstetris
+Version: 0.0.2
+Copyright (c) 2009
+
+
+This Tetris implementation is written in JavaScript, and is designed to run
+in any non-IE browser (though only Safari and Firefox are tested at this
+point).
+
+All drawing is done with the <canvas> object.
+
+Configurability will improve in the future, but for now simple usage
+examples can be seen in index.html and konami.html (the latter uses George
+Mandis's Konami-code JavaScript to launch Tetris).
+
+This project is a work-in-progress, a list of TODO items is included in the
+comment at the top of tetris.js.

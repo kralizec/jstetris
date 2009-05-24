@@ -1,4 +1,4 @@
-// A simple console logging utility
+// A simple logging utility
 
 var Log = function(){
 

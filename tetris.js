@@ -1,7 +1,8 @@
 /*****************************************************************************
- * Soviet Block Game v0.0.1
+ * Soviet Block Game v0.0.2
  *   ... In Soviet Russia, Tetris plays YOU!
  *
+ * http://kralizec.org/jstetris
  * Author: Jason Lawrence (2009)
  * Email: jason.lawrence@kralizec.org
  * License: You should all know about GPLv3 by now.
@@ -87,7 +88,8 @@ var tetris = {
 
 
 	/**
-	 * Build a default tetris game container (requires jQuery).
+	 * Build a default tetris game container.
+	 * TODO: Refactor, cleanup, etc.
 	 */
 	create_tetris_container:function(){
 		
@@ -116,6 +118,7 @@ var tetris = {
 	 * Create absolutely positioned divs for use as display backgrounds.
 	 * This technique lets us create transparent backgrounds with opaque
 	 * foregrounds, without the need for transparent images.
+	 * TODO: Refactor, cleanup, etc.
 	 */
 	create_tetris_popup:function(){
 		$("<div id='tetris_popup'>").appendTo('body');
@@ -932,6 +935,20 @@ var tetris = {
 		tetris.ctx.clearRect(piece[2][0] * tetris.pixel_width, piece[2][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		tetris.ctx.clearRect(piece[3][0] * tetris.pixel_width, piece[3][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		
+	},
+
+
+	/**
+	 * Render pixel.
+	 * Using a specified canvas as its context, this function will render a
+	 * pixel.
+	 */
+	render_pixel:function(x,y,h,w){
+
+
+		// TODO
+
+
 	}
 
 

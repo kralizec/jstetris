@@ -1,3 +1,10 @@
+/**
+ * JS-Tetris example css.
+ * TODO: Cleanup.
+ *
+ */
+
+
 #debug_container
 {
 	display: none;
@@ -14,7 +21,7 @@
 {
 	float: left;
 	margin: 5px;
-	/*background-color: #555753;*/
+	background-color: #555753;
 	border: 2px solid #babdb6;
 	height: 540px;
 	width: 300px;
