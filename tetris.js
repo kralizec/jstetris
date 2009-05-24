@@ -16,7 +16,7 @@
  *
  *
  * TODO List:
- *   1: Cleanup of method structure.
+ *   1: Cleanup of method structure and generated markup.
  *   2: More advanced scoring.
  *   3: Gameplay tweaks (level speeds, control response, etc).
  *   4: Game Over message.
@@ -80,6 +80,53 @@ var tetris = {
 		[ "#ef2929", "#cc0000", "#a40000"],
 		[ "#729fcf", "#3465a4", "#204a87"]
 	],
+
+	/*********************************************************************
+	 * jQuery helper methods.
+	 *********************************************************************/
+
+
+	/**
+	 * Build a default tetris game container (requires jQuery).
+	 */
+	create_tetris_container:function(){
+		
+		tetris_elem = $("<div id='tetris'>");
+		tetris_elem.append($("<canvas id='game_canvas' height='540px' width='300px'></canvas>"));
+
+		tetris_right = $("<div id='right_pane'>");
+		tetris_elem.append(tetris_right);
+		tetris_right.append($("<canvas id='preview_canvas' height='100px' width='100px'></canvas>"));
+		tetris_right.append($("<div id='status_display'>"));
+
+		// Create a text box and focus it to prevent vertical arrow key scrolling.
+		hidden_box = $("<input type='text' id='tetris_hiddenbox'/>")
+		tetris_right.append(hidden_box);
+		hidden_box.display = 'none';
+		hidden_box.focus();
+
+
+		return tetris_elem;
+		
+	},
+
+
+	/**
+	 * Build a popup container.
+	 * Create absolutely positioned divs for use as display backgrounds.
+	 * This technique lets us create transparent backgrounds with opaque
+	 * foregrounds, without the need for transparent images.
+	 */
+	create_tetris_popup:function(){
+		$("<div id='tetris_popup'>").appendTo('body');
+		$("<div id='tetris_container>'").appendTo('#tetris_popup');
+		
+		$("<div class='tetris_background'>").appendTo('#tetris_container');
+		$("<div class='tetris_game_background'>").appendTo('#tetris_container');
+		$("<div class='preview_background'>").appendTo('#tetris_container');
+		$("<div class='status_background'>").appendTo('#tetris_container');
+	},
+
 
 	/*********************************************************************
 	 * Initialization Logic (Needs work)
@@ -611,6 +658,12 @@ var tetris = {
 		// Generate some pieces for the queue.
 		tetris.set_piece();
 		tetris.set_piece();
+
+		// Create the html elements.
+		tetris.create_tetris_popup();
+		tetris.create_tetris_container().appendTo('#tetris_container');
+
+		
 
 		// Set the canvasses and status section.
 		tetris.set_canvas(tetris.game_canvas_id);

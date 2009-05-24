@@ -10,30 +10,15 @@
 		<script type='text/javascript'>
 
 			konami.code = function(){
-
-				$("<div class='tetris_popup'></div>").appendTo('body');
-				$("<div class='tetris_container'></div>").appendTo('.tetris_popup');
-				$("<div class='tetris_background'></div>'").appendTo('.tetris_container');
-				$("<div class='tetris_game_background'></div>'").appendTo('.tetris_container');
-				$("<div class='preview_background'></div>'").appendTo('.tetris_container');
-				$("<div class='status_background'></div>'").appendTo('.tetris_container');
-				$("<div id='tetris'><canvas id='game_canvas' height='540px' width='300px'></canvas></div>").appendTo('.tetris_container');
-				$("<div id='right_pane'></div>").appendTo('#tetris');
-				$("<canvas id='preview_canvas' height='100px' width='100px'></canvas>").appendTo('#right_pane');
-				$("<div id='status_display'></div>").appendTo('#right_pane');
-				
-				$("<input type='text' id='tetris_hiddenbox'/>").appendTo('#right_pane');
-				$("#tetris_hiddenbox").focus();
-				
-				//$("#tetris").fadeTo(300, 0.5);
-				//$("#game_canvas").fadeIn();
-
 				// Start the game (Uses default canvas/display ids)
 				tetris.start();
 
 			};
 
 			konami.load();
+			//$(document).ready( function(){
+			//	tetris.start();
+			//});
 
 		</script>
 
