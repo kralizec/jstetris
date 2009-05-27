@@ -28,8 +28,9 @@
  *   9: Block and background theming (possibly user customizable).
  *  10: Performance tweaks.
  *  11: Create drawing methods that better utilize javascript's function context paradigm.
- *  12: Utilize new drawing methods to enable complex animations. (dieflashdie)
+ *  12: Utilize new drawing methods to enable complex animations. (line/bloc/col/region or combination)
  *  13: Fix preview window rendering (do after steps 11-12).
+ *  14: Create a JavaScript load-time inlining technique to avoid repetive call overhead.
  *
  *****************************************************************************/
 
@@ -43,6 +44,9 @@ var tetris = {
 	game_canvas_id:'game_canvas',
 	preview_canvas_id:'preview_canvas',
 	status_display_id:'status_display',
+
+	/* Animation variables */
+	anim_stack:[],
 
 	/* Active tetromino stack */
 	piece_stack:[],
@@ -81,6 +85,18 @@ var tetris = {
 		[ "#ef2929", "#cc0000", "#a40000"],
 		[ "#729fcf", "#3465a4", "#204a87"]
 	],
+
+	colors_rgb : [
+		[ null ],
+		['rgba(252,233,79,', 'rgba(237,212,0,', 'rgba(196,160,0,' ],
+		['rgba(138,226,52,', 'rgba(115,210,22,', 'rgba(78,154,6,' ],
+		['rgba(233,185,110,', 'rgba(193,125,17,', 'rgba(143,89,2,' ],
+		['rgba(252,175,62,', 'rgba(245,121,0,', 'rgba(206,92,0,' ],
+		['rgba(173,127,168,', 'rgba(117,80,123,', 'rgba(92,53,102,' ],
+		['rgba(239,41,41,', 'rgba(204,0,0,', 'rgba(164,0,0,' ],
+		['rgba(114,159,207,', 'rgba(52,101,164,', 'rgba(32,74,135,' ]
+	],
+
 
 	/*********************************************************************
 	 * jQuery helper methods.
@@ -175,6 +191,20 @@ var tetris = {
 
 		tetris.canvas = document.getElementById(canvas_id);
 		tetris.ctx = tetris.canvas.getContext('2d');
+		
+		// Assign height and width to the ctx object.
+		tetris.ctx.height = tetris.canvas.height;
+		tetris.ctx.width = tetris.canvas.width;
+		tetris.ctx.pix_height = tetris.canvas.height / tetris.height;
+		tetris.ctx.pix_width = tetris.canvas.width / tetris.width;
+		
+		// Pre-compute some rendering values.
+		// TODO: Create the rendering scheme in one place!
+		tetris.ctx.w_fact1 = tetris.ctx.pix_width * 0.25;
+		tetris.ctx.h_fact1 = tetris.ctx.pix_height * 0.25;
+		tetris.ctx.w_fact2 = tetris.ctx.pix_width * 0.5;	
+		tetris.ctx.h_fact2 = tetris.ctx.pix_height * 0.5;
+		
 
 		tetris.canvas_height = tetris.canvas.height;
 		tetris.canvas_width = tetris.canvas.width;
@@ -191,6 +221,20 @@ var tetris = {
 
 		tetris.preview = document.getElementById(canvas_id);
 		tetris.pre_ctx = tetris.preview.getContext('2d');
+
+		// Assign height and width to the ctx object.
+		tetris.pre_ctx.height = tetris.preview.height;
+		tetris.pre_ctx.width = tetris.preview.width;
+		tetris.pre_ctx.pix_height = tetris.preview.height / 6;
+		tetris.pre_ctx.pix_width = tetris.preview.width / 6;
+		
+		// Pre-compute some rendering values.
+		// TODO: Create the rendering scheme in one place!
+		tetris.pre_ctx.w_fact1 = tetris.pre_ctx.pix_width * 0.25;
+		tetris.pre_ctx.h_fact1 = tetris.pre_ctx.pix_height * 0.25;
+		tetris.pre_ctx.w_fact2 = tetris.pre_ctx.pix_width * 0.5;	
+		tetris.pre_ctx.h_fact2 = tetris.pre_ctx.pix_height * 0.5;
+
 
 		tetris.preview_height = tetris.preview.height;
 		tetris.preview_width = tetris.preview.width;
@@ -787,29 +831,9 @@ var tetris = {
 		pattern = piece[1];
 
 		// TODO: Calculate center and draw scaled piece image!
-		//colors =  tetris.get_colors(piece[0]);
 
 		for(i = 0; i < 4; i++){
-			x = (pattern[i][0] + 1) * tetris.pre_pixel_width;
-			y = (pattern[i][1] + 1) * tetris.pre_pixel_height;
-			w = tetris.pre_pixel_width;
-			h = tetris.pre_pixel_height;
-
-			i_x = x + (tetris.pre_pixel_width * 0.25);
-			i_y = y + (tetris.pre_pixel_width * 0.25);
-			i_w = tetris.pre_pixel_width * 0.5;	
-			i_h = tetris.pre_pixel_width * 0.5;
-
-
-			tetris.pre_ctx.fillStyle = tetris.colors[piece[0]][0];
-			tetris.pre_ctx.fillRect(x,y,w,h);
-				
-			tetris.pre_ctx.fillStyle = tetris.colors[piece[0]][1];
-			tetris.pre_ctx.strokeRect(x,y,w,h);
-
-			tetris.pre_ctx.fillStyle = tetris.colors[piece[0]][2];
-			tetris.pre_ctx.fillRect(i_x,i_y,i_w,i_h);
-
+			tetris.render_block.call(tetris.pre_ctx, piece[0], pattern[i][0] + 1,pattern[i][1] + 1);
 		}
 
 
@@ -850,25 +874,9 @@ var tetris = {
 
 				// TODO: Get rid of the need for this conditional, if possible.
 				if(pixel >= 1){
-					x = c * tetris.pixel_width;
-					y = r * tetris.pixel_height;
-					w = tetris.pixel_width;
-					h = tetris.pixel_height;
-
-					i_x = x + (tetris.pixel_width * 0.25);
-					i_y = y + (tetris.pixel_width * 0.25);
-					i_w = tetris.pixel_width * 0.5;
-					i_h = tetris.pixel_width * 0.5;
-
-
-					tetris.ctx.fillStyle = tetris.colors[pixel][1];
-					tetris.ctx.fillRect(x,y,w,h);
-
-					tetris.ctx.fillStyle = tetris.colors[pixel][0];
-					tetris.ctx.fillRect(x+1,y+1,w-2,h-2);
-
-					tetris.ctx.fillStyle = tetris.colors[pixel][2];
-					tetris.ctx.fillRect(i_x,i_y,i_w,i_h);
+	
+					tetris.render_block.call(tetris.ctx, pixel, c, r);
+					
 				}
 
 			}
@@ -894,28 +902,7 @@ var tetris = {
 
 		for(i = 0; i < 4; i++){
 
-			// Precalculating these values, primarily for readability.
-			x = piece[i][0] * tetris.pixel_width;
-			y = piece[i][1] * tetris.pixel_height;
-			w = tetris.pixel_width;
-			h = tetris.pixel_height;
-
-			i_x = x + (tetris.pixel_width * 0.25);
-			i_y = y + (tetris.pixel_width * 0.25);
-			i_w = tetris.pixel_width * 0.5;	
-			i_h = tetris.pixel_width * 0.5;
-
-
-			// Draw the colored blocks.
-
-			tetris.ctx.fillStyle = tetris.colors[type][1];
-			tetris.ctx.fillRect(x,y,w,h);
-
-			tetris.ctx.fillStyle = tetris.colors[type][0];
-			tetris.ctx.fillRect(x+1,y+1,w-2,h-2);
-				
-			tetris.ctx.fillStyle = tetris.colors[type][2];
-			tetris.ctx.fillRect(i_x,i_y,i_w,i_h);
+			tetris.render_block.call(tetris.ctx, type, piece[i][0], piece[i][1]);
 
 		}
 
@@ -931,26 +918,108 @@ var tetris = {
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
+
+		/*x1 = piece[0][0];
+		x2 = piece[1][0];
+		x3 = piece[2][0];
+		x4 = piece[3][0];
+
+		y1 = piece[0][1];
+		y2 = piece[1][1];
+		y3 = piece[2][1];
+		y4 = piece[3][1];
+
+		tetris.animate(1, 10, 20, type, x1, y1);
+		tetris.animate(1, 10, 20, type, x2, y2);
+		tetris.animate(1, 10, 20, type, x3, y3);
+		tetris.animate(1, 10, 20, type, x4, y4);*/
+
 		tetris.ctx.clearRect(piece[0][0] * tetris.pixel_width, piece[0][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		tetris.ctx.clearRect(piece[1][0] * tetris.pixel_width, piece[1][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		tetris.ctx.clearRect(piece[2][0] * tetris.pixel_width, piece[2][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		tetris.ctx.clearRect(piece[3][0] * tetris.pixel_width, piece[3][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
-		
 	},
 
 
 	/**
-	 * Render pixel.
-	 * Using a specified canvas as its context, this function will render a
-	 * pixel.
+	 * Render a game block.
+	 * Using a specified canvas context, this function will render a block.
 	 */
-	render_pixel:function(x,y,h,w){
+	render_block:function(type, x, y){
+
+		x = x * this.pix_width;
+		y = y * this.pix_height;
+
+		i_x = x + this.w_fact1;
+		i_y = y + this.h_fact1;
 
 
 		// TODO
+		this.fillStyle = tetris.colors[type][1];
+		this.fillRect(x,y,this.pix_width,this.pix_height);
+
+		this.fillStyle = tetris.colors[type][0];
+		this.fillRect(x+1,y+1,this.pix_height-2,this.pix_height-2);
+				
+		this.fillStyle = tetris.colors[type][2];
+		this.fillRect(i_x,i_y,this.w_fact2,this.h_fact2);
 
 
-	}
+	},
+
+
+	/**
+	 * Animate an action.
+	 * Takes a function, a cycle count, and a timeout interval.
+	 */
+	animate:function(anim_type, cycles, interval, type, x, y){
+
+		animation = [x, y, type, 1.0, cycles, interval, anim_type, null];
+		// Add this block to the animation stack.
+		size = tetris.anim_stack.push(animation);
+		size--;
+
+		animation[7] = setInterval('tetris.anim_fade.call(tetris.ctx, tetris.anim_stack[size])' ,interval);
+		
+
+	},
+
+	/**
+	 * Render a block fade.
+	 */
+	anim_fade:function(anim_obj){
+
+		//alert('testing');
+		if(anim_obj[4] <= 0){ clearInterval(anim_obj[7]); return; }
+
+		this.save();
+
+		x = anim_obj[0] * this.pix_width;
+		y = anim_obj[1] * this.pix_height;
+
+		i_x = x + this.w_fact1;
+		i_y = y + this.h_fact1;
+
+		// Draw current
+		this.fillStyle = tetris.colors_rgb[anim_obj[2]][1] + anim_obj[3] + ')';
+		this.fillRect(x,y,this.pix_width,this.pix_height);
+
+		this.fillStyle = tetris.colors_rgb[anim_obj[2]][0] + anim_obj[3] + ')';
+		this.fillRect(x+1,y+1,this.pix_height-2,this.pix_height-2);
+				
+		this.fillStyle = tetris.colors_rgb[anim_obj[2]][2] + anim_obj[3] + ')';
+		this.fillRect(i_x,i_y,this.w_fact2,this.h_fact2);
+
+		//this.clearRect(x,y,this.pix_width,this.pix_height);
+
+		// Iteration changes.
+		anim_obj[3] -= 0.1;
+
+		// reduce cycle count.
+		anim_obj[4]--;
+
+		this.restore();
+	},
 
 
 }
