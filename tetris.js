@@ -45,9 +45,6 @@ var tetris = {
 	preview_canvas_id:'preview_canvas',
 	status_display_id:'status_display',
 
-	/* Animation variables */
-	anim_stack:[],
-
 	/* Active tetromino stack */
 	piece_stack:[],
 
@@ -919,7 +916,7 @@ var tetris = {
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
 
-		/*x1 = piece[0][0];
+		x1 = piece[0][0];
 		x2 = piece[1][0];
 		x3 = piece[2][0];
 		x4 = piece[3][0];
@@ -929,11 +926,16 @@ var tetris = {
 		y3 = piece[2][1];
 		y4 = piece[3][1];
 
-		tetris.animate(1, 10, 20, type, x1, y1);
-		tetris.animate(1, 10, 20, type, x2, y2);
-		tetris.animate(1, 10, 20, type, x3, y3);
-		tetris.animate(1, 10, 20, type, x4, y4);*/
+		// Completely clone the piece.
+		/*temp_piece = [type,[],null];
 
+		temp_piece[1][0] = [ x1, y1 ];
+		temp_piece[1][1] = [ x2, y2 ];
+		temp_piece[1][2] = [ x3, y3 ];
+		temp_piece[1][3] = [ x4, y4 ];
+
+		tetris.block_fade(tetris.ctx, temp_piece);
+		*/
 		tetris.ctx.clearRect(piece[0][0] * tetris.pixel_width, piece[0][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		tetris.ctx.clearRect(piece[1][0] * tetris.pixel_width, piece[1][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		tetris.ctx.clearRect(piece[2][0] * tetris.pixel_width, piece[2][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
@@ -967,60 +969,52 @@ var tetris = {
 
 	},
 
+	block_fade:function(ctx,piece){
 
-	/**
-	 * Animate an action.
-	 * Takes a function, a cycle count, and a timeout interval.
-	 */
-	animate:function(anim_type, cycles, interval, type, x, y){
+		opacity = 0.8;
+		cycles = 8;
 
-		animation = [x, y, type, 1.0, cycles, interval, anim_type, null];
-		// Add this block to the animation stack.
-		size = tetris.anim_stack.push(animation);
-		size--;
+		if(piece[2]){
+			clearInterval(piece[2]);
+			// Clear old.
+			//ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
+		}
 
-		animation[7] = setInterval('tetris.anim_fade.call(tetris.ctx, tetris.anim_stack[size])' ,interval);
-		
+		piece[2] = setInterval(function(){
+			// Return if this cell is occupied.
+			//if(tetris.matrix[x][y]){ clearInterval(interval_id); return; }
+					
+			ctx.save();
 
-	},
 
-	/**
-	 * Render a block fade.
-	 */
-	anim_fade:function(anim_obj){
+			x = piece[1][0][0] * ctx.pix_width;
+			y = piece[1][0][1] * ctx.pix_height;
 
-		//alert('testing');
-		if(anim_obj[4] <= 0){ clearInterval(anim_obj[7]); return; }
+			i_x = x + ctx.w_fact1;
+			i_y = y + ctx.h_fact1;
+	
+			// Clear old.
+			ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
 
-		this.save();
+			if(cycles <= 0){ clearInterval(piece[2]); return; }
+	
+			// Draw current
+			ctx.fillStyle = tetris.colors_rgb[piece[0]][1] + opacity + ')';
+			ctx.fillRect(x,y,ctx.pix_width,ctx.pix_height);
+	
+			ctx.fillStyle = tetris.colors_rgb[piece[0]][0] + opacity + ')';
+			ctx.fillRect(x+1,y+1,ctx.pix_height-2,ctx.pix_height-2);
+					
+			ctx.fillStyle = tetris.colors_rgb[piece[0]][2] + opacity + ')';
+			ctx.fillRect(i_x,i_y,ctx.w_fact2,ctx.h_fact2);
 
-		x = anim_obj[0] * this.pix_width;
-		y = anim_obj[1] * this.pix_height;
+			// Delta
+			opacity -= 0.1;
+			cycles--;
 
-		i_x = x + this.w_fact1;
-		i_y = y + this.h_fact1;
+			ctx.restore();
 
-		// Draw current
-		this.fillStyle = tetris.colors_rgb[anim_obj[2]][1] + anim_obj[3] + ')';
-		this.fillRect(x,y,this.pix_width,this.pix_height);
-
-		this.fillStyle = tetris.colors_rgb[anim_obj[2]][0] + anim_obj[3] + ')';
-		this.fillRect(x+1,y+1,this.pix_height-2,this.pix_height-2);
-				
-		this.fillStyle = tetris.colors_rgb[anim_obj[2]][2] + anim_obj[3] + ')';
-		this.fillRect(i_x,i_y,this.w_fact2,this.h_fact2);
-
-		//this.clearRect(x,y,this.pix_width,this.pix_height);
-
-		// Iteration changes.
-		anim_obj[3] -= 0.1;
-
-		// reduce cycle count.
-		anim_obj[4]--;
-
-		this.restore();
-	},
-
+		}, 50);
+	}
 
 }
-
