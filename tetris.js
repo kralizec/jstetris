@@ -836,16 +836,6 @@ var tetris = {
 
 	},
 
-	/**
-	 * Draw an individual block.
-	 */
-	draw_block:function(color, x, y, w, h){
-
-				tetris.ctx.fillStyle = color;
-				tetris.ctx.fillRect(x, y, w, h);
-
-	},
-
 
 	/**
 	 * Draw the game matrix.
@@ -926,16 +916,12 @@ var tetris = {
 		y3 = piece[2][1];
 		y4 = piece[3][1];
 
-		// Completely clone the piece.
-		/*temp_piece = [type,[],null];
-
-		temp_piece[1][0] = [ x1, y1 ];
-		temp_piece[1][1] = [ x2, y2 ];
-		temp_piece[1][2] = [ x3, y3 ];
-		temp_piece[1][3] = [ x4, y4 ];
-
-		tetris.block_fade(tetris.ctx, temp_piece);
-		*/
+		// Do the fading animation
+		//tetris.block_fade(tetris.ctx, [type,x1,y1,null,1.0,20]);
+		//tetris.block_fade(tetris.ctx, [type,x2,y2,null,1.0,20]);
+		//tetris.block_fade(tetris.ctx, [type,x3,y3,null,1.0,20]);
+		//tetris.block_fade(tetris.ctx, [type,x4,y4,null,1.0,20]);
+		
 		tetris.ctx.clearRect(piece[0][0] * tetris.pixel_width, piece[0][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		tetris.ctx.clearRect(piece[1][0] * tetris.pixel_width, piece[1][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		tetris.ctx.clearRect(piece[2][0] * tetris.pixel_width, piece[2][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
@@ -969,52 +955,83 @@ var tetris = {
 
 	},
 
+	/**
+	 * Render a game block with adjustable opacity.
+	 * Using a specified canvas context, this function will render a block.
+	 */
+	render_block_alpha:function(type, alpha, x, y){
+
+		x = x * this.pix_width;
+		y = y * this.pix_height;
+
+		i_x = x + this.w_fact1;
+		i_y = y + this.h_fact1;
+
+
+		// TODO
+		this.fillStyle = tetris.colors_rgb[type][1] + alpha + ')';
+		this.fillRect(x,y,this.pix_width,this.pix_height);
+
+		this.fillStyle = tetris.colors_rgb[type][0] + alpha + ')';
+		this.fillRect(x+1,y+1,this.pix_height-2,this.pix_height-2);
+				
+		this.fillStyle = tetris.colors_rgb[type][2] + alpha + ')';
+		this.fillRect(i_x,i_y,this.w_fact2,this.h_fact2);
+
+
+	},
+
+	/**
+	 * Gradually fade a block away.
+	 * TODO: Performance! Code refactoring for sanity.
+	 */
 	block_fade:function(ctx,piece){
 
-		opacity = 0.8;
-		cycles = 8;
-
-		if(piece[2]){
-			clearInterval(piece[2]);
-			// Clear old.
-			//ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
-		}
-
-		piece[2] = setInterval(function(){
-			// Return if this cell is occupied.
-			//if(tetris.matrix[x][y]){ clearInterval(interval_id); return; }
+		piece[3] = setInterval(function(){
+			
 					
+			// Return if this cell is occupied.
+			if(tetris.matrix[piece[1]][piece[2]] != undefined){
+				clearInterval(piece[3]);
+				tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
+				return;
+			}
+			
+			// Return if the active piece is occupying this space.
+			// TODO: Find a better way!
+			for(z = 0; z < 4; z++){
+				ax = tetris.piece_stack[0][1][z][0];
+				ay = tetris.piece_stack[0][1][z][1];
+
+				if(piece[1] == ax && piece[2] == ay){
+					clearInterval(piece[3]);
+					tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
+					return;
+				}
+
+			}
+
+			x = piece[1] * ctx.pix_width;
+			y = piece[2] * ctx.pix_height;
+			
+			// Save the context
 			ctx.save();
 
-
-			x = piece[1][0][0] * ctx.pix_width;
-			y = piece[1][0][1] * ctx.pix_height;
-
-			i_x = x + ctx.w_fact1;
-			i_y = y + ctx.h_fact1;
-	
 			// Clear old.
 			ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
 
-			if(cycles <= 0){ clearInterval(piece[2]); return; }
+			if(piece[5] <= 0){ clearInterval(piece[3]); ctx.restore(); return; }
 	
 			// Draw current
-			ctx.fillStyle = tetris.colors_rgb[piece[0]][1] + opacity + ')';
-			ctx.fillRect(x,y,ctx.pix_width,ctx.pix_height);
-	
-			ctx.fillStyle = tetris.colors_rgb[piece[0]][0] + opacity + ')';
-			ctx.fillRect(x+1,y+1,ctx.pix_height-2,ctx.pix_height-2);
-					
-			ctx.fillStyle = tetris.colors_rgb[piece[0]][2] + opacity + ')';
-			ctx.fillRect(i_x,i_y,ctx.w_fact2,ctx.h_fact2);
+			tetris.render_block_alpha.call(ctx, piece[0], piece[4], piece[1], piece[2]);
 
 			// Delta
-			opacity -= 0.1;
-			cycles--;
+			piece[4] -= 0.05;
+			piece[5]--;
 
 			ctx.restore();
 
-		}, 50);
+		}, 20);
 	}
 
 }
