@@ -85,13 +85,13 @@ var tetris = {
 
 	colors_rgb : [
 		[ null ],
-		['rgba(252,233,79,', 'rgba(237,212,0,', 'rgba(196,160,0,' ],
-		['rgba(138,226,52,', 'rgba(115,210,22,', 'rgba(78,154,6,' ],
-		['rgba(233,185,110,', 'rgba(193,125,17,', 'rgba(143,89,2,' ],
-		['rgba(252,175,62,', 'rgba(245,121,0,', 'rgba(206,92,0,' ],
-		['rgba(173,127,168,', 'rgba(117,80,123,', 'rgba(92,53,102,' ],
-		['rgba(239,41,41,', 'rgba(204,0,0,', 'rgba(164,0,0,' ],
-		['rgba(114,159,207,', 'rgba(52,101,164,', 'rgba(32,74,135,' ]
+		['rgba(252,233, 79,', 'rgba(237,212,  0,', 'rgba(196,160,  0,' ],
+		['rgba(138,226, 52,', 'rgba(115,210, 22,', 'rgba( 78,154,  6,' ],
+		['rgba(233,185,110,', 'rgba(193,125, 17,', 'rgba(143, 89,  2,' ],
+		['rgba(252,175, 62,', 'rgba(245,121,  0,', 'rgba(206, 92,  0,' ],
+		['rgba(173,127,168,', 'rgba(117, 80,123,', 'rgba( 92, 53,102,' ],
+		['rgba(239, 41, 41,', 'rgba(204,  0,  0,', 'rgba(164,  0,  0,' ],
+		['rgba(114,159,207,', 'rgba( 52,101,164,', 'rgba( 32, 74,135,' ]
 	],
 
 
@@ -120,6 +120,7 @@ var tetris = {
 		hidden_box.hide();
 		hidden_box.focus();
 
+		//alert('Here');
 
 		return tetris_elem;
 		
@@ -134,13 +135,14 @@ var tetris = {
 	 * TODO: Refactor, cleanup, etc.
 	 */
 	create_tetris_popup:function(){
-		$("<div id='tetris_popup'>").appendTo('body');
+		elem = $("<div id='tetris_popup'>").appendTo('body');
 		$("<div id='tetris_container>'").appendTo('#tetris_popup');
 		
 		$("<div class='tetris_background'>").appendTo('#tetris_container');
 		$("<div class='tetris_game_background'>").appendTo('#tetris_container');
 		$("<div class='preview_background'>").appendTo('#tetris_container');
 		$("<div class='status_background'>").appendTo('#tetris_container');
+		return elem;
 	},
 
 
@@ -683,6 +685,19 @@ var tetris = {
 	},
 
 	/**
+	 * Create a popup frame for Tetris.
+	 */
+	create_popup:function(){
+
+		
+		elem = tetris.create_tetris_popup();
+		tetris.create_tetris_container().appendTo(elem);
+
+
+	},
+
+
+	/**
 	 * Start the game! Only run this ONCE for each game!
 	 * This should be usable as a new game method.
 	 * TODO: Clean up.
@@ -705,10 +720,8 @@ var tetris = {
 		tetris.set_piece();
 
 		// Create the html elements.
-		tetris.create_tetris_popup();
-		tetris.create_tetris_container().appendTo('#tetris_container');
-
-		
+		tetris.create_popup();
+		//tetris.create_tetris_container().appendTo('#tetris_container');
 
 		// Set the canvasses and status section.
 		tetris.set_canvas(tetris.game_canvas_id);
