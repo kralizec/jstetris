@@ -338,12 +338,22 @@ var tetris = {
 				
 				pixel = tetris.matrix[y][x];
 
-				if(pixel == null || pixel <= 0){
+				if(pixel == undefined || pixel == null || pixel <= 0){
 					line_status = false;
 				}
 			}
 			if(line_status){
 				tetris.remove_line(y);
+
+				// Animate a row removal.
+				for(x = 0; x < tetris.width; x++){
+					callback = "tetris.draw_col(" + x + ");";
+					//callback = "tetris.draw_matrix();";
+					tetris.block_fade(tetris.ctx, [type,x,y,null,1.0,20], callback);
+				}
+				// Draw the updates
+				//tetris.draw_matrix();				
+
 				line_count++;
 			}
 		}
@@ -414,6 +424,9 @@ var tetris = {
 		for(x = 0; x < tetris.piece_stack[0][1].length; x++){
 			point = tetris.piece_stack[0][1][x];
 			tetris.matrix[point[1]][point[0]] = type;
+
+			// Draw the current.
+			tetris.render_block.call(tetris.ctx, type, point[1], point[0]);
 		}
 
 	},
@@ -454,7 +467,8 @@ var tetris = {
 			tetris.update_status();
 
 			// Draw the new matrix
-			tetris.draw_matrix();
+			//tetris.draw_matrix();
+			//tetris.update_matrix();
 
 			// Set a new random piece on the board.
 			tetris.set_piece();
@@ -862,10 +876,6 @@ var tetris = {
 		// Clear first.
 		tetris.clear_canvas();
 
-		// Current row/col
-		row = 0;
-		col = 0;
-
 		// Render the matrix.
 		for(r = 0; r < tetris.height; r++){
 			for(c = 0; c < tetris.width; c++){
@@ -874,13 +884,30 @@ var tetris = {
 
 				// TODO: Get rid of the need for this conditional, if possible.
 				if(pixel >= 1){
-	
 					tetris.render_block.call(tetris.ctx, pixel, c, r);
-					
 				}
 
 			}
 
+		}
+
+	},
+
+	/**
+	 * Draw a column of the game matrix.
+	 * TODO: Check column validity.
+	 */
+	draw_col:function(c){
+
+		//tetris.clear_col();
+
+		for(r = 0; r < tetris.height; r++){
+			pixel = tetris.matrix[r][c];
+			if(pixel >= 1){
+				tetris.render_block.call(tetris.ctx, pixel, c, r);
+			} else {
+				tetris.clear_block.call(tetris.ctx, c, r);
+			}
 		}
 
 	},
@@ -969,6 +996,18 @@ var tetris = {
 	},
 
 	/**
+	 * Clear an individual block.
+	 */
+	clear_block:function(x,y){
+
+		x = x * this.pix_width;
+		y = y * this.pix_height;
+
+		this.clearRect(x,y,this.pix_width,this.pix_height);
+
+	},
+
+	/**
 	 * Render a game block with adjustable opacity.
 	 * Using a specified canvas context, this function will render a block.
 	 */
@@ -995,18 +1034,39 @@ var tetris = {
 	},
 
 	/**
+	 * No-callback version of block_fade.
+	 */
+	block_fade:function(ctx,piece){
+		tetris.block_fade(ctx,piece,null);
+	},
+
+	/**
 	 * Gradually fade a block away.
 	 * TODO: Performance! Code refactoring for sanity.
 	 */
-	block_fade:function(ctx,piece){
+	block_fade:function(ctx,piece,callback){
 
 		piece[3] = setInterval(function(){
 			
 					
 			// Return if this cell is occupied.
 			if(tetris.matrix[piece[1]][piece[2]] != undefined){
+				
 				clearInterval(piece[3]);
-				tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
+				ctx.restore();
+				//tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
+
+				if(callback != null){
+					eval(callback);
+				} else {
+					pixel_type = tetris.matrix[piece[1]][piece[2]];
+					tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
+				}
+
+				// Render whatever block is occupying this matrix space.
+				//pixel_type = tetris.matrix[piece[1]][piece[2]];
+				//tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
+				//tetris.draw_matrix();
 				return;
 			}
 			
@@ -1018,7 +1078,24 @@ var tetris = {
 
 				if(piece[1] == ax && piece[2] == ay){
 					clearInterval(piece[3]);
-					tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
+					ctx.restore();
+					//tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
+
+					if(callback != null){
+						eval(callback);
+					} else {
+						pixel_type = tetris.matrix[piece[1]][piece[2]];
+						if(pixel_type != undefined){
+							tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
+						}
+					}
+
+					// Render whatever block is occupying this matrix space.
+					//pixel_type = tetris.matrix[piece[1]][piece[2]];
+					//if(pixel_type != undefined){
+					//	tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
+					//}
+					//tetris.draw_matrix();
 					return;
 				}
 
@@ -1033,7 +1110,29 @@ var tetris = {
 			// Clear old.
 			ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
 
-			if(piece[5] <= 0){ clearInterval(piece[3]); ctx.restore(); return; }
+			if(piece[5] <= 0){
+				clearInterval(piece[3]);
+				ctx.restore();
+	
+				if(callback != null){
+					eval(callback);
+				} else {
+
+					pixel_type = tetris.matrix[piece[1]][piece[2]];
+					if(pixel_type != undefined){
+						tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
+					}
+				}
+
+				//tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
+				// Render whatever block is occupying this matrix space.
+				//pixel_type = tetris.matrix[piece[1]][piece[2]];
+				//if(pixel_type != undefined){
+				//	tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
+				//}
+
+				return;
+			}
 	
 			// Draw current
 			tetris.render_block_alpha.call(ctx, piece[0], piece[4], piece[1], piece[2]);
