@@ -343,23 +343,21 @@ var tetris = {
 				}
 			}
 			if(line_status){
-				tetris.remove_line(y);
+				
 
-				blocks = [];
+				//blocks = [];
 
 				// Animate a row removal.
-				for(x = 0; x < tetris.width; x++){
-					//callback = "tetris.draw_col(" + x + ");";
-					//callback = "tetris.draw_matrix();";
-					//tetris.block_fade(tetris.ctx, [type,null,1.0,20], callback);
+				/*for(x = 0; x < tetris.width; x++){
 					blocks.push([x,y]);
 				}
-
 				callback = "tetris.draw_matrix();";
 				tetris.block_fade(tetris.ctx, [type,null,1.0,20], blocks, callback);
+				*/
+				tetris.remove_line(y);
 
 				// Draw the updates
-				//tetris.draw_matrix();				
+				tetris.draw_matrix();				
 
 				line_count++;
 			}
