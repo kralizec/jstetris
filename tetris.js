@@ -345,12 +345,19 @@ var tetris = {
 			if(line_status){
 				tetris.remove_line(y);
 
+				blocks = [];
+
 				// Animate a row removal.
 				for(x = 0; x < tetris.width; x++){
-					callback = "tetris.draw_col(" + x + ");";
+					//callback = "tetris.draw_col(" + x + ");";
 					//callback = "tetris.draw_matrix();";
-					tetris.block_fade(tetris.ctx, [type,x,y,null,1.0,20], callback);
+					//tetris.block_fade(tetris.ctx, [type,null,1.0,20], callback);
+					blocks.push([x,y]);
 				}
+
+				callback = "tetris.draw_matrix();";
+				tetris.block_fade(tetris.ctx, [type,null,1.0,20], blocks, callback);
+
 				// Draw the updates
 				//tetris.draw_matrix();				
 
@@ -957,10 +964,11 @@ var tetris = {
 		y4 = piece[3][1];
 
 		// Do the fading animation
-		//tetris.block_fade(tetris.ctx, [type,x1,y1,null,1.0,20]);
-		//tetris.block_fade(tetris.ctx, [type,x2,y2,null,1.0,20]);
-		//tetris.block_fade(tetris.ctx, [type,x3,y3,null,1.0,20]);
-		//tetris.block_fade(tetris.ctx, [type,x4,y4,null,1.0,20]);
+		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]);
+		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x1,y1]]);
+		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x2,y2]]);
+		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x3,y3]]);
+		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x4,y4]]);
 		
 		tetris.ctx.clearRect(piece[0][0] * tetris.pixel_width, piece[0][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
 		tetris.ctx.clearRect(piece[1][0] * tetris.pixel_width, piece[1][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
@@ -1036,110 +1044,106 @@ var tetris = {
 	/**
 	 * No-callback version of block_fade.
 	 */
-	block_fade:function(ctx,piece){
+	block_fade:function(ctx,data,blocks){
 		tetris.block_fade(ctx,piece,null);
 	},
 
 	/**
-	 * Gradually fade a block away.
+	 * Gradually fade blocks away.
+	 * Takes an array of blocks to fade.
 	 * TODO: Performance! Code refactoring for sanity.
 	 */
-	block_fade:function(ctx,piece,callback){
+	block_fade:function(ctx,data,blocks,callback){
 
-		piece[3] = setInterval(function(){
-			
-					
-			// Return if this cell is occupied.
-			if(tetris.matrix[piece[1]][piece[2]] != undefined){
-				
-				clearInterval(piece[3]);
-				ctx.restore();
-				//tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
+		data[1] = setInterval(function(){
+
+			// Break if no drawing can be done.
+			anim = true;
+
+			// Return if cycle num is exceeded.
+			if(data[3] <= 0){
+				clearInterval(data[1]);
+	
+				if(callback != null){
+					eval(callback);
+				} else {
+					for(b = 0; b < blocks.length; b++){
+						bx = blocks[b][0];
+						by = blocks[b][1];
+						x = bx * ctx.pix_width;
+						y = by * ctx.pix_height;
+						ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
+					}
+				}
+				return;
+
+			}
+
+			// Return if blocks is size 0.
+			if(blocks.length <= 0){
+				clearInterval(data[1]);
 
 				if(callback != null){
 					eval(callback);
 				} else {
-					pixel_type = tetris.matrix[piece[1]][piece[2]];
-					tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
-				}
-
-				// Render whatever block is occupying this matrix space.
-				//pixel_type = tetris.matrix[piece[1]][piece[2]];
-				//tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
-				//tetris.draw_matrix();
-				return;
-			}
-			
-			// Return if the active piece is occupying this space.
-			// TODO: Find a better way!
-			for(z = 0; z < 4; z++){
-				ax = tetris.piece_stack[0][1][z][0];
-				ay = tetris.piece_stack[0][1][z][1];
-
-				if(piece[1] == ax && piece[2] == ay){
-					clearInterval(piece[3]);
-					ctx.restore();
-					//tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
-
-					if(callback != null){
-						eval(callback);
-					} else {
-						pixel_type = tetris.matrix[piece[1]][piece[2]];
-						if(pixel_type != undefined){
-							tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
-						}
+					for(b = 0; b < blocks.length; b++){
+						bx = blocks[b][0];
+						by = blocks[b][1];
+						x = bx * ctx.pix_width;
+						y = by * ctx.pix_height;
+						ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
 					}
-
-					// Render whatever block is occupying this matrix space.
-					//pixel_type = tetris.matrix[piece[1]][piece[2]];
-					//if(pixel_type != undefined){
-					//	tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
-					//}
-					//tetris.draw_matrix();
-					return;
 				}
+				return;
 
 			}
 
-			x = piece[1] * ctx.pix_width;
-			y = piece[2] * ctx.pix_height;
-			
 			// Save the context
 			ctx.save();
-
-			// Clear old.
-			ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
-
-			if(piece[5] <= 0){
-				clearInterval(piece[3]);
-				ctx.restore();
 	
-				if(callback != null){
-					eval(callback);
-				} else {
+			for(b = 0; b < blocks.length; b++){
 
-					pixel_type = tetris.matrix[piece[1]][piece[2]];
-					if(pixel_type != undefined){
-						tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
+				anim = true;
+
+				bx = blocks[b][0];
+				by = blocks[b][1];
+
+				// Calculate matrix type at this point.
+				matrix_point = tetris.matrix[bx][by];
+
+				// Calculate if the active piece occupies this space.
+				active_present = false;
+				for(z = 0; z < 4; z++){
+					ax = tetris.piece_stack[0][1][z][0];
+					ay = tetris.piece_stack[0][1][z][1];
+
+					if(bx == ax && by == ay){
+						active_present = true;
+						break;
 					}
 				}
+				
+				// Do nothing if the matrix is occupied here.
+				// Do nothing if the active piece is present here.
+				// Else, Clear and Render
+				if(matrix_point >= 0 || active_present){
+					// remove this element from the block array and return.
+					ctx.restore();
+					blocks.splice(b,1);
+					return;
+				} else {
+					x = bx * ctx.pix_width;
+					y = by * ctx.pix_height;
+					ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
 
-				//tetris.render_block.call(ctx, piece[0], piece[1], piece[2]);
-				// Render whatever block is occupying this matrix space.
-				//pixel_type = tetris.matrix[piece[1]][piece[2]];
-				//if(pixel_type != undefined){
-				//	tetris.render_block.call(ctx, pixel_type, piece[1], piece[2]);
-				//}
+					tetris.render_block_alpha.call(ctx, data[0], data[2], bx, by);
+				}
 
-				return;
 			}
-	
-			// Draw current
-			tetris.render_block_alpha.call(ctx, piece[0], piece[4], piece[1], piece[2]);
 
 			// Delta
-			piece[4] -= 0.05;
-			piece[5]--;
+			data[2] -= 0.05;
+			data[3]--;
 
 			ctx.restore();
 
