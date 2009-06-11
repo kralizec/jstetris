@@ -344,20 +344,19 @@ var tetris = {
 			}
 			if(line_status){
 				
-
-				//blocks = [];
-
 				// Animate a row removal.
-				/*for(x = 0; x < tetris.width; x++){
+				blocks = [];
+				for(x = 0; x < tetris.width; x++){
 					blocks.push([x,y]);
 				}
 				callback = "tetris.draw_matrix();";
+				//callback = "tetris.draw_col(" + x + ");";
 				tetris.block_fade(tetris.ctx, [type,null,1.0,20], blocks, callback);
-				*/
+				
 				tetris.remove_line(y);
 
 				// Draw the updates
-				tetris.draw_matrix();				
+				//tetris.draw_matrix();				
 
 				line_count++;
 			}
