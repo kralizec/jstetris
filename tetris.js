@@ -431,7 +431,7 @@ var tetris = {
 			tetris.matrix[point[1]][point[0]] = type;
 
 			// Draw the current.
-			tetris.render_block.call(tetris.ctx, type, point[1], point[0]);
+			tetris.render_block.call(tetris.ctx, type, point[0], point[1]);
 		}
 
 	},
