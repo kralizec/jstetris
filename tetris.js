@@ -430,6 +430,7 @@ var tetris = {
 			tetris.matrix[point[1]][point[0]] = type;
 
 			// Draw the current.
+			// TODO: This may be redundant. Refactor!
 			tetris.render_block.call(tetris.ctx, type, point[0], point[1]);
 		}
 
@@ -962,6 +963,7 @@ var tetris = {
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
 
+		/*
 		x1 = piece[0][0];
 		x2 = piece[1][0];
 		x3 = piece[2][0];
@@ -971,6 +973,7 @@ var tetris = {
 		y2 = piece[1][1];
 		y3 = piece[2][1];
 		y4 = piece[3][1];
+		*/
 
 		// Do the fading animation
 		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]);
