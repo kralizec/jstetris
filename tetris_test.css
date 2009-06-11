@@ -4,6 +4,12 @@
  *
  */
 
+body
+{
+	/*border: 5px solid #204a87;*/
+	background-color: #3465a4;
+}
+
 
 #debug_container
 {
@@ -52,5 +58,7 @@
 	width: 430px;
 	height: 560px;
 	border: 2px solid #2e3436;
-	/*background-color: #888a85;*/
+	margin-left: auto;
+	margin-right: auto;
+	background-color: #888a85;
 }
