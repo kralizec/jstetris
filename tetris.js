@@ -483,8 +483,12 @@ var tetris = {
 				return;
 			} else {
 				
+				// Draw the current piece
+				tetris.draw_piece();
+
 				// Render a new piece preview.
 				tetris.render_preview();
+
 			}
 
 		}
@@ -757,8 +761,16 @@ var tetris = {
 			tetris.interval_id = null;
 		}
 
+		// Draw the preview piece
+		tetris.render_preview();
+
+		// Draw the initial piece.
+		// TODO: Organize drawing more sanely to remove the necessity for this.
+		tetris.draw_piece();
+
 		// Initialize the iteration timer.
 		tetris.interval_id = setInterval( function(){
+			// Start iterating
 			tetris.iterate();
 		}, tetris.calculate_speed());
 
