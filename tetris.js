@@ -73,7 +73,6 @@ var tetris = {
 	// A Tango color palette for drawing blocks.
 	// Adding a null first element in case board spaces are set to 0. (get rid of this).
 	colors : [
-		[ null ],
 		[ "#fce94f", "#edd400", "#c4a000"],
 		[ "#8ae234", "#73d216", "#4e9a06"],
 		[ "#e9b96e", "#c17d11", "#8f5902"],
@@ -83,8 +82,8 @@ var tetris = {
 		[ "#729fcf", "#3465a4", "#204a87"]
 	],
 
+
 	colors_rgb : [
-		[ null ],
 		['rgba(252,233, 79,', 'rgba(237,212,  0,', 'rgba(196,160,  0,' ],
 		['rgba(138,226, 52,', 'rgba(115,210, 22,', 'rgba( 78,154,  6,' ],
 		['rgba(233,185,110,', 'rgba(193,125, 17,', 'rgba(143, 89,  2,' ],
@@ -322,6 +321,30 @@ var tetris = {
 
 
 	/**
+	 * Shift column blocks down.
+	 */
+	shift_col_down:function(col, y){
+
+		for(r = y; r > 0; r--){
+    
+                        if(tetris.matrix[x][r][0] > 0){
+                            	tetris.matrix[x][r][1] = [ clearEffect(endChain()) ];
+                        }
+
+                        tetris.matrix[x][r][0] = tetris.matrix[x][r-1][0];
+                        tetris.matrix[x][r][3] = tetris.matrix[x][r-1][3];
+
+                        if(tetris.matrix[x][r][0] > 0){
+				type = tetris.matrix[x][r][0];
+				//tetris.matrix[x][r][1] = [ drawEffect(tetris.colors[type][0], endChain()) ];
+				tetris.matrix[x][r][1] = [ drawEffect(endChain()) ];
+                        }
+
+		}
+
+	},
+
+	/**
 	 * Scan for and remove completed lines from the matrix.
 	 * TODO: Bring some sanity to tetris.
 	 */
@@ -336,27 +359,24 @@ var tetris = {
 			line_status = true;
 			for(x = 0; x < tetris.width; x++){
 				
-				pixel = tetris.matrix[y][x];
+				pixel = tetris.matrix[x][y][0];
 
 				if(pixel == undefined || pixel == null || pixel <= 0){
 					line_status = false;
 				}
 			}
 			if(line_status){
-				
 				// Animate a row removal.
 				blocks = [];
 				for(x = 0; x < tetris.width; x++){
-					blocks.push([x,y]);
-				}
-				callback = "tetris.draw_matrix();";
-				//callback = "tetris.draw_col(" + x + ");";
-				tetris.block_fade(tetris.ctx, [type,null,1.0,20], blocks, callback);
-				
-				tetris.remove_line(y);
+					tetris.matrix[x][y][1] = [
+						opEffect(1.0, 0.0, 10, endChain('tetris.shift_col_down(' + x + ', ' + y + ');')),
+						scaleEffect(1.0,1.0,0.5,0.5, 10, endChain())
 
-				// Draw the updates
-				//tetris.draw_matrix();				
+					];
+				}
+
+				// TODO: Add line compaction command.
 
 				line_count++;
 			}
@@ -407,7 +427,7 @@ var tetris = {
 			}
 
 			// Set valid equal to false if the space is occupied.
-			if(tetris.matrix[point[1]][point[0]] > 0){
+			if(tetris.matrix[point[0]][point[1]][0] > 0){
 				valid = false;
 				break;
 			}
@@ -427,11 +447,11 @@ var tetris = {
 		// Anchor the current piece to the board.
 		for(x = 0; x < tetris.piece_stack[0][1].length; x++){
 			point = tetris.piece_stack[0][1][x];
-			tetris.matrix[point[1]][point[0]] = type;
+			tetris.matrix[point[0]][point[1]][0] = type;
 
 			// Draw the current.
 			// TODO: This may be redundant. Refactor!
-			tetris.render_block.call(tetris.ctx, type, point[0], point[1]);
+			//tetris.render_block.call(tetris.ctx, type, point[0], point[1]);
 		}
 
 	},
@@ -727,20 +747,6 @@ var tetris = {
 	 */
 	start:function(){
 
-		// Compute board parameters
-		tetris.matrix = [tetris.height];
-
-		// Initialize
-		for(y = 0; y < tetris.height; y++){
-			tetris.matrix[y] = new Array(tetris.width);
-		}
-
-		// Reset the piece queue.
-		tetris.piece_stack = [];
-
-		// Generate some pieces for the queue.
-		tetris.set_piece();
-		tetris.set_piece();
 
 		// Create the html elements.
 		tetris.create_popup();
@@ -749,6 +755,39 @@ var tetris = {
 		// Set the canvasses and status section.
 		tetris.set_canvas(tetris.game_canvas_id);
 		tetris.set_preview_canvas(tetris.preview_canvas_id);
+
+
+		// Compute board parameters
+		/*tetris.matrix = [tetris.height];
+
+		// Initialize
+		for(y = 0; y < tetris.height; y++){
+			tetris.matrix[y] = new Array(tetris.width);
+		}*/
+        	$(tetris.canvas).gridSetup(tetris.width,tetris.height,0);
+        	tetris.matrix = tetris.ctx.matrix;
+
+		// Create a grid for the preview canvas
+		$(tetris.preview).gridSetup(6,6,5);
+		tetris.pre_matrix = tetris.pre_ctx.matrix;
+
+		$(tetris.preview).blockShadows();
+		//$(tetris.preview).effectsLoop();
+	
+		$(tetris.canvas).blockShadows();
+        	$(tetris.canvas).effectsLoop();
+
+		// Set rendering default.
+		$(tetris.canvas).setBlockFunc(tetris.l2_render_block);
+
+
+		// Reset the piece queue.
+		tetris.piece_stack = [];
+
+		// Generate some pieces for the queue.
+		tetris.set_piece();
+		tetris.set_piece();
+
 
 		// Initialize the status display
 		tetris.create_status_display(tetris.status_display_id);
@@ -784,9 +823,15 @@ var tetris = {
 	toggle_pause:function(){
 
 		if(tetris.interval_id){
+			// Halt the effects loop.
+			$(tetris.canvas).haltEffectsLoop();
+
 			clearInterval(tetris.interval_id);
 			tetris.interval_id = null;
 		} else {
+			// Restart the effects loop.
+			$(tetris.canvas).effectsLoop();
+
 			// Initialize the iteration timer.
 			tetris.interval_id = setInterval( function(){
 				tetris.iterate();
@@ -822,10 +867,11 @@ var tetris = {
 	 */
 	redraw_current_piece:function(new_piece){
 
+
 		tetris.clear_piece();
 		tetris.piece_stack[0][1] = new_piece;
-		tetris.draw_piece();
 
+		tetris.draw_piece();
 	},
 
 	/**
@@ -840,12 +886,6 @@ var tetris = {
 
 	},
 
-	/**
-	 * Clear the game canvas. Resets to transparency.
-	 */
-	clear_canvas:function(){
-		tetris.ctx.clearRect(0,0,tetris.canvas_width,tetris.canvas_height);
-	},
 
 	/**
 	 * Render a preview matrix.
@@ -857,10 +897,10 @@ var tetris = {
 		//Log.log('Rendering preview FIXME');
 
 		// Create preview matrix:
-		preview_matrix = [6];
-		for(r = 0; r < preview_matrix.size; x++){
-			preview_matrix[r] = [0,0,0,0,0,0];
-		}
+		//preview_matrix = [6];
+		//for(r = 0; r < preview_matrix.size; x++){
+		//	preview_matrix[r] = [0,0,0,0,0,0];
+		//}
 
 		// Clear
 		//tetris.pre_ctx.fillStyle = 'rgb(0,0,0)';
@@ -874,62 +914,18 @@ var tetris = {
 		// TODO: Calculate center and draw scaled piece image!
 
 		for(i = 0; i < 4; i++){
-			tetris.render_block.call(tetris.pre_ctx, piece[0], pattern[i][0] + 1,pattern[i][1] + 1);
-		}
-
-
-	},
-
-
-	/**
-	 * Draw the game matrix.
-	 * TODO: Performance! We can speed this up with an update_matrix method
-	 * that does not redraw the whole board.
-	 */
-	draw_matrix:function(){
-
-		//Log.log('Drawing the matrix...');
-
-		// Clear first.
-		tetris.clear_canvas();
-
-		// Render the matrix.
-		for(r = 0; r < tetris.height; r++){
-			for(c = 0; c < tetris.width; c++){
-
-				pixel = tetris.matrix[r][c];
-
-				// TODO: Get rid of the need for this conditional, if possible.
-				if(pixel >= 1){
-					tetris.render_block.call(tetris.ctx, pixel, c, r);
-				}
-
-			}
+			type = piece[0];
+			//tetris.pre_matrix[pattern[i][0] + 1][pattern[i][1] + 1][1] = [ drawEffect(tetris.colors[type][0], endChain()) ];
+			tetris.pre_matrix[pattern[i][0] + 1][pattern[i][1] + 1][3] = type-1;
+			tetris.pre_matrix[pattern[i][0] + 1][pattern[i][1] + 1][1] = [ drawEffect(endChain()) ];
 
 		}
 
-	},
+		// Trigger a drawing update.
+		tetris.pre_ctx.effects();
 
-	/**
-	 * Draw a column of the game matrix.
-	 * TODO: Check column validity.
-	 */
-	draw_col:function(c){
-
-		//tetris.clear_col();
-
-		for(r = 0; r < tetris.height; r++){
-			pixel = tetris.matrix[r][c];
-			if(pixel >= 1){
-				tetris.render_block.call(tetris.ctx, pixel, c, r);
-			} else {
-				tetris.clear_block.call(tetris.ctx, c, r);
-			}
-		}
 
 	},
-
-
 
 
 	/**
@@ -942,12 +938,10 @@ var tetris = {
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
-		//colors = tetris.get_colors(type);
-
 		for(i = 0; i < 4; i++){
-
-			tetris.render_block.call(tetris.ctx, type, piece[i][0], piece[i][1]);
-
+			//tetris.matrix[piece[i][0]][piece[i][1]][1] = [drawEffect(tetris.colors[type][0], endChain()) ];
+			tetris.matrix[piece[i][0]][piece[i][1]][3] = type-1;
+			tetris.matrix[piece[i][0]][piece[i][1]][1] = [drawEffect(endChain()) ];
 		}
 
 	},
@@ -963,203 +957,158 @@ var tetris = {
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
 
-		/*
-		x1 = piece[0][0];
-		x2 = piece[1][0];
-		x3 = piece[2][0];
-		x4 = piece[3][0];
+		for(i = 0; i < 4; i++){
+                	/*tetris.matrix[piece[i][0]][piece[i][1]][1] = [
+				//[0, 0.7, -0.1, 7, [-3, 1]]
+				//drawEffect(type-1, 7, endChain()),
+				opEffect( 0.7, 0.0, 7, endChain())
 
-		y1 = piece[0][1];
-		y2 = piece[1][1];
-		y3 = piece[2][1];
-		y4 = piece[3][1];
-		*/
+			];*/
+                	tetris.matrix[piece[i][0]][piece[i][1]][1] = [clearEffect(endChain())];
+		}
 
-		// Do the fading animation
-		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x1,y1],[x2,y2],[x3,y3],[x4,y4]]);
-		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x1,y1]]);
-		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x2,y2]]);
-		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x3,y3]]);
-		//tetris.block_fade(tetris.ctx, [type,null,1.0,20], [[x4,y4]]);
+
+	},
+
+	/**
+	 * Level 1: Render block prototype function.
+	 */
+	l1_render_block:function(ctx, x, y) {
+
+		type = ctx.matrix[x][y][3];
+
+		// shorthand for the radix coeffs
+		hc1 = ctx.hcoeff_1;
+		vc1 = ctx.vcoeff_1;
+
+		x = ctx.block_dimensions[0] / 2 - 2;
+		y = ctx.block_dimensions[1] / 2 - 2;
+
+		xh1 = -1 * x;// * hc1;
+		xh2 = x;// * hc1;
+		yh1 = -1 * y;// * vc1;
+		yh2 = y;// * vc1;
+
+
+		ctx.shadowBlur = 0;
+
+		// Outer
+		ctx.fillStyle = tetris.colors[type][1];
+		ctx.shadowColor = tetris.colors[type][0];
+
+		ctx.beginPath();
+
+		ctx.moveTo(xh2, y);
+		ctx.quadraticCurveTo(x, y, x, yh2);
+		ctx.lineTo(x, yh1);
+		ctx.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
+		ctx.lineTo(xh1, -1 * y);
+		ctx.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
+		ctx.lineTo(-1 * x, yh2);
+		ctx.quadraticCurveTo(-1 * x, y, xh1, y);
 		
-		tetris.ctx.clearRect(piece[0][0] * tetris.pixel_width, piece[0][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
-		tetris.ctx.clearRect(piece[1][0] * tetris.pixel_width, piece[1][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
-		tetris.ctx.clearRect(piece[2][0] * tetris.pixel_width, piece[2][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
-		tetris.ctx.clearRect(piece[3][0] * tetris.pixel_width, piece[3][1] * tetris.pixel_height, tetris.pixel_width, tetris.pixel_height);
-	},
+		ctx.closePath();
 
+		ctx.fill();
 
-	/**
-	 * Render a game block.
-	 * Using a specified canvas context, this function will render a block.
-	 */
-	render_block:function(type, x, y){
+		// Outline
+		ctx.strokeStyle = tetris.colors[type][0];
+		ctx.stroke();
 
-		x = x * this.pix_width;
-		y = y * this.pix_height;
+		// Inner
+		ctx.fillStyle = tetris.colors[type][2];
 
-		i_x = x + this.w_fact1;
-		i_y = y + this.h_fact1;
+		// Scale down
+		ctx.scale(0.5,0.5);	
 
+		ctx.beginPath();
 
-		// TODO
-		this.fillStyle = tetris.colors[type][1];
-		this.fillRect(x,y,this.pix_width,this.pix_height);
-
-		this.fillStyle = tetris.colors[type][0];
-		this.fillRect(x+1,y+1,this.pix_height-2,this.pix_height-2);
-				
-		this.fillStyle = tetris.colors[type][2];
-		this.fillRect(i_x,i_y,this.w_fact2,this.h_fact2);
-
-
-	},
-
-	/**
-	 * Clear an individual block.
-	 */
-	clear_block:function(x,y){
-
-		x = x * this.pix_width;
-		y = y * this.pix_height;
-
-		this.clearRect(x,y,this.pix_width,this.pix_height);
-
+		ctx.moveTo(xh2, y);
+		ctx.quadraticCurveTo(x, y, x, yh2);
+		ctx.lineTo(x, yh1);
+		ctx.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
+		ctx.lineTo(xh1, -1 * y);
+		ctx.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
+		ctx.lineTo(-1 * x, yh2);
+		ctx.quadraticCurveTo(-1 * x, y, xh1, y);
+		
+		ctx.closePath();
+		
+		ctx.fill();
+		
 	},
 
 	/**
-	 * Render a game block with adjustable opacity.
-	 * Using a specified canvas context, this function will render a block.
+	 * Level 2: Render block prototype function.
 	 */
-	render_block_alpha:function(type, alpha, x, y){
+	l2_render_block:function(ctx, x, y) {
 
-		x = x * this.pix_width;
-		y = y * this.pix_height;
+		type = ctx.matrix[x][y][3];
 
-		i_x = x + this.w_fact1;
-		i_y = y + this.h_fact1;
+		// shorthand for the radix coeffs
+		hc1 = ctx.hcoeff_1;
+		vc1 = ctx.vcoeff_1;
+
+		x = ctx.block_dimensions[0] / 2 - ctx.max_shadow;
+		y = ctx.block_dimensions[1] / 2 - ctx.max_shadow;
+
+		xh1 = -1 * x * hc1;
+		xh2 = x * hc1;
+		yh1 = -1 * y * vc1;
+		yh2 = y * vc1;
+
+		// Save
+		//ctx.save();
+
+		ctx.beginPath();
+
+		// Outer
+		ctx.fillStyle = tetris.colors[type][1];
+		ctx.shadowColor = tetris.colors[type][0];
 
 
-		// TODO
-		this.fillStyle = tetris.colors_rgb[type][1] + alpha + ')';
-		this.fillRect(x,y,this.pix_width,this.pix_height);
+		ctx.moveTo(xh2, y);
+		ctx.quadraticCurveTo(x, y, x, yh2);
+		ctx.lineTo(x, yh1);
+		ctx.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
+		ctx.lineTo(xh1, -1 * y);
+		ctx.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
+		ctx.lineTo(-1 * x, yh2);
+		ctx.quadraticCurveTo(-1 * x, y, xh1, y);
 
-		this.fillStyle = tetris.colors_rgb[type][0] + alpha + ')';
-		this.fillRect(x+1,y+1,this.pix_height-2,this.pix_height-2);
-				
-		this.fillStyle = tetris.colors_rgb[type][2] + alpha + ')';
-		this.fillRect(i_x,i_y,this.w_fact2,this.h_fact2);
+		ctx.closePath();
 
+		ctx.fill();
 
-	},
-
-	/**
-	 * No-callback version of block_fade.
-	 */
-	block_fade:function(ctx,data,blocks){
-		tetris.block_fade(ctx,piece,null);
-	},
-
-	/**
-	 * Gradually fade blocks away.
-	 * Takes an array of blocks to fade.
-	 * TODO: Performance! Code refactoring for sanity.
-	 */
-	block_fade:function(ctx,data,blocks,callback){
-
-		data[1] = setInterval(function(){
-
-			// Break if no drawing can be done.
-			anim = true;
-
-			// Return if cycle num is exceeded.
-			if(data[3] <= 0){
-				clearInterval(data[1]);
+		// Outline
+		ctx.strokeStyle = tetris.colors[type][0];
+		ctx.stroke();
 	
-				if(callback != null){
-					eval(callback);
-				} else {
-					for(b = 0; b < blocks.length; b++){
-						bx = blocks[b][0];
-						by = blocks[b][1];
-						x = bx * ctx.pix_width;
-						y = by * ctx.pix_height;
-						ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
-					}
-				}
-				return;
+		// Remove the blur	
+		ctx.shadowBlur = 0;
+		
+		// Inner
+		ctx.fillStyle = tetris.colors[type][2];
 
-			}
+		// Scale down
+		ctx.scale(0.5,0.5);	
 
-			// Return if blocks is size 0.
-			if(blocks.length <= 0){
-				clearInterval(data[1]);
+		ctx.beginPath();
 
-				if(callback != null){
-					eval(callback);
-				} else {
-					for(b = 0; b < blocks.length; b++){
-						bx = blocks[b][0];
-						by = blocks[b][1];
-						x = bx * ctx.pix_width;
-						y = by * ctx.pix_height;
-						ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
-					}
-				}
-				return;
-
-			}
-
-			// Save the context
-			ctx.save();
-	
-			for(b = 0; b < blocks.length; b++){
-
-				anim = true;
-
-				bx = blocks[b][0];
-				by = blocks[b][1];
-
-				// Calculate matrix type at this point.
-				matrix_point = tetris.matrix[bx][by];
-
-				// Calculate if the active piece occupies this space.
-				active_present = false;
-				for(z = 0; z < 4; z++){
-					ax = tetris.piece_stack[0][1][z][0];
-					ay = tetris.piece_stack[0][1][z][1];
-
-					if(bx == ax && by == ay){
-						active_present = true;
-						break;
-					}
-				}
-				
-				// Do nothing if the matrix is occupied here.
-				// Do nothing if the active piece is present here.
-				// Else, Clear and Render
-				if(matrix_point >= 0 || active_present){
-					// remove this element from the block array and return.
-					ctx.restore();
-					blocks.splice(b,1);
-					return;
-				} else {
-					x = bx * ctx.pix_width;
-					y = by * ctx.pix_height;
-					ctx.clearRect(x,y,ctx.pix_width,ctx.pix_height);
-
-					tetris.render_block_alpha.call(ctx, data[0], data[2], bx, by);
-				}
-
-			}
-
-			// Delta
-			data[2] -= 0.05;
-			data[3]--;
-
-			ctx.restore();
-
-		}, 20);
+		ctx.moveTo(xh2, y);
+		ctx.quadraticCurveTo(x, y, x, yh2);
+		ctx.lineTo(x, yh1);
+		ctx.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
+		ctx.lineTo(xh1, -1 * y);
+		ctx.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
+		ctx.lineTo(-1 * x, yh2);
+		ctx.quadraticCurveTo(-1 * x, y, xh1, y);
+		
+		ctx.closePath();
+		
+		ctx.fill();
+		
 	}
+
 
 }
