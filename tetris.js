@@ -345,6 +345,41 @@ var tetris = {
 	},
 
 	/**
+	 * Shift columns down.
+	 */
+	shift_cols_down:function(row){
+
+		for(y = row; y > 0; y--){
+
+            // Flag to find empty rows (a halt condition)
+            row_empty = true;
+
+            for(x = 0; x < tetris.width; x++){
+                if(tetris.matrix[x][y][0] > 0){
+                    tetris.matrix[x][y][1] = [ clearEffect(endChain()) ];
+                    row_empty = false;
+                }
+
+                tetris.matrix[x][y][0] = tetris.matrix[x][y-1][0];
+                tetris.matrix[x][y][3] = tetris.matrix[x][y-1][3];
+
+                if(tetris.matrix[x][y][0] > 0){
+		            type = tetris.matrix[x][y][0];
+				    tetris.matrix[x][y][1] = [ drawEffect(endChain()) ];
+                }
+
+            }
+
+            if(row_empty){
+                // We can safely halt the upwards scan, break.
+                break; 
+            }
+
+		}
+
+	},
+
+	/**
 	 * Scan for and remove completed lines from the matrix.
 	 * TODO: Bring some sanity to tetris.
 	 */
@@ -370,15 +405,19 @@ var tetris = {
 				blocks = [];
 				for(x = 0; x < tetris.width; x++){
 					tetris.matrix[x][y][1] = [
-						opEffect(1.0, 0.0, 10, endChain('tetris.shift_col_down(' + x + ', ' + y + ');')),
+                        opEffect(1.0, 0.0, 10, endChain()),
 						scaleEffect(1.0,1.0,0.5,0.5, 10, endChain())
-
 					];
+                    
 				}
 
-				// TODO: Add line compaction command.
-
+                // Increment the line count.
 				line_count++;
+
+                // Shift these columns down
+                // TODO Adding the line count to the delay is a HACK. Fix this!
+                delayExec(tetris.ctx, 10 + line_count, 'tetris.shift_cols_down(' + y + ');');
+
 			}
 		}
 
@@ -396,6 +435,7 @@ var tetris = {
 				// Increase the speed (by restarting interval).
 				tetris.recalc_speed();
 			}
+
 
 			// Return true, indicating updates occurred.
 			return true;
@@ -764,8 +804,8 @@ var tetris = {
 		for(y = 0; y < tetris.height; y++){
 			tetris.matrix[y] = new Array(tetris.width);
 		}*/
-        	$(tetris.canvas).gridSetup(tetris.width,tetris.height,0);
-        	tetris.matrix = tetris.ctx.matrix;
+        $(tetris.canvas).gridSetup(tetris.width,tetris.height,0);
+        tetris.matrix = tetris.ctx.matrix;
 
 		// Create a grid for the preview canvas
 		$(tetris.preview).gridSetup(6,6,5);
@@ -775,7 +815,7 @@ var tetris = {
 		//$(tetris.preview).effectsLoop();
 	
 		$(tetris.canvas).blockShadows();
-        	$(tetris.canvas).effectsLoop();
+        $(tetris.canvas).effectsLoop();
 
 		// Set rendering default.
 		$(tetris.canvas).setBlockFunc(tetris.l2_render_block);
@@ -866,12 +906,11 @@ var tetris = {
 	 * Clears and redraws the current piece.
 	 */
 	redraw_current_piece:function(new_piece){
-
-
 		tetris.clear_piece();
 		tetris.piece_stack[0][1] = new_piece;
-
 		tetris.draw_piece();
+
+        //tetris.ctx.effects();
 	},
 
 	/**
@@ -893,17 +932,8 @@ var tetris = {
 	 * TODO: Size the preview piece and properly center.
 	 */
 	render_preview:function(){
-		
-		//Log.log('Rendering preview FIXME');
-
-		// Create preview matrix:
-		//preview_matrix = [6];
-		//for(r = 0; r < preview_matrix.size; x++){
-		//	preview_matrix[r] = [0,0,0,0,0,0];
-		//}
 
 		// Clear
-		//tetris.pre_ctx.fillStyle = 'rgb(0,0,0)';
 		tetris.pre_ctx.clearRect(0,0,tetris.preview_width,tetris.preview_height);
 
 		// Render the piece
@@ -958,7 +988,7 @@ var tetris = {
 		// TODO: Can we enhance performance with better shape calculation?
 
 		for(i = 0; i < 4; i++){
-                	/*tetris.matrix[piece[i][0]][piece[i][1]][1] = [
+            /*tetris.matrix[piece[i][0]][piece[i][1]][1] = [
 				//[0, 0.7, -0.1, 7, [-3, 1]]
 				//drawEffect(type-1, 7, endChain()),
 				opEffect( 0.7, 0.0, 7, endChain())
