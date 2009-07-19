@@ -321,30 +321,6 @@ var tetris = {
 
 
 	/**
-	 * Shift column blocks down.
-	 */
-	shift_col_down:function(col, y){
-
-		for(r = y; r > 0; r--){
-    
-                        if(tetris.matrix[x][r][0] > 0){
-                            	tetris.matrix[x][r][1] = [ clearEffect(endChain()) ];
-                        }
-
-                        tetris.matrix[x][r][0] = tetris.matrix[x][r-1][0];
-                        tetris.matrix[x][r][3] = tetris.matrix[x][r-1][3];
-
-                        if(tetris.matrix[x][r][0] > 0){
-				type = tetris.matrix[x][r][0];
-				//tetris.matrix[x][r][1] = [ drawEffect(tetris.colors[type][0], endChain()) ];
-				tetris.matrix[x][r][1] = [ drawEffect(endChain()) ];
-                        }
-
-		}
-
-	},
-
-	/**
 	 * Shift columns down.
 	 */
 	shift_cols_down:function(row){
@@ -571,8 +547,8 @@ var tetris = {
 		// TODO
 		//tetris.reset();
 		
-		// Clear the game canvas.
-		tetris.clear_canvas();
+		// TODO: Get rid of this!
+		alert("Game Over, d00d!");
 
 	},
 
@@ -957,6 +933,22 @@ var tetris = {
 
 	},
 
+	/**
+	 * Animation for clearing.
+	 */
+	// Fade and clear
+	//clear_block_anim: [ opEffect( 0.7, 0.0, 7, endChain()) ],
+	// Just clear
+    clear_block_anim:[ clearEffect(endChain()) ],
+
+	/**
+	 * Animation for drawing.
+	 */
+	// Just draw
+	draw_block_anim:[drawEffect(endChain()) ],
+	// Fade In
+	//draw_block_anim:[ opEffect( 0.0, 1.0, 5, endChain()) ],
+
 
 	/**
 	 * Draw the currenct piece on the game board.
@@ -969,12 +961,12 @@ var tetris = {
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
 		for(i = 0; i < 4; i++){
-			//tetris.matrix[piece[i][0]][piece[i][1]][1] = [drawEffect(tetris.colors[type][0], endChain()) ];
 			tetris.matrix[piece[i][0]][piece[i][1]][3] = type-1;
-			tetris.matrix[piece[i][0]][piece[i][1]][1] = [drawEffect(endChain()) ];
+			tetris.matrix[piece[i][0]][piece[i][1]][1] = copyEffect(tetris.draw_block_anim);
 		}
 
 	},
+
 
 	/**
 	 * Clear the current piece (clears to transparency).
@@ -986,19 +978,15 @@ var tetris = {
 
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
-
 		for(i = 0; i < 4; i++){
-            /*tetris.matrix[piece[i][0]][piece[i][1]][1] = [
-				//[0, 0.7, -0.1, 7, [-3, 1]]
-				//drawEffect(type-1, 7, endChain()),
-				opEffect( 0.7, 0.0, 7, endChain())
-
-			];*/
-                	tetris.matrix[piece[i][0]][piece[i][1]][1] = [clearEffect(endChain())];
+			tetris.matrix[piece[i][0]][piece[i][1]][1] = copyEffect(tetris.clear_block_anim);
 		}
 
 
 	},
+
+
+	// TODO: Organize the custom block rendering stuff somewhere else!
 
 	/**
 	 * Level 1: Render block prototype function.
