@@ -183,63 +183,20 @@ var tetris = {
 	},
 
 	/**
-	 * Associate a canvas element with this object.
+	 * Initialize a tetris canvas with an embedded context.
+	 * W and H are the block width and block height.
 	 */
-	set_canvas:function(canvas_id) {
-
-		tetris.canvas = document.getElementById(canvas_id);
-		tetris.ctx = tetris.canvas.getContext('2d');
+	init_canvas:function(w,h){
 		
-		// Assign height and width to the ctx object.
-		tetris.ctx.height = tetris.canvas.height;
-		tetris.ctx.width = tetris.canvas.width;
-		tetris.ctx.pix_height = tetris.canvas.height / tetris.height;
-		tetris.ctx.pix_width = tetris.canvas.width / tetris.width;
+		// Set the context.
+		this.ctx = this.getContext('2d');
 		
-		// Pre-compute some rendering values.
-		// TODO: Create the rendering scheme in one place!
-		tetris.ctx.w_fact1 = tetris.ctx.pix_width * 0.25;
-		tetris.ctx.h_fact1 = tetris.ctx.pix_height * 0.25;
-		tetris.ctx.w_fact2 = tetris.ctx.pix_width * 0.5;	
-		tetris.ctx.h_fact2 = tetris.ctx.pix_height * 0.5;
+		// Set the height and width parameters in the ctx.
+		this.ctx.height = this.height;
+		this.ctx.width = this.width;
+		this.ctx.pix_height = this.height / h;
+		this.ctx.pix_width = this.width / w;
 		
-
-		tetris.canvas_height = tetris.canvas.height;
-		tetris.canvas_width = tetris.canvas.width;
-
-		tetris.pixel_height = tetris.canvas_height / tetris.height;
-		tetris.pixel_width = tetris.canvas_width / tetris.width;
-
-	},
-
-	/**
-	 * Associate a preview canvas
-	 */
-	set_preview_canvas:function(canvas_id){
-
-		tetris.preview = document.getElementById(canvas_id);
-		tetris.pre_ctx = tetris.preview.getContext('2d');
-
-		// Assign height and width to the ctx object.
-		tetris.pre_ctx.height = tetris.preview.height;
-		tetris.pre_ctx.width = tetris.preview.width;
-		tetris.pre_ctx.pix_height = tetris.preview.height / 6;
-		tetris.pre_ctx.pix_width = tetris.preview.width / 6;
-		
-		// Pre-compute some rendering values.
-		// TODO: Create the rendering scheme in one place!
-		tetris.pre_ctx.w_fact1 = tetris.pre_ctx.pix_width * 0.25;
-		tetris.pre_ctx.h_fact1 = tetris.pre_ctx.pix_height * 0.25;
-		tetris.pre_ctx.w_fact2 = tetris.pre_ctx.pix_width * 0.5;	
-		tetris.pre_ctx.h_fact2 = tetris.pre_ctx.pix_height * 0.5;
-
-
-		tetris.preview_height = tetris.preview.height;
-		tetris.preview_width = tetris.preview.width;
-
-		tetris.pre_pixel_height = tetris.preview_height / 6;
-		tetris.pre_pixel_width = tetris.preview_width / 6;
-
 	},
 
 
@@ -769,9 +726,17 @@ var tetris = {
 		//tetris.create_tetris_container().appendTo('#tetris_container');
 
 		// Set the canvasses and status section.
-		tetris.set_canvas(tetris.game_canvas_id);
-		tetris.set_preview_canvas(tetris.preview_canvas_id);
-
+		//tetris.set_canvas(tetris.game_canvas_id);
+		tetris.canvas = document.getElementById(tetris.game_canvas_id);
+		tetris.init_canvas.call(tetris.canvas, tetris.width, tetris.height);
+		tetris.ctx = tetris.canvas.ctx;
+		
+		
+		//tetris.set_preview_canvas(tetris.preview_canvas_id);
+		tetris.preview = document.getElementById(tetris.preview_canvas_id);
+		tetris.init_canvas.call(tetris.preview, 6, 6);
+		tetris.pre_ctx = tetris.preview.ctx;
+		
 
 		// Compute board parameters
 		/*tetris.matrix = [tetris.height];
@@ -910,7 +875,7 @@ var tetris = {
 	render_preview:function(){
 
 		// Clear
-		tetris.pre_ctx.clearRect(0,0,tetris.preview_width,tetris.preview_height);
+		tetris.pre_ctx.clearRect(0,0,tetris.preview.width,tetris.preview.height);
 
 		// Render the piece
 		// Create the piece pattern.
@@ -961,7 +926,7 @@ var tetris = {
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
 		for(i = 0; i < 4; i++){
-			tetris.matrix[piece[i][0]][piece[i][1]][3] = type-1;
+			tetris.matrix[piece[i][0]][piece[i][1]][3] = type-1; // TODO: Find a way to organize this type setting stuff better.
 			tetris.matrix[piece[i][0]][piece[i][1]][1] = copyEffect(tetris.draw_block_anim);
 		}
 
