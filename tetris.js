@@ -215,7 +215,8 @@ var tetris = {
 
 	},
 
-	/* Creates a tetris piece.
+	/**
+	 * Creates a tetris piece.
 	 *
 	 * Format:
 	 *    [ TYPE, [ [P1],[P2],... ] ]
@@ -279,6 +280,7 @@ var tetris = {
 
 	/**
 	 * Shift columns down.
+	 * TODO: Optimize and fix this mess.
 	 */
 	shift_cols_down:function(row){
 
@@ -412,6 +414,10 @@ var tetris = {
 	},
 
 
+	// Anchoring animation
+	//anchor_anim:[blurEffect(0,3,6,blurEffect(3,0,6,endChain()))],
+	anchor_anim:[scaleEffect(1,1,0.9,0.9,4,scaleEffect(0.9,0.9,1,1,4,endChain()))],
+
 	/**
 	 * Anchor the current piece to the board.
 	 */
@@ -421,10 +427,9 @@ var tetris = {
 		for(x = 0; x < tetris.piece_stack[0][1].length; x++){
 			point = tetris.piece_stack[0][1][x];
 			tetris.matrix[point[0]][point[1]][0] = type;
-
-			// Draw the current.
-			// TODO: This may be redundant. Refactor!
-			//tetris.render_block.call(tetris.ctx, type, point[0], point[1]);
+			
+			// Add the anchoring animation.
+			tetris.matrix[point[0]][point[1]][1] = copyEffect(tetris.anchor_anim);
 		}
 
 	},
