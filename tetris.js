@@ -182,23 +182,6 @@ var tetris = {
 
 	},
 
-	/**
-	 * Initialize a tetris canvas with an embedded context.
-	 * W and H are the block width and block height.
-	 */
-	init_canvas:function(w,h){
-		
-		// Set the context.
-		this.ctx = this.getContext('2d');
-		
-		// Set the height and width parameters in the ctx.
-		this.ctx.height = this.height;
-		this.ctx.width = this.width;
-		this.ctx.pix_height = this.height / h;
-		this.ctx.pix_width = this.width / w;
-		
-	},
-
 
 	/*********************************************************************
 	 * Game Logic
@@ -728,33 +711,21 @@ var tetris = {
 
 		// Create the html elements.
 		tetris.create_popup();
-		//tetris.create_tetris_container().appendTo('#tetris_container');
 
 		// Set the canvasses and status section.
-		//tetris.set_canvas(tetris.game_canvas_id);
 		tetris.canvas = document.getElementById(tetris.game_canvas_id);
-		tetris.init_canvas.call(tetris.canvas, tetris.width, tetris.height);
-		tetris.ctx = tetris.canvas.ctx;
-		
-		
-		//tetris.set_preview_canvas(tetris.preview_canvas_id);
 		tetris.preview = document.getElementById(tetris.preview_canvas_id);
-		tetris.init_canvas.call(tetris.preview, 6, 6);
-		tetris.pre_ctx = tetris.preview.ctx;
 		
-
-		// Compute board parameters
-		/*tetris.matrix = [tetris.height];
-
-		// Initialize
-		for(y = 0; y < tetris.height; y++){
-			tetris.matrix[y] = new Array(tetris.width);
-		}*/
+		
         $(tetris.canvas).gridSetup(tetris.width,tetris.height,0);
+		tetris.ctx = tetris.canvas.context; // TODO: Get rid of this!
+		
         tetris.matrix = tetris.ctx.matrix;
 
 		// Create a grid for the preview canvas
 		$(tetris.preview).gridSetup(6,6,5);
+		tetris.pre_ctx = tetris.preview.context; // TODO: Get rid of this!
+		
 		tetris.pre_matrix = tetris.pre_ctx.matrix;
 
 		$(tetris.preview).blockShadows();
