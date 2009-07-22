@@ -57,8 +57,10 @@ var tetris = {
 	level: 1,
 
 	/* Game Constants */
-	width:10,
-	height:18,
+	//width:10,
+	//height:18,
+	width:12,
+	height:20,
 	min_speed : 80,   // 80ms
 	base_speed : 700, // 700ms
 	level_step : 10,  // Increase level every 10 lines.
@@ -399,7 +401,7 @@ var tetris = {
 
 	// Anchoring animation
 	//anchor_anim:[blurEffect(0,3,6,blurEffect(3,0,6,endChain()))],
-	anchor_anim:[scaleEffect(1,1,0.9,0.9,4,scaleEffect(0.9,0.9,1,1,4,endChain()))],
+	anchor_anim:[scaleEffect(1,1,0.9,0.9,2,scaleEffect(0.9,0.9,1,1,2,endChain()))],
 
 	/**
 	 * Anchor the current piece to the board.
@@ -451,10 +453,6 @@ var tetris = {
 			
 			// Update the status display.
 			tetris.update_status();
-
-			// Draw the new matrix
-			//tetris.draw_matrix();
-			//tetris.update_matrix();
 
 			// Set a new random piece on the board.
 			tetris.set_piece();
@@ -688,18 +686,6 @@ var tetris = {
 
 	},
 
-	/**
-	 * Create a popup frame for Tetris.
-	 */
-	create_popup:function(){
-
-		
-		elem = tetris.create_tetris_popup();
-		tetris.create_tetris_container().appendTo(elem);
-
-
-	},
-
 
 	/**
 	 * Start the game! Only run this ONCE for each game!
@@ -710,7 +696,8 @@ var tetris = {
 
 
 		// Create the html elements.
-		tetris.create_popup();
+		elem = tetris.create_tetris_popup();
+		tetris.create_tetris_container().appendTo(elem);
 
 		// Set the canvasses and status section.
 		tetris.canvas = document.getElementById(tetris.game_canvas_id);
@@ -878,9 +865,9 @@ var tetris = {
 	 * Animation for clearing.
 	 */
 	// Fade and clear
-	//clear_block_anim: [ opEffect( 0.7, 0.0, 7, endChain()) ],
+	clear_block_anim: [ opEffect( 0.8, 0.0, 4, endChain()) ],
 	// Just clear
-    clear_block_anim:[ clearEffect(endChain()) ],
+    //clear_block_anim:[ clearEffect(endChain()) ],
 
 	/**
 	 * Animation for drawing.
