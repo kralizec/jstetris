@@ -63,7 +63,7 @@ var tetris = {
 	height:20,
 	min_speed : 80,   // 80ms
 	base_speed : 700, // 700ms
-	level_step : 2,  // Increase level every 10 lines.
+	level_step : 10,  // Increase level every 10 lines.
 
 	/* This is the speed at which movement events cycle when keys are held down */
 	move_speed : 50, // 50ms
