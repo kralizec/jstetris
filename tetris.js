@@ -5,7 +5,7 @@
  * http://kralizec.org/jstetris
  * Author: Jason Lawrence (2009)
  * Email: jason.lawrence@kralizec.org
- * License: You should all know about GPLv3 by now.
+ * License: You should all know about GPLs3 by now.
  *
  * Controls:
  *   Arrow Keys will move, and the up arrow rotates the piece. Holding a key
@@ -63,7 +63,7 @@ var tetris = {
 	height:20,
 	min_speed : 80,   // 80ms
 	base_speed : 700, // 700ms
-	level_step : 10,  // Increase level every 10 lines.
+	level_step : 2,  // Increase level every 10 lines.
 
 	/* This is the speed at which movement events cycle when keys are held down */
 	move_speed : 50, // 50ms
@@ -71,31 +71,7 @@ var tetris = {
 	/* This is the period of time after which depressed keys cause repetitious action */
 	repeat_wait : 75, // 75ms
 
-
-	// A Tango color palette for drawing blocks.
-	// Adding a null first element in case board spaces are set to 0. (get rid of this).
-	colors : [
-		[ "#fce94f", "#edd400", "#c4a000"],
-		[ "#8ae234", "#73d216", "#4e9a06"],
-		[ "#e9b96e", "#c17d11", "#8f5902"],
-		[ "#fcaf3e", "#f57900", "#ce5c00"],
-		[ "#ad7fa8", "#75507b", "#5c3566"],
-		[ "#ef2929", "#cc0000", "#a40000"],
-		[ "#729fcf", "#3465a4", "#204a87"]
-	],
-
-
-	colors_rgb : [
-		['rgba(252,233, 79,', 'rgba(237,212,  0,', 'rgba(196,160,  0,' ],
-		['rgba(138,226, 52,', 'rgba(115,210, 22,', 'rgba( 78,154,  6,' ],
-		['rgba(233,185,110,', 'rgba(193,125, 17,', 'rgba(143, 89,  2,' ],
-		['rgba(252,175, 62,', 'rgba(245,121,  0,', 'rgba(206, 92,  0,' ],
-		['rgba(173,127,168,', 'rgba(117, 80,123,', 'rgba( 92, 53,102,' ],
-		['rgba(239, 41, 41,', 'rgba(204,  0,  0,', 'rgba(164,  0,  0,' ],
-		['rgba(114,159,207,', 'rgba( 52,101,164,', 'rgba( 32, 74,135,' ]
-	],
-
-
+		
 	/*********************************************************************
 	 * jQuery helper methods.
 	 *********************************************************************/
@@ -118,8 +94,8 @@ var tetris = {
 		// Create a text box and focus it to prevent vertical arrow key scrolling.
 		hidden_box = $("<input type='text' id='tetris_hiddenbox'/>")
 		tetris_right.append(hidden_box);
-		hidden_box.hide();
-		hidden_box.focus();
+		hidden_box.focus().hide();
+		//hidden_box.focus();
 
 		//alert('Here');
 
@@ -267,34 +243,69 @@ var tetris = {
 	 * Shift columns down.
 	 * TODO: Optimize and fix this mess.
 	 */
-	shift_cols_down:function(row){
+	shift_cols_down:function(rows){
 
-		for(y = row; y > 0; y--){
 
-            // Flag to find empty rows (a halt condition)
-            row_empty = true;
+		// Start at the top and work down.
+		// TODO: We may need a sort here at some point.
+		//for(r = rows.length-1; r >= 0; r--){
+		for(r = 0; r < rows.length; r++){ 
+		//r = 0; // The lowest row
 
-            for(x = 0; x < tetris.width; x++){
-                if(tetris.matrix[x][y][0] > 0){
-                    tetris.matrix[x][y][1] = [ clearEffect(endChain()) ];
-                    row_empty = false;
-                }
+			for(y = rows[r]; y > 0; y--){
 
-                tetris.matrix[x][y][0] = tetris.matrix[x][y-1][0];
-                tetris.matrix[x][y][3] = tetris.matrix[x][y-1][3];
+            			// Flag to find empty rows (a halt condition)
+            			row_empty = true;
 
-                if(tetris.matrix[x][y][0] > 0){
-		            type = tetris.matrix[x][y][0];
-				    tetris.matrix[x][y][1] = [ drawEffect(endChain()) ];
-                }
+            			for(x = 0; x < tetris.width; x++){
+					/*	
+					if(tetris.ctx.getState(x,y) > 0){
+	    			    		tetris.ctx.setAnim(x, y, [ clearEffect(endChain()) ]);
+            			    		row_empty = false;
+            			    	}
 
-            }
+					tetris.ctx.setState(x,y, tetris.ctx.getState(x,y-1));
+	    			    	tetris.ctx.setType(x,y, tetris.ctx.getType(x,y-1));
+					
+					switch(tetris.ctx.getState(x,y-1)){
 
-            if(row_empty){
-                // We can safely halt the upwards scan, break.
-                break; 
-            }
+					// Dead line
+					case 0: break;
 
+					// Normal Locked block
+					case 1; row_empty = false; break;
+
+					// Block in line to be removed.
+					case 2; row_empty = false; break;
+
+
+
+					};
+					*/
+	    			    if(tetris.ctx.getState(x,y) > 0){
+					// FIXME: Extract these.
+	    			    	tetris.ctx.setAnim(x, y, [ clearEffect(endChain()) ]);
+            			    	row_empty = false;
+            			    }
+
+	    			    // TODO: Implement a pixel shifting system in enceladus.
+	    			    tetris.ctx.setState(x,y, tetris.ctx.getState(x,y-1));
+	    			    tetris.ctx.setType(x,y, tetris.ctx.getType(x,y-1));
+
+	    			    if(tetris.ctx.getState(x,y) > 0){
+	    			    	type = tetris.ctx.getState(x,y);
+	    			    	tetris.ctx.setAnim(x, y, [ drawEffect(endChain()) ]);
+            			    }
+
+
+            			}
+
+            			if(row_empty){
+            			    // We can safely halt the upwards scan, break.
+            			    break; 
+            			}
+
+			}
 		}
 
 	},
@@ -309,37 +320,53 @@ var tetris = {
 		// related to Tetris scoring.
 		line_count = 0;
 
+		lines = [];
+
 		// Actually remove the lines.
 		for(y = 0; y < tetris.height; y++){
 			line_status = true;
+
+			// TODO: We could use a reduce here.
 			for(x = 0; x < tetris.width; x++){
 				
-				pixel = tetris.matrix[x][y][0];
+				//pixel = tetris.matrix[x][y][0];
+				pixel = tetris.ctx.getState(x,y);
 
 				if(pixel == undefined || pixel == null || pixel <= 0){
 					line_status = false;
 				}
 			}
 			if(line_status){
+					
 				// Animate a row removal.
-				blocks = [];
 				for(x = 0; x < tetris.width; x++){
-					tetris.matrix[x][y][1] = [
-                        opEffect(1.0, 0.0, 10, endChain()),
-						scaleEffect(1.0,1.0,0.5,0.5, 10, endChain())
-					];
+					// Set the state to 2, indicating a transitional phase.
+					// Line removal will halt here.
+					tetris.ctx.setState(x,y,2);
+
+					// Animate out
+					tetris.ctx.setAnim(x, y, tetris.line_anim());
+					//tetris.ctx.setAnim(x, y, [
+                        		//	opEffect(1.0, 0.0, 10, endChain()),
+					//	scaleEffect(1.0,1.0,0.5,0.5, 10, endChain())
+					//	]);
                     
 				}
 
-                // Increment the line count.
+                		// Increment the line count.
 				line_count++;
 
-                // Shift these columns down
-                // TODO Adding the line count to the delay is a HACK. Fix this!
-                delayExec(tetris.ctx, 10 + line_count, 'tetris.shift_cols_down(' + y + ');');
+				// Add the line to the line removal array.
+				lines.push(y);
+
 
 			}
 		}
+		
+		// Delay execution of the column shifting to allow for animations.
+		// TODO: Make animations optionally independent from state.
+		delayExec(tetris.ctx, 10, tetris.shift_func(lines));
+
 
 		// Process score and line updates
 		// TODO: Advanced scoring for multiple lines.
@@ -352,6 +379,13 @@ var tetris = {
 			val = tetris.lines / ( tetris.level * tetris.level_step);
 			if(val >= 1){
 				tetris.level++;
+
+				// Reset the level config.
+				tetris.level_config();
+
+				// Force a redraw on the whole board.
+				tetris.draw_level_transition();
+
 				// Increase the speed (by restarting interval).
 				tetris.recalc_speed();
 			}
@@ -365,11 +399,24 @@ var tetris = {
 	},
 
 	/**
+	 * Simple helper for scanlines.
+	 * TODO: Remove the need for this.
+	 */
+	shift_func:function(lines){
+		var rows = lines;
+		return function(){
+			// Shift columns
+			tetris.shift_cols_down(rows);
+		};
+	},
+
+	/**
 	 * Detect whether or not the given piece is a valid move. Returns false
 	 * if invalid, otherwise true.
-	 * TODO: Cleanup
+	 * Takes h and v, which are horizontal and vertical modifiers.
+	 * TODO: Cleanup and optimize
 	 */
-	can_move:function(piece){
+	can_move:function(piece,h,v){
 
 		valid = true;
 
@@ -377,17 +424,17 @@ var tetris = {
 			point = piece[x];
 			
 			// Ensure that the points are on the board.
-			if((point[0] >= tetris.width) || (point[0] < 0)){
+			if((point[0]+h >= tetris.width) || (point[0]+h < 0)){
 				valid = false;
 				break;
 			}
-			else if((point[1] >= tetris.height) || (point[1] < 0)){
+			else if((point[1]+v >= tetris.height) || (point[1]+v < 0)){
 				valid = false;
 				break;
 			}
 
 			// Set valid equal to false if the space is occupied.
-			if(tetris.matrix[point[0]][point[1]][0] > 0){
+			if(tetris.ctx.getState(point[0]+h,point[1]+v) > 0){
 				valid = false;
 				break;
 			}
@@ -399,10 +446,6 @@ var tetris = {
 	},
 
 
-	// Anchoring animation
-	//anchor_anim:[blurEffect(0,3,6,blurEffect(3,0,6,endChain()))],
-	anchor_anim:[scaleEffect(1,1,0.9,0.9,2,scaleEffect(0.9,0.9,1,1,2,endChain()))],
-
 	/**
 	 * Anchor the current piece to the board.
 	 */
@@ -411,27 +454,15 @@ var tetris = {
 		// Anchor the current piece to the board.
 		for(x = 0; x < tetris.piece_stack[0][1].length; x++){
 			point = tetris.piece_stack[0][1][x];
-			tetris.matrix[point[0]][point[1]][0] = type;
+			tetris.ctx.setState(point[0], point[1], 1);
+			tetris.ctx.setType(point[0], point[1], tetris.piece_stack[0][0]-1);
 			
 			// Add the anchoring animation.
-			tetris.matrix[point[0]][point[1]][1] = copyEffect(tetris.anchor_anim);
+			tetris.ctx.setAnim(point[0], point[1], tetris.anchor_anim());
 		}
 
 	},
 
-	/**
-	 * Removes a line, causing the rest of the lines to fall downwards.
-	 * TODO: Multi-line removal detection will be required for proper scoring.
-	 */
-	remove_line:function(index){
-
-		// Remove the old line.
-		tetris.matrix.splice(index, 1);
-		
-		// Push a new line.
-		tetris.matrix.unshift(new Array(tetris.width));
-
-	},
 
 	/**
 	 * Execute a game iteration.
@@ -440,7 +471,7 @@ var tetris = {
 
 		// Move down, and perform anchoring operations if move_down
 		// returns false (indicating anchoring conditions).
-		if(!tetris.move_down()){
+		if(!tetris.move(0,1)){
 
 			// Anchor the current piece.
 			tetris.anchor_current();
@@ -458,20 +489,51 @@ var tetris = {
 			tetris.set_piece();
 
 			// Trigger Game Over if can_move returns false.
-			if(!tetris.can_move(tetris.piece_stack[0][1])){
-				tetris.game_over();
-				return;
-			} else {
-				
+			if(tetris.can_move(tetris.piece_stack[0][1], 0, 0)){
+
 				// Draw the current piece
 				tetris.draw_piece();
 
 				// Render a new piece preview.
 				tetris.render_preview();
 
+			} else {
+				tetris.game_over();
+				return;
 			}
 
 		}
+
+	},
+
+	/**
+	 * Reconfigure the level.
+	 * TODO: Levels should loop (or the game should end) if we reach the
+	 * end of the level array.
+	 */
+	level_config: function(){
+
+		l_index = tetris.level-1;
+
+		// Level wraparound.
+		// TODO: Make this a config option.
+		if(l_index >= tetris.levels.length){
+			l_index = l_index % tetris.levels.length;
+		}
+
+		// Set the color palette
+		tetris.colors = tetris.levels[l_index][1];
+
+		// Set the block drawing func.
+		$(tetris.canvas).setBlockFunc(tetris.levels[l_index][2]);
+
+		// Set the effects 
+		tetris.draw_anim = tetris.levels[l_index][3]; 
+		tetris.clear_anim = tetris.levels[l_index][4];
+		tetris.anchor_anim = tetris.levels[l_index][5]; 
+		tetris.line_anim = tetris.levels[l_index][6]; 
+
+		// TODO: Do the rest of the effects here too.
 
 	},
 
@@ -510,10 +572,9 @@ var tetris = {
 	 */
 	initiate_controls:function(){
 
-
-		left = 'tetris.move_horiz(-1)';
-		right = 'tetris.move_horiz(1)';
-		down = 'tetris.move_down()';
+		left = 'tetris.move(-1,0)';
+		right = 'tetris.move(1,0)';
+		down = 'tetris.move(0,1)';
 		rotate = 'tetris.rotate()';
 
 		document.onkeydown = function(e){
@@ -550,14 +611,12 @@ var tetris = {
 		};
 
 		document.onkeyup = function(e){
-			//Log.log('key up: ' + e.keyCode);
 			switch(e.keyCode){
 				case 37: clearInterval(tetris.l_int); tetris.l_int = null; break;
 				case 38: clearInterval(tetris.rot_int); tetris.rot_int = null; break;
 				case 39: clearInterval(tetris.r_int); tetris.r_int = null; break;
 				case 40: clearInterval(tetris.d_int); tetris.d_int = null; break;
 			};
-
 		};
 
 	},
@@ -575,49 +634,17 @@ var tetris = {
 
 	},
 
-
 	/**
-	 * Trigger horizontal movement. Use negative numbers to move left.
+	 * Trigger movement. Returns false (and no movement) if anchoring
+	 * conditions are encountered.
 	 * NOTE: This will trigger a redraw of the current piece if successful.
 	 */
-	move_horiz:function(amount){
+	move:function(h,v){
 
-
-		type = tetris.piece_stack[0][0];
 		piece = tetris.piece_stack[0][1];
 
-		temp_piece = [];
-
-		for(x = 0; x < piece.length; x++){
-			point = piece[x];
-			temp_piece[x] = [ point[0] + amount, point[1]];
-		}
-		
-		if(tetris.can_move(temp_piece)){
-			tetris.redraw_current_piece(temp_piece);
-		}		
-
-	},
-
-	/**
-	 * Trigger downward movement. Returns false if anchoring conditions are
-	 * encountered.
-	 * NOTE: This will trigger a redraw of the current piece if successful.
-	 */
-	move_down:function(){
-
-		type = tetris.piece_stack[0][0];
-		piece = tetris.piece_stack[0][1];
-
-		temp_piece = [];
-
-		for(x = 0; x < piece.length; x++){
-			point = piece[x];
-			temp_piece[x] = [ point[0], point[1] + 1];
-		}
-
-		if(tetris.can_move(temp_piece)){
-			tetris.redraw_current_piece(temp_piece);
+		if(tetris.can_move(piece, h, v)){	
+			tetris.move_current_piece(h, v);
 			return true;
 		} else {
 			return false;
@@ -680,7 +707,7 @@ var tetris = {
 		}
 
 		// Calculate transform validity and redraw if ok.
-		if( tetris.can_move(new_piece) ){
+		if( tetris.can_move(new_piece, 0, 0) ){
 			tetris.redraw_current_piece(new_piece);
 		}
 
@@ -704,26 +731,24 @@ var tetris = {
 		tetris.preview = document.getElementById(tetris.preview_canvas_id);
 		
 		
-        $(tetris.canvas).gridSetup(tetris.width,tetris.height,0);
+        	$(tetris.canvas).gridSetup(tetris.width,tetris.height,0);
 		tetris.ctx = tetris.canvas.context; // TODO: Get rid of this!
 		
-        tetris.matrix = tetris.ctx.matrix;
-
 		// Create a grid for the preview canvas
 		$(tetris.preview).gridSetup(6,6,5);
 		tetris.pre_ctx = tetris.preview.context; // TODO: Get rid of this!
-		
-		tetris.pre_matrix = tetris.pre_ctx.matrix;
 
 		$(tetris.preview).blockShadows();
 		//$(tetris.preview).effectsLoop();
 	
 		$(tetris.canvas).blockShadows();
-        $(tetris.canvas).effectsLoop();
+        	$(tetris.canvas).effectsLoop();
 
 		// Set rendering default.
-		$(tetris.canvas).setBlockFunc(tetris.l2_render_block);
-
+		//$(tetris.canvas).setBlockFunc(tetris.l2_render_block);
+		// FIXME: Make this more sane.
+		tetris.levels = tetris.get_levels();
+		tetris.level_config();
 
 		// Reset the piece queue.
 		tetris.piece_stack = [];
@@ -808,15 +833,63 @@ var tetris = {
 
 	/**
 	 * Clears and redraws the current piece.
+	 * FIXME: We should handle this more efficiently.
 	 */
 	redraw_current_piece:function(new_piece){
 		tetris.clear_piece();
 		tetris.piece_stack[0][1] = new_piece;
 		tetris.draw_piece();
 
-        //tetris.ctx.effects();
+		// Trigger immediate redraw. May be needed to avoid 'jumping'
+		// TODO: Enable sliceable redrawing.
+        	//tetris.ctx.effects();
 	},
 
+	/**
+	 * Moves a piece, also clears and redraws.
+	 * TODO: Try to integrate this with redraw_current_piece
+	 */
+	move_current_piece:function(h,v){
+		tetris.clear_piece();
+		
+		// TODO: Replace with a map?
+		piece = tetris.piece_stack[0][1]; 
+		for(i = 0; i < piece.length; i++){
+			piece[i][0] += h;
+			piece[i][1] += v;
+		}
+
+		tetris.draw_piece();
+
+		// Trigger immediate redraw. May be needed to avoid 'jumping'
+		// TODO: Enable sliceable redrawing.
+        	//tetris.ctx.effects();
+	},
+
+	/**
+	 * Draw the level transition. 
+	 * TODO: Make this configurable in the level array.
+	 * FIXME: This may conflict with the column shifting operation!
+	 *
+	 */
+	draw_level_transition:function(){
+
+		// Loop through the board, and redraw all pieces.
+		for(y = 0; y < tetris.height; y++){
+			for(x = 0; x < tetris.width; x++){
+				state = tetris.ctx.getState(x,y);
+				if(state == 1){
+					// TODO: make this configurable!
+					// trigger a draw.
+					tetris.ctx.setAnim(x,y,[ drawEffect(endChain()) ]);
+				} else if(state == 2){
+					break;
+				}
+			}
+		}
+
+	},
+	
 	/**
 	 * Update the game status display.
 	 */
@@ -842,17 +915,17 @@ var tetris = {
 
 		// Render the piece
 		// Create the piece pattern.
+		// TODO: Re-vamp piece creation system.
 		piece = tetris.create_piece(tetris.piece_stack[1][0]);
 		pattern = piece[1];
 
-		// TODO: Calculate center and draw scaled piece image!
-
+		// Draw the preview.
 		for(i = 0; i < 4; i++){
 			type = piece[0];
-			//tetris.pre_matrix[pattern[i][0] + 1][pattern[i][1] + 1][1] = [ drawEffect(tetris.colors[type][0], endChain()) ];
-			tetris.pre_matrix[pattern[i][0] + 1][pattern[i][1] + 1][3] = type-1;
-			tetris.pre_matrix[pattern[i][0] + 1][pattern[i][1] + 1][1] = [ drawEffect(endChain()) ];
 
+			// TODO: Preview drawing animations in level config.
+			tetris.pre_ctx.setType(pattern[i][0] + 1, pattern[i][1] + 1, type-1);
+			tetris.pre_ctx.setAnim(pattern[i][0] + 1, pattern[i][1] + 1, [ drawEffect(endChain()) ]);
 		}
 
 		// Trigger a drawing update.
@@ -861,25 +934,9 @@ var tetris = {
 
 	},
 
-	/**
-	 * Animation for clearing.
-	 */
-	// Fade and clear
-	clear_block_anim: [ opEffect( 0.8, 0.0, 4, endChain()) ],
-	// Just clear
-    //clear_block_anim:[ clearEffect(endChain()) ],
 
 	/**
-	 * Animation for drawing.
-	 */
-	// Just draw
-	draw_block_anim:[drawEffect(endChain()) ],
-	// Fade In
-	//draw_block_anim:[ opEffect( 0.0, 1.0, 5, endChain()) ],
-
-
-	/**
-	 * Draw the currenct piece on the game board.
+	 * Draw the current piece on the game board.
 	 */
 	draw_piece:function(){
 
@@ -889,8 +946,8 @@ var tetris = {
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
 		for(i = 0; i < 4; i++){
-			tetris.matrix[piece[i][0]][piece[i][1]][3] = type-1; // TODO: Find a way to organize this type setting stuff better.
-			tetris.matrix[piece[i][0]][piece[i][1]][1] = copyEffect(tetris.draw_block_anim);
+			tetris.ctx.setType(piece[i][0], piece[i][1], type-1); // TODO: Find a way to organize this type setting stuff better.
+			tetris.ctx.setAnim(piece[i][0], piece[i][1], tetris.draw_anim());
 		}
 
 	},
@@ -907,96 +964,59 @@ var tetris = {
 		// Tetrominos are always composed of 4 squares.
 		// TODO: Can we enhance performance with better shape calculation?
 		for(i = 0; i < 4; i++){
-			tetris.matrix[piece[i][0]][piece[i][1]][1] = copyEffect(tetris.clear_block_anim);
+			// TODO: Setting the animation shouldn't be necessary every time. A state toggle only.
+			tetris.ctx.setAnim(piece[i][0], piece[i][1], tetris.clear_anim());
 		}
 
 
 	},
 
+	/**************************************
+	 * Level 1 rendering.
+	 * TODO: Extract this stuff
+	 **************************************/
+	l1_colors: [
+		[ "#fce94f", "#edd400", "#c4a000"],
+		[ "#8ae234", "#73d216", "#4e9a06"],
+		[ "#e9b96e", "#c17d11", "#8f5902"],
+		[ "#fcaf3e", "#f57900", "#ce5c00"],
+		[ "#ad7fa8", "#75507b", "#5c3566"],
+		[ "#ef2929", "#cc0000", "#a40000"],
+		[ "#729fcf", "#3465a4", "#204a87"]
+	],
 
-	// TODO: Organize the custom block rendering stuff somewhere else!
+
+	l1_clear_anim: function(){
+		return [ opEffect( 0.8, 0.0, 4, endChain()) ];
+	},
+
+	l1_draw_anim: function(){
+		return [ drawEffect(endChain()) ];
+	},
+
+	l1_anchor_anim: function(){
+		return [scaleEffect(1,1,0.9,0.9,2,scaleEffect(0.9,0.9,1,1,2,endChain()))];
+	},
+
+	l1_line_anim: function(){
+		return [ opEffect(1.0, 0.0, 10, endChain()),
+			 scaleEffect(1.0,1.0,0.5,0.5, 10, endChain()) ];
+	},
+                    
 
 	/**
 	 * Level 1: Render block prototype function.
 	 */
-	l1_render_block:function(ctx, x, y) {
+	l1_render_block:function(x, y) {
 
-		type = ctx.matrix[x][y][3];
-
-		// shorthand for the radix coeffs
-		hc1 = ctx.hcoeff_1;
-		vc1 = ctx.vcoeff_1;
-
-		x = ctx.block_dimensions[0] / 2 - 2;
-		y = ctx.block_dimensions[1] / 2 - 2;
-
-		xh1 = -1 * x;// * hc1;
-		xh2 = x;// * hc1;
-		yh1 = -1 * y;// * vc1;
-		yh2 = y;// * vc1;
-
-
-		ctx.shadowBlur = 0;
-
-		// Outer
-		ctx.fillStyle = tetris.colors[type][1];
-		ctx.shadowColor = tetris.colors[type][0];
-
-		ctx.beginPath();
-
-		ctx.moveTo(xh2, y);
-		ctx.quadraticCurveTo(x, y, x, yh2);
-		ctx.lineTo(x, yh1);
-		ctx.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
-		ctx.lineTo(xh1, -1 * y);
-		ctx.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
-		ctx.lineTo(-1 * x, yh2);
-		ctx.quadraticCurveTo(-1 * x, y, xh1, y);
-		
-		ctx.closePath();
-
-		ctx.fill();
-
-		// Outline
-		ctx.strokeStyle = tetris.colors[type][0];
-		ctx.stroke();
-
-		// Inner
-		ctx.fillStyle = tetris.colors[type][2];
-
-		// Scale down
-		ctx.scale(0.5,0.5);	
-
-		ctx.beginPath();
-
-		ctx.moveTo(xh2, y);
-		ctx.quadraticCurveTo(x, y, x, yh2);
-		ctx.lineTo(x, yh1);
-		ctx.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
-		ctx.lineTo(xh1, -1 * y);
-		ctx.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
-		ctx.lineTo(-1 * x, yh2);
-		ctx.quadraticCurveTo(-1 * x, y, xh1, y);
-		
-		ctx.closePath();
-		
-		ctx.fill();
-		
-	},
-
-	/**
-	 * Level 2: Render block prototype function.
-	 */
-	l2_render_block:function(ctx, x, y) {
-
-		type = ctx.matrix[x][y][3];
+		type = this.getType(x, y);
 
 		// shorthand for the radix coeffs
-		hc1 = ctx.hcoeff_1;
-		vc1 = ctx.vcoeff_1;
+		hc1 = this.hcoeff_1;
+		vc1 = this.vcoeff_1;
 
-		x = ctx.block_dimensions[0] / 2 - ctx.max_shadow;
-		y = ctx.block_dimensions[1] / 2 - ctx.max_shadow;
+		x = this.block_dimensions[0] / 2 - this.max_shadow;
+		y = this.block_dimensions[1] / 2 - this.max_shadow;
 
 		xh1 = -1 * x * hc1;
 		xh2 = x * hc1;
@@ -1006,55 +1026,163 @@ var tetris = {
 		// Save
 		//ctx.save();
 
-		ctx.beginPath();
+		this.beginPath();
 
 		// Outer
-		ctx.fillStyle = tetris.colors[type][1];
-		ctx.shadowColor = tetris.colors[type][0];
+		this.fillStyle = tetris.colors[type][1];
+		this.shadowColor = tetris.colors[type][0];
 
 
-		ctx.moveTo(xh2, y);
-		ctx.quadraticCurveTo(x, y, x, yh2);
-		ctx.lineTo(x, yh1);
-		ctx.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
-		ctx.lineTo(xh1, -1 * y);
-		ctx.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
-		ctx.lineTo(-1 * x, yh2);
-		ctx.quadraticCurveTo(-1 * x, y, xh1, y);
+		this.moveTo(xh2, y);
+		this.quadraticCurveTo(x, y, x, yh2);
+		this.lineTo(x, yh1);
+		this.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
+		this.lineTo(xh1, -1 * y);
+		this.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
+		this.lineTo(-1 * x, yh2);
+		this.quadraticCurveTo(-1 * x, y, xh1, y);
 
-		ctx.closePath();
+		this.closePath();
 
-		ctx.fill();
+		this.fill();
 
 		// Outline
-		ctx.strokeStyle = tetris.colors[type][0];
-		ctx.stroke();
+		this.strokeStyle = tetris.colors[type][0];
+		this.stroke();
 	
 		// Remove the blur	
-		ctx.shadowBlur = 0;
+		this.shadowBlur = 0;
 		
 		// Inner
-		ctx.fillStyle = tetris.colors[type][2];
+		this.fillStyle = tetris.colors[type][2];
 
 		// Scale down
-		ctx.scale(0.5,0.5);	
+		this.scale(0.5,0.5);	
 
-		ctx.beginPath();
+		this.beginPath();
 
-		ctx.moveTo(xh2, y);
-		ctx.quadraticCurveTo(x, y, x, yh2);
-		ctx.lineTo(x, yh1);
-		ctx.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
-		ctx.lineTo(xh1, -1 * y);
-		ctx.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
-		ctx.lineTo(-1 * x, yh2);
-		ctx.quadraticCurveTo(-1 * x, y, xh1, y);
+		this.moveTo(xh2, y);
+		this.quadraticCurveTo(x, y, x, yh2);
+		this.lineTo(x, yh1);
+		this.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
+		this.lineTo(xh1, -1 * y);
+		this.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
+		this.lineTo(-1 * x, yh2);
+		this.quadraticCurveTo(-1 * x, y, xh1, y);
 		
-		ctx.closePath();
+		this.closePath();
 		
-		ctx.fill();
+		this.fill();
 		
+	},
+
+	// TODO: Set some level 2 colors.
+	l2_colors: [
+		[ "#eeeeec", "#d3d7cf", "#babdb6"],
+		[ "#eeeeec", "#d3d7cf", "#babdb6"],
+		[ "#eeeeec", "#d3d7cf", "#babdb6"],
+		[ "#eeeeec", "#d3d7cf", "#babdb6"],
+		[ "#eeeeec", "#d3d7cf", "#babdb6"],
+		[ "#eeeeec", "#d3d7cf", "#babdb6"],
+		[ "#eeeeec", "#d3d7cf", "#babdb6"]
+	],
+
+
+
+	// TODO: Organize the custom block rendering stuff somewhere else!
+
+	/**
+	 * Level 2: Render block prototype function.
+	 */
+	l2_render_block:function(x, y) {
+
+		//type = ctx.matrix[x][y][3];
+		type = this.getType(x,y);
+
+		// shorthand for the radix coeffs
+		hc1 = this.hcoeff_1;
+		vc1 = this.vcoeff_1;
+
+		x = this.block_dimensions[0] / 2 - 2;
+		y = this.block_dimensions[1] / 2 - 2;
+
+		xh1 = -1 * x;// * hc1;
+		xh2 = x;// * hc1;
+		yh1 = -1 * y;// * vc1;
+		yh2 = y;// * vc1;
+
+
+		this.shadowBlur = 0;
+
+		// Outer
+		this.fillStyle = tetris.colors[type][1];
+		this.shadowColor = tetris.colors[type][0];
+
+		this.beginPath();
+
+		this.moveTo(xh2, y);
+		this.quadraticCurveTo(x, y, x, yh2);
+		this.lineTo(x, yh1);
+		this.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
+		this.lineTo(xh1, -1 * y);
+		this.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
+		this.lineTo(-1 * x, yh2);
+		this.quadraticCurveTo(-1 * x, y, xh1, y);
+		
+		this.closePath();
+
+		this.fill();
+
+		// Outline
+		this.strokeStyle = tetris.colors[type][0];
+		this.stroke();
+
+		// Inner
+		this.fillStyle = tetris.colors[type][2];
+
+		// Scale down
+		this.scale(0.5,0.5);	
+
+		this.beginPath();
+
+		this.moveTo(xh2, y);
+		this.quadraticCurveTo(x, y, x, yh2);
+		this.lineTo(x, yh1);
+		this.quadraticCurveTo(x, -1 * y, xh2, -1 * y);
+		this.lineTo(xh1, -1 * y);
+		this.quadraticCurveTo(-1 * x, -1 * y, -1 * x, yh1);
+		this.lineTo(-1 * x, yh2);
+		this.quadraticCurveTo(-1 * x, y, xh1, y);
+		
+		this.closePath();
+		
+		this.fill();
+		
+	},
+
+
+
+	/*********************************************************************
+	 * Levels (default config) 
+	 *
+	 * TODO: Support different preview configurations too.
+	 *
+	 * Template:
+	 *   1: Level name
+	 *   2: Level color palette(s)
+	 *   3: Block rendering function(s) (TODO: Support multiple).
+	 *   4: Piece draw animation(s)
+	 *   5: Piece clear animation(s)
+	 *   6: Anchor animation(s)
+	 *   7: Line remove animation(s) (TODO: Should be special for tetris.)
+	 *   8: TODO: Background animation(s)
+	 *
+	 *********************************************************************/
+	get_levels: function(){
+		return [
+			[ 'Level 1', tetris.l1_colors, tetris.l1_render_block, tetris.l1_draw_anim, tetris.l1_clear_anim, tetris.l1_anchor_anim, tetris.l1_line_anim, null ],
+			[ 'Level 2', tetris.l2_colors, tetris.l2_render_block, tetris.l1_draw_anim, tetris.l1_clear_anim, tetris.l1_anchor_anim, tetris.l1_line_anim, null ]
+			];
 	}
-
 
 }
