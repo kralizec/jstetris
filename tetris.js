@@ -83,16 +83,16 @@ var tetris = {
 	 */
 	create_tetris_container:function(){
 		
-		tetris_elem = $("<div id='tetris'>");
+		var tetris_elem = $("<div id='tetris'>");
 		tetris_elem.append($("<canvas id='game_canvas' height='540px' width='300px'></canvas>"));
 
-		tetris_right = $("<div id='right_pane'>");
+		var tetris_right = $("<div id='right_pane'>");
 		tetris_elem.append(tetris_right);
 		tetris_right.append($("<canvas id='preview_canvas' height='100px' width='100px'></canvas>"));
 		tetris_right.append($("<div id='status_display'>"));
 
 		// Create a text box and focus it to prevent vertical arrow key scrolling.
-		hidden_box = $("<input type='text' id='tetris_hiddenbox'/>")
+		var hidden_box = $("<input type='text' id='tetris_hiddenbox'/>")
 		tetris_right.append(hidden_box);
 		hidden_box.focus().hide();
 		//hidden_box.focus();
@@ -186,7 +186,7 @@ var tetris = {
 	create_piece:function(type){
 		
 		// Create the piece pattern.
-		pattern = null;
+		var pattern = null;
 
 		switch(type){
 			case 1: pattern = [[0,0],[1,0],[0,1],[1,1]]; break;
@@ -208,6 +208,14 @@ var tetris = {
 	 * TODO: Cleanup
 	 */
 	set_piece:function(){
+
+            var rand_type;
+            var piece_obj;
+            var type;
+            var piece;
+            var startx;
+            var starty;
+            var x;
 
 		// Create a random piece.
 		// FIXME: Using Math.round/floor/etc and others will result in
@@ -245,6 +253,11 @@ var tetris = {
 	 */
 	shift_cols_down:function(rows){
 
+                var r;
+                var y;
+                var x;
+                var row_empty;
+                var type;
 
 		// Start at the top and work down.
 		// TODO: We may need a sort here at some point.
@@ -318,9 +331,12 @@ var tetris = {
 
 		// Counter for total number of lines removed this pass. This is
 		// related to Tetris scoring.
-		line_count = 0;
-
-		lines = [];
+		var line_count = 0;
+		var lines = [];
+                var y, x;
+                var line_status = true;
+                var pixel;
+                var val;
 
 		// Actually remove the lines.
 		for(y = 0; y < tetris.height; y++){
@@ -513,7 +529,7 @@ var tetris = {
 	 */
 	level_config: function(){
 
-		l_index = tetris.level-1;
+		var l_index = tetris.level-1;
 
 		// Level wraparound.
 		// TODO: Make this a config option.
@@ -525,7 +541,9 @@ var tetris = {
 		tetris.colors = tetris.levels[l_index][1];
 
 		// Set the block drawing func.
-		$(tetris.canvas).setBlockFunc(tetris.levels[l_index][2]);
+		//$(tetris.canvas).setBlockFunc(tetris.levels[l_index][2]);
+                tetris.ctx.drawBlock = tetris.levels[l_index][2];
+                tetris.pre_ctx.drawBlock = tetris.levels[l_index][2];
 
 		// Set the effects 
 		tetris.draw_anim = tetris.levels[l_index][3]; 
@@ -565,6 +583,28 @@ var tetris = {
 	 *********************************************************************/
 
 
+        /**
+         * Get a movement closure.
+         */
+        get_move:function(h,v){
+            var _h = h;
+            var _v = v;
+
+            return function(){
+                tetris.move(_h,_v);
+            };
+
+        },
+
+        /**
+         * Get a rotation closure.
+         */
+        get_rotate:function(){
+            return function(){
+                tetris.rotate();
+            };
+        },
+
 	/**
 	 * Initiate keyboard controls.
 	 *   The goal here is to get a good feel on all non-IE browsers.
@@ -572,37 +612,47 @@ var tetris = {
 	 */
 	initiate_controls:function(){
 
-		left = 'tetris.move(-1,0)';
-		right = 'tetris.move(1,0)';
-		down = 'tetris.move(0,1)';
-		rotate = 'tetris.rotate()';
+		//left = 'tetris.move(-1,0)';
+		//right = 'tetris.move(1,0)';
+		//down = 'tetris.move(0,1)';
+		//rotate = 'tetris.rotate()';
+                
+                // TODO: Make a closure with the proper tetris instance as the context.
+                //var left = function(){ tetris.move(-1,0); };
+                //var right = function(){ tetris.move(1,0); };
+                //var down = function(){ tetris.move(0,1); };
+                //var rotate = function(){ tetris.rotate(); };
+
+                var left = tetris.get_move(-1,0);
+                var right = tetris.get_move(1,0);
+                var down = tetris.get_move(0,1);
+                
 
 		document.onkeydown = function(e){
 
-			//Log.log('key pressed!' + e.keyCode);
-
 			// Don't allow simultaneous movements.
-			if(tetris.l_int){ clearInterval(tetris.l_int); tetris.l_int = null; }
-			if(tetris.r_int){ clearInterval(tetris.r_int); tetris.r_int = null; }
-			if(tetris.d_int){ clearInterval(tetris.d_int); tetris.d_int = null; }
-			if(tetris.rot_int){ clearInterval(tetris.rot_int); tetris.rot_int = null; }
+                        for( var intr = 0; intr < 4; intr++){
+                            if(tetris.interrupts[intr] != null){
+                                clearInterval(tetris.interrupts[intr]);
+                                tetris.interrupts[intr] = null;
+                            }
+                        }
 
 			switch(e.keyCode){
 				case 37:
-				eval(left);
-				tetris.l_int = setTimeout('tetris.l_int = tetris.continuous_movement(left)', tetris.repeat_wait );
+                                tetris.move(-1,0);
+                                tetris.interrupts[0] = setTimeout(tetris.continuous_movement(0, left), tetris.repeat_wait);
 				break;
 				case 38:
-				eval(rotate);
-				//tetris.rot_int = setTimeout('tetris.rot_int = tetris.continuous_movement(rotate)', tetris.repeat_wait );
+                                tetris.rotate();
 				break;
 				case 39:
-				eval(right);
-				tetris.r_int = setTimeout('tetris.r_int = tetris.continuous_movement(right)', tetris.repeat_wait );
+                                tetris.move(1,0);
+                                tetris.interrupts[2] = setTimeout(tetris.continuous_movement(2, right), tetris.repeat_wait); 
 				break;
 				case 40:
-				eval(down);
-				tetris.d_int = setTimeout('tetris.d_int = tetris.continuous_movement(down)', tetris.repeat_wait );
+                                tetris.move(0,1);
+                                tetris.interrupts[3] = setTimeout(tetris.continuous_movement(3, down), tetris.repeat_wait);
 				break;
 				case 80: tetris.toggle_pause(); break;	
 			};
@@ -612,10 +662,10 @@ var tetris = {
 
 		document.onkeyup = function(e){
 			switch(e.keyCode){
-				case 37: clearInterval(tetris.l_int); tetris.l_int = null; break;
-				case 38: clearInterval(tetris.rot_int); tetris.rot_int = null; break;
-				case 39: clearInterval(tetris.r_int); tetris.r_int = null; break;
-				case 40: clearInterval(tetris.d_int); tetris.d_int = null; break;
+                                case 37: clearInterval(tetris.interrupts[0]); tetris.interrupts[0] = null; break;
+                                case 38: clearInterval(tetris.interrupts[1]); tetris.interrupts[1] = null; break;
+                                case 39: clearInterval(tetris.interrupts[2]); tetris.interrupts[2] = null; break;
+                                case 40: clearInterval(tetris.interrupts[3]); tetris.interrupts[3] = null; break;
 			};
 		};
 
@@ -625,13 +675,11 @@ var tetris = {
 	 * Continuous movement.
 	 * Sets a movement interval.
 	 */
-	continuous_movement:function(func){
-
-		// Eval the expression once.
-		//eval(func);
-
-		return setInterval(func, tetris.move_speed);
-
+	continuous_movement:function(intr, func){
+                var _intr = intr;
+                return function(){
+                    tetris.interrupts[_intr] = setInterval(func, tetris.move_speed);
+                };
 	},
 
 	/**
@@ -749,6 +797,13 @@ var tetris = {
 		// FIXME: Make this more sane.
 		tetris.levels = tetris.get_levels();
 		tetris.level_config();
+
+                // Initialize the movement interrupts
+                tetris.interrupts = new Array(4);
+                for(var x = 0; x < 4; x++){
+                    tetris.interrupts[x] = null;
+                }
+
 
 		// Reset the piece queue.
 		tetris.piece_stack = [];
@@ -1007,21 +1062,22 @@ var tetris = {
 	/**
 	 * Level 1: Render block prototype function.
 	 */
-	l1_render_block:function(x, y) {
+	l1_render_block:function() {
 
-		type = this.getType(x, y);
+		var type = this.getType(this.x,this.y);
+                //var type = this.current[0];
 
 		// shorthand for the radix coeffs
-		hc1 = this.hcoeff_1;
-		vc1 = this.vcoeff_1;
+		var hc1 = this.hcoeff_1;
+		var vc1 = this.vcoeff_1;
 
-		x = this.block_dimensions[0] / 2 - this.max_shadow;
-		y = this.block_dimensions[1] / 2 - this.max_shadow;
+		var x = this.block_dimensions[0] / 2 - this.max_shadow;
+		var y = this.block_dimensions[1] / 2 - this.max_shadow;
 
-		xh1 = -1 * x * hc1;
-		xh2 = x * hc1;
-		yh1 = -1 * y * vc1;
-		yh2 = y * vc1;
+		var xh1 = -1 * x * hc1;
+		var xh2 = x * hc1;
+		var yh1 = -1 * y * vc1;
+		var yh2 = y * vc1;
 
 		// Save
 		//ctx.save();
@@ -1094,22 +1150,22 @@ var tetris = {
 	/**
 	 * Level 2: Render block prototype function.
 	 */
-	l2_render_block:function(x, y) {
+	l2_render_block:function() {
 
 		//type = ctx.matrix[x][y][3];
-		type = this.getType(x,y);
+		var type = this.getType(this.x,this.y);
 
 		// shorthand for the radix coeffs
-		hc1 = this.hcoeff_1;
-		vc1 = this.vcoeff_1;
+		var hc1 = this.hcoeff_1;
+		var vc1 = this.vcoeff_1;
 
-		x = this.block_dimensions[0] / 2 - 2;
-		y = this.block_dimensions[1] / 2 - 2;
+		var x = this.block_dimensions[0] / 2 - 2;
+		var y = this.block_dimensions[1] / 2 - 2;
 
-		xh1 = -1 * x;// * hc1;
-		xh2 = x;// * hc1;
-		yh1 = -1 * y;// * vc1;
-		yh2 = y;// * vc1;
+		var xh1 = -1 * x;// * hc1;
+		var xh2 = x;// * hc1;
+		var yh1 = -1 * y;// * vc1;
+		var yh2 = y;// * vc1;
 
 
 		this.shadowBlur = 0;
