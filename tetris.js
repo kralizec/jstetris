@@ -612,22 +612,11 @@ var tetris = {
 	 */
 	initiate_controls:function(){
 
-		//left = 'tetris.move(-1,0)';
-		//right = 'tetris.move(1,0)';
-		//down = 'tetris.move(0,1)';
-		//rotate = 'tetris.rotate()';
-                
-                // TODO: Make a closure with the proper tetris instance as the context.
-                //var left = function(){ tetris.move(-1,0); };
-                //var right = function(){ tetris.move(1,0); };
-                //var down = function(){ tetris.move(0,1); };
-                //var rotate = function(){ tetris.rotate(); };
-
+                // FIXME: Optimize
                 var left = tetris.get_move(-1,0);
                 var right = tetris.get_move(1,0);
                 var down = tetris.get_move(0,1);
                 
-
 		document.onkeydown = function(e){
 
 			// Don't allow simultaneous movements.
